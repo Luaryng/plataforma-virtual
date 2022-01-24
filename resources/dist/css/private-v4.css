@@ -1,0 +1,719 @@
+/*.text-xs (0.75rem)
+.text-sm (0.875rem)
+.text-md (1rem)
+.text-lg (1.25rem)
+.text-xl (2rem)*/
+body{
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-size: .9375rem;
+  font-weight: 400;
+}
+#s-cargando{
+    position: fixed;
+      left: 0px;
+      top: 0px;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      background:rgb(249,249,249);
+      opacity: .8;
+      overflow: hidden;
+      padding-top: calc((25% /2));
+      color: red;
+}
+.ocultar {
+    display: none;
+}
+/*has-float-label*/
+.has-float-label {
+  display: block;
+  position: relative;
+}
+.has-float-label label, .has-float-label > span {
+  position: absolute;
+  cursor: text;
+  font-size: 88%;
+  opacity: 1;
+  -webkit-transition: all .2s;
+          transition: all .2s;
+  top: -.5em;
+  left: 1rem;
+  z-index: 3;
+  line-height: 1;
+  padding: 0 1px;
+  font-weight:500;
+
+}
+.has-float-label label::after, .has-float-label > span::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  background: white;
+  height: 2px;
+  top: 50%;
+  left: -.2em;
+  right: -.2em;
+  z-index: -1;
+}
+.has-float-label .form-control::-webkit-input-placeholder {
+  opacity: 1;
+  -webkit-transition: all .2s;
+          transition: all .2s;
+}
+.has-float-label .form-control::-moz-placeholder {
+  opacity: 1;
+  transition: all .2s;
+}
+.has-float-label .form-control:-ms-input-placeholder {
+  opacity: 1;
+  transition: all .2s;
+}
+.has-float-label .form-control::placeholder {
+  opacity: 1;
+  -webkit-transition: all .2s;
+          transition: all .2s;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus)::-webkit-input-placeholder {
+  opacity: 0;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus)::-moz-placeholder {
+  opacity: 0;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus):-ms-input-placeholder {
+  opacity: 0;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus)::placeholder {
+  opacity: 0;
+}
+.has-float-label .form-control:placeholder-shown:not(:focus) + * {
+  font-size: 90%;
+  opacity: .5;
+  top: 1em;
+}
+.no-flex{
+    display: block !important;
+}
+
+
+.input-group .has-float-label {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  margin-bottom: 0;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+.input-group .has-float-label .form-control {
+  width: 100%;
+  border-radius: 0.25rem;
+}
+.input-group .has-float-label:not(:last-child), .input-group .has-float-label:not(:last-child) .form-control {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+  border-right: 0;
+}
+.input-group .has-float-label:not(:first-child), .input-group .has-float-label:not(:first-child) .form-control {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+/*has-float-label*/
+
+/*DROPZONE*/
+.dropzone-here {
+    font-size: 1em;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    display: block;
+}
+#previews {
+    
+    min-height: 250px;
+    padding-top: 25px;
+    padding-bottom: 15px;
+    font-size: 18px;
+
+    border: dashed 3px green;
+    cursor: pointer ;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+ 
+
+ 
+#previews .delete {
+    display: none;
+}
+ 
+#previews .dz-success .start,
+#previews .dz-success .cancel {
+    display: none;
+}
+ 
+#previews .dz-success .delete {
+    display: block;
+}
+#template{
+    border:solid red 1px; 
+}
+#previews .name {
+    font-size: 12px
+    border: solid 1px red;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    background-color: white;
+
+}
+#previews .name:hover {
+    font-size: 12px
+    border: solid 1px red;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: visible;
+    border: solid 1px gray;
+    z-index: 100;
+    position: absolute;
+}
+ 
+.preview {
+    background: #fff;
+    
+
+}
+ 
+.preview img {
+    cursor: pointer;
+}
+
+/* TTABLE*/
+.btable{
+  padding: 0px;
+  font-size: 0.75rem;
+  font-family: Arial, Helvetica, sans-serif !important;
+  width: 100%;
+}
+/*HEADER*/
+.btable .thead{
+  /*border: solid 1px #f4f4f4;*/
+  /*padding: 0px;*/
+  /*margin:  0px;*/
+}
+.btable .tbody{
+  /*padding: 0px;*/
+  /*margin:  0px;*/
+  
+}
+.btable .thead > .row{
+  font-weight: bold;
+  border: solid 1px #d2d6da;
+}
+.btable .thead > .row .td{
+  padding: 5px;
+  border-right: solid #d2d6da 1px;
+}
+.btable .thead > .row .td:last-child{
+    border-right: 0px ;
+}
+
+.btable .tbody > .row{
+  border-left: solid 1px #d2d6da;
+  /*border-bottom: solid 1px #d2d6da;*/
+}
+.btable .tbody > .row .row{
+  height: 100%;
+}
+.btable .tbody > .row:hover{
+   border-top: solid 1px black;
+   border-bottom: solid 1px black;
+}
+@media only screen and (max-width: 767px) {
+    .btable .tbody > .row{
+      /*border-left: solid 1px #d2d6da;*/
+      border-bottom: solid 1px #d2d6da;
+    }
+}
+.btable .tbody > .row:first-child{
+  border-top: solid 1px lightgray;
+}
+.btable .tbody > .row:first-child:hover{
+  border-top: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+/*.btable .tbody > .row:last-child{
+  border-bottom: solid 1px lightgray;
+}*/
+.btable .tbody > .row:last-child:hover{
+  border-top: solid 1px black;
+  border-bottom: solid 1px black;
+}
+
+.btable .tbody .td{
+  padding: 5.5px 5px 5.5px 5px;
+  border-right: solid #d2d6da 1px;
+   border-bottom: solid 1px #d2d6da;
+  /*min-height: 40px;*/
+}
+/*.btable .tbody > .row .td:last-child{
+    border-right: 0px ;
+}*/
+
+/* FIN TTABLE */
+.neo-table{
+ padding: 0px;
+ font-size: 12.5px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+/*HEADER*/
+.neo-table .header{
+  border: solid 1px #f4f4f4;
+  padding: 0px;
+  margin:  0px;
+}
+.neo-table .body{
+  padding: 0px;
+  margin:  0px;
+  
+}
+.neo-table >.row{
+   margin:  0px;
+   padding: 2.5px 0px 2.5px 0px;
+   border-left: solid 1px #f4f4f4;
+   border-right: solid 1px #f4f4f4;
+   border-bottom: solid 1px #f4f4f4;
+   border-top: solid 1px #f4f4f4;
+   /*display: flex;*/
+   
+}
+.neo-table .row:hover{
+   /*margin:  0px;
+   padding: 2.5px 0px 2.5px 0px;
+   border-left: solid 1px #f4f4f4;*/
+   border-top: solid 1px black;
+   border-bottom: solid 1px black;
+   /*display: flex;*/
+   
+}
+.neo-table .row:first-child{
+  border-top: solid 1px #f4f4f4;
+}
+.neo-table .row:first-child:hover{
+  border-top: solid 1px black;
+}
+.neo-table .row:last-child{
+  border-bottom: solid 1px #f4f4f4;
+  /*AQUI PARA ESQUINA REDONDEADA*/
+}
+.neo-table .row:last-child:hover{
+  border-bottom: solid 1px black;
+}
+
+.neo-table .group{
+
+    padding: 0px 0px 0px 0px;
+    display: flex;
+}
+.neo-table .group .cell{
+    padding: 5px 5px 5px 5px;
+    border-right: solid #f4f4f4 1px;
+    /*align-items: stretch;*/
+}
+.neo-table .group .cell:last-child{
+    border-right: solid #f4f4f4 1px;
+}
+.neo-table .cell{
+    padding: 5px 5px 5px 5px;
+    border-right: solid #f4f4f4 1px;
+    /*align-items: stretch;*/
+}
+.neo-table .cell:last-child{
+    border-right: 0px ;
+}
+
+@media only screen and (max-width: 600px) {
+    .neo-table .group{
+        padding: 0px 0px 0px 0px;
+        /*display: block;*/
+    }
+}
+
+/*NEO CAJA*/
+    .neo-box{
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        border-radius: 3px;
+        padding: 10px;
+        overflow: hidden;
+        border: 4px double white;
+        margin-bottom: 10px;
+    }
+    .neo-box.box-reg{
+        min-height: 185px;
+    }
+    .neo-box.box-min{
+        min-height: 120px;
+    }
+    .neo-box .title{
+        font-weight: bold;
+        font-size: 25px;
+        width: 100%;
+        margin-bottom: 5px;
+
+    }
+    .neo-box .icon-back{
+  
+      font-size: 70px;
+      opacity: 0.5;
+      position: absolute;
+      right: 50px;
+
+    }
+    .neo-box .descripcion{
+ 
+        font-size: 17px;
+        width: 80%;
+        margin-bottom: 0px;
+        font-weight: bold;
+    }
+    .neo-box .backtext{
+
+        float: right;
+        padding: 0px;
+        font-weight: bold;
+        font-size: 25px;
+        font-family: "Times New Roman", Times, serif;
+        /*text-shadow: 0 1px 0 #CCCCCC, 0 2px 0 #c9c9c9, 0 6px 1px rgba(0,0,0,.1), 0 0 5px rgba(0,0,0,.1), 0 1px 3px rgba(0,0,0,.3), 0 3px 5px rgba(0,0,0,.2), 0 5px 10px rgba(0,0,0,.25), 0 10px 10px rgba(0,0,0,.2), 0 20px 20px rgba(0,0,0,.15), 2px 2px 2px rgba(206,89,55,0);*/
+        color: #FFFFFF;
+    }
+
+    .neo-box .boton{
+      border: solid 1px blue;
+      position: relative;
+      float: right;
+      margin-top: 5px;
+      background-color: white;
+    }
+
+    .neo-box .boton .borde-blanco{
+        border: 1px solid white;
+        -webkit-box-shadow: 0px 0px 3px 3px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 3px 3px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 3px 3px rgba(0,0,0,0.75);
+    }
+
+/* FIN DE NEO CAJA*/
+
+.bg-lightgray{
+    background-color: #f4f4f4;
+}
+
+.no-padding {
+    padding: 0px;
+}
+.no-margin {
+    margin: 0px;
+}
+.border-gray {
+    border: solid 1px gray;
+}
+.border-lightgray {
+    border: solid 1px lightgray;
+}
+.bordered {
+    border: solid 1px red;
+}
+/*.padding-top-10px{
+    padding-top: 10px;
+}
+.margin-top-10px{
+    margin-top: 10px;
+}
+.margin-top-20px{
+    margin-top: 20px;
+}
+.margin-bottom-10px{
+    margin-bottom: 10px;
+}*/
+
+/*
+#divmiembro 
+{    font-weight: 700;
+    font-size: 20px;
+}
+.color-rojoiap {
+    color: #660000 !important;
+}*/
+/* The switch - the box around the slider */
+
+.table-registro{
+  font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif !important;
+  font-size: 12.5px;
+  border-collapse: collapse;
+ 
+}
+.table-registro .cell{
+  padding: 3px 10px 3px 5px;
+}
+.table-registro th,td{
+  border: solid 1px gray;
+}
+.txtnota {
+    max-width: 40px;
+    text-align: right;
+}
+.cellnota{
+  padding: 2.5px;
+}
+.celleditada {
+    background-color: #97FF8C;
+}
+.cellerror {
+    background-color: red;
+}
+.rotar {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+}
+
+@media only screen and (max-width: 600px) {
+  .txtnota {
+    max-width: 30px;
+    text-align: right;
+  }
+}
+
+
+
+.checkround {
+  position: relative;
+  width: 28px;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.checkround label {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 28px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 28px;
+}
+
+.checkround label:after {
+  border: 2px solid #fff;
+  border-top: none;
+  border-right: none;
+  content: "";
+  height: 6px;
+  left: 7px;
+  opacity: 0;
+  position: absolute;
+  top: 8px;
+  transform: rotate(-45deg);
+  width: 12px;
+}
+
+.checkround input[type="radio"] {
+  visibility: hidden;
+}
+
+.checkround input[type="radio"]:checked + label {
+  background-color: #000;
+  border-color: #000;
+}
+
+.checkround input[type="radio"]:checked + label:after {
+  opacity: 1;
+}
+
+
+.tree-sesiones {
+    padding: 0px;
+}
+.tree-sesiones .title {}
+.tree-sesiones .sesion {
+    font-weight: bold;
+    padding-top: 5px;
+}
+.tree-sesiones .detalle {
+    padding-left: 10px;
+}
+.tree-sesiones li {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    list-style: none;
+}
+
+
+
+/*radiobuton*/
+
+
+
+.brcheck {
+  margin: 0px;
+  padding: 0px;
+}
+.brcheck .check__label {
+  text-align: center;
+  cursor: pointer;
+  background-color: rgba(227, 229, 231, 0.1);
+  color: #333;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: 0.250s all ease-out;
+}
+
+.brcheck .check[type="radio"]{
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  background: red;
+}
+.brcheck .check[type="radio"]:checked + label{
+  background-color: rgba(227, 229, 231, 1);
+  
+}
+
+.brcheck .check[type="radio"]:checked + label > i{
+  width: auto;
+  opacity: 1;
+  margin-right: 4px;
+  transition: 0.150s all ease-out;
+
+}
+
+.brcheck .check[type="checkbox"]{
+  visibility: hidden;
+  height: 0;
+  width: 0;
+  background: red;
+}
+.brcheck .check[type="checkbox"]:checked + label{
+  background-color: rgba(227, 229, 231, 1);
+  
+}
+
+.brcheck .check[type="checkbox"]:checked + label > i{
+  width: auto;
+  opacity: 1;
+  margin-right: 4px;
+  transition: 0.150s all ease-out;
+
+}
+
+.brcheck i {
+  transition: 0s all linear;
+  width: 0;
+  opacity: 0;
+}
+
+.order-list {
+  list-style: none;
+  margin:0px;
+  padding: 0px;
+  padding-left: 5px;
+}
+.order-list li{
+
+}
+.order-list li ul{
+ list-style: none;
+  margin:0px;
+  padding: 0px;
+  padding-left: 5px;
+}
+.order-list li a:hover{
+  text-decoration: underline;
+}
+
+.order-list li:hover{
+   background-color: rgba(227, 229, 231);
+}
+.order-list.no-fondo li:hover{
+   background-color: rgba(255, 255, 255) !important;
+}
+
+.espaciol-0{
+  padding-left: 0px;
+}
+.espaciol-1{
+  padding-left: 15px;
+}
+.espaciol-2{
+  padding-left: 30px;
+}
+.espaciol-3{
+  padding-left: 45px;
+}
+.espaciol-4{
+  padding-left: 60px;
+}
+.espaciol-5{
+  padding-left: 75px;
+}
+.sortable-select{
+  display: block;
+  height: 80px;
+  border: solid red gray 1px;
+  background-color: lightgray;
+}
+
+.rowcolor:nth-child(odd) {
+    background-color:#f4f4f4;
+}
+.rowcolor:nth-child(even) {
+    background-color:#fff;
+}
+.tboton{
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 2px 2px 2px 2px;
+-moz-border-radius: 2px 2px 2px 2px;
+-webkit-border-radius: 2px 2px 2px 2px;
+}
+
+/*PARPADEAR OBJETO*/
+
+@-webkit-keyframes flash {
+ 0%, 50%, 100% {
+ opacity: 1;
+ }
+25%, 75% {
+ opacity: 0;
+ }
+}
+@keyframes flash {
+ 0%, 50%, 100% {
+ opacity: 1;
+ }
+25%, 75% {
+ opacity: 0;
+ }
+}
+.flash {
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
+  -webkit-animation-iteration-count: 5;;
+  animation-iteration-count: 5;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: flash;
+  animation-name: flash;
+}

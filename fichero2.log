@@ -1,0 +1,18 @@
+
+A PHP Error was encountered
+
+Severity:    Notice
+Message:     Undefined variable: count
+Filename:    /var/www/html/application/controllers/Sendmail.php
+Line Number: 55
+
+Backtrace:
+	File: /var/www/html/application/controllers/Sendmail.php
+	Line: 55
+	Function: _error_handler
+
+	File: /var/www/html/index.php
+	Line: 315
+	Function: require_once
+
+

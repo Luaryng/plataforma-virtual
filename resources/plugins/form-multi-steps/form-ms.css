@@ -1,0 +1,63 @@
+.multi-steps {
+	position: relative;
+	margin-top: 5px;
+}
+
+.multi-steps .step {
+	background: transparent;
+	border: 0 none;
+	border-radius: 0px;
+	box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.4);
+	padding: 15px 15px;
+	box-sizing: border-box;
+	position: relative;
+	border-radius: 15px;
+	display: none;
+}
+
+/*progressbar*/
+.multi-steps .steps {
+	margin-bottom: 10px;
+	overflow: hidden;
+	text-align: center;
+	/*CSS counters to number the steps*/
+	counter-reset: step;
+	background: transparent;
+}
+.multi-steps .steps li {
+	list-style-type: none;
+	color: green;
+	text-transform: uppercase;
+	font-size: 11px;
+	
+	float: left;
+	position: relative;
+	letter-spacing: 1px;
+	background:transparent;
+}
+.multi-steps .steps li:before {
+	content: counter(step);
+	counter-increment: step;
+	width: 24px;
+	height: 24px;
+	line-height: 26px;
+	display: block;
+	font-size: 12px;
+	color: #333;
+	background: white;
+	border: solid black 1px;
+	border-radius: 25px;
+	margin: 0 auto 5px auto;
+}
+/*progressbar connectors*/
+.multi-steps .steps li:first-child:after {
+	/*connector not needed before the first step*/
+	content: none;
+}
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+.multi-steps .steps li.active:before, .multi-steps .steps li.active:after {
+	background: #ee0979;
+	color: white;
+	border: solid black 0px;
+}
