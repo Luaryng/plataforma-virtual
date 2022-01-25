@@ -157,6 +157,7 @@ $route['gestion/academico/carga-academica/miembros/enrolar/(:any)/(:any)']      
 //REPORTES ACADEMICO
 
 $route['academico/reportes/carga-x-estudiante-filial/excel']      = "academico_reportes/excel_matriculas_total_carga_filiales";
+$route['academico/reportes/cuadro-horas-docentes/excel']      = "academico_reportes/excel_cuadro_horas_docentes";
 
 
 //SEGUIMIENTO

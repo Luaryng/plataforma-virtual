@@ -175,6 +175,21 @@ class Academico_reportes extends CI_Controller{
         $writer->save('php://output'); // download file 
     }
 
+    public function excel_cuadro_horas_docentes()
+    {
+        $fmcbperiodo=$this->input->get("cp");
+        $fmsede='%';
+        if (null !== $this->input->get("sd")){
+            $fmsede=$this->input->get("sd"); 
+        }
+        $fmcbcarrera=$this->input->get("cc");
+        $fmcbciclo=$this->input->get("ccc");
+        $fmcbturno=$this->input->get("ct");
+        $fmcbseccion=$this->input->get("cs");
+        $fmcbplan=$this->input->get("cpl");
+        $fmcbestado=$this->input->get("es");
+        $busqueda=$this->input->get("ap");
+    }
 
 
 

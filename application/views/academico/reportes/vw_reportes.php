@@ -1,3 +1,9 @@
+<?php
+	$meses = array("1"=>"Enero","2"=>"Febrero","3"=>"Marzo","4"=>"Abril","5"=>"Mayo","6"=>"Junio","7"=>"Julio","8"=>"Agosto","9"=>"Septiembre","10"=>"Octubre","11"=>"Noviembre","12"=>"Diciembre");
+
+	date_default_timezone_set('America/Lima');
+    $anioactual = date('Y');
+?>
 <div class="content-wrapper">
 	<section class="content-header">
 		<div class="container-fluid">
@@ -30,7 +36,7 @@
 						</div>
 						
 						<div class="form-check">
-							<input class="form-check-input rd_reportes" data-title='Reporte Cuadro de horas - Personal Docente' data-view='ts_div_vwreportes_horas_docente' data-urlpdf='' data-urlexcel='academico/reportes/carga-x-estudiante-filial/excel' type="radio" name="exampleRadios" id="ra302" value="ra302">
+							<input class="form-check-input rd_reportes" data-title='Reporte Cuadro de horas - Personal Docente' data-view='ts_div_vwreportes_horas_docente' data-urlpdf='' data-urlexcel='academico/reportes/cuadro-horas-docentes/excel' type="radio" name="exampleRadios" id="ra302" value="ra302">
 							<label class="form-check-label" for="ra302">
 								Reporte Cuadro de horas - Personal Docente
 							</label>
@@ -152,21 +158,39 @@
 							<div class="col-12 mb-2">
 								<h3  id="vw_exp_title_deudas">Reporte Cuadro de horas - Personal Docente</h3>
 							</div>
-							<div class="col-6">
+							<div class="col-12">
 								<form id="frm_search_horas_docente" action="" method="post" accept-charset="utf-8">
 									<div class="row mt-2">
-				                        <div class="form-group has-float-label col-12">
+				                        <div class="form-group has-float-label col-4">
 				                          	<select name="fcahd-cbsede" id="fcahd-cbsede" class="form-control form-control-sm">
-				                                
 				                                <?php 
 				                                $codsede=$_SESSION['userActivo']->idsede;
 				                                foreach ($_SESSION['userActivo']->sedes as $sede) {
-				                                    $selsede=($codsede==$sede->id)?"selected":"";
+				                                    $selsede=($codsede==$sede->idsede)?"selected":"";
 				                                    echo "<option $selsede value='$sede->idsede'>$sede->nombre </option>";
 				                                } ?>
 				                            </select>
 				                            <label for="fcahd-cbsede">Filial</label>
 				                        </div>
+				                        <div class="form-group has-float-label col-4">
+											<select name="cbomeses" id="cbomeses" class="form-control form-control-sm" required="">
+												<option value="">Mes#</option>
+												<?php
+												foreach ($meses as $key => $ms) {
+													echo "<option value='$key' >$ms</option>";
+												}
+												?>
+											</select>
+											<label for="cbomeses">Meses</label>
+										</div>
+										<div class="form-group has-float-label col-4">
+											<input type="number" name="fibtxtanio" id="fibtxtanio" value="<?php echo $anioactual ?>" placeholder="Año" class="form-control form-control-sm" required="">
+											<label for="fibtxtanio">Año</label>
+										</div>
+										<div class="col-12 text-right">
+											<!-- <a id='vw_exp_pdf_horas_doc' class='btn btn-sm btn-danger vw_btn_exp_pdf' href='#'>PDF</a> -->
+											<a id='vw_exp_excel_horas_doc' class='btn btn-sm btn-success' href='#'>Excel</a>
+										</div>
 				                    </div>
 				                </form>
 				            </div>
@@ -399,85 +423,26 @@
 	        })
 	    }
 	});
-	/*$("#vw_exp_pdf").click(function(e) {
+
+	$("#vw_exp_excel_horas_doc").click(function(e) {
 	    e.preventDefault();
-
-	    $('#frm_search_docpago input,select').removeClass('is-invalid');
-	    $('#frm_search_docpago .invalid-feedback').remove();
-	    var url_pdf = $("#divcard_ls_reportes input[type='radio']:checked").data('urlpdf');
-	    var fi = $("#fictxtfecha_emision").val();
-	    var ff = $("#fictxtfecha_emisionf").val();
-	    var pg = $("#fictxtpagapenom").val();
-	    checktodos = ($("#checktodos").prop('checked') == true ? "&checktodos=TODOS" : "");
-	    checkanulado = ($("#checkanulado").prop('checked') == true ? "&checkanulado=ANULADO" : "");
-	    checkenviado = ($("#checkenviado").prop('checked') == true ? "&checkenviado=ENVIADO" : "");
-	    checkrechazado = ($("#checkrechazado").prop('checked') == true ? "&checkrechazado=RECHAZADO" : "");
-	    checkerror = ($("#checkerror").prop('checked') == true ? "&checkerror=ERROR" : "");
-	    checkaceptado = ($("#checkaceptado").prop('checked') == true ? "&checkaceptado=ACEPTADO" : "");
-	    checkpendiente = ($("#checkpendiente").prop('checked') == true ? "&checkpendiente=PENDIENTE" : "");
-	    var url = base_url + url_pdf + '?fi=' + fi + '&ff=' + ff + '&pg=' + pg + checktodos + checkanulado + checkenviado + checkrechazado + checkerror + checkaceptado + checkpendiente;
-	    var ejecuta = false;
-	    if ($.trim(fi) != '') {
-	        ejecuta = true;
-	    } else if ($.trim(ff) != '') {
-	        ejecuta = true;
-	    } else if ($.trim(pg) != '') {
-	        ejecuta = true;
-	    }
-	    if (ejecuta == true) {
-	        window.open(url, '_blank');
-	    } else {
-	        Swal.fire({
-	            title: "Parametros requeridos",
-	            text: "Ingresa al menos un parametro de búsqueda",
-	            type: 'error',
-	            icon: 'error',
-	        })
-	    }
-	});*/
-
-
-
-	/*$("#checktodos").change(function(event) {
-	    $(".checkestatus").prop('checked', $(this).prop('checked'))
-	});
-	$(".checkestatus").change(function(event) {
-	    var check = true;
-	    $(".checkestatus").each(function(index, el) {
-	        if ($(this).prop('checked') == false) {
-	            check = false;
-	        }
-	    });
-	    $("#checktodos").prop('checked', check);
-	});
-
-	$("#vw_exp_excelitem").click(function(e) {
-
-	    e.preventDefault();
-
-	    $('#frm_search_docpagoitems input,select').removeClass('is-invalid');
-	    $('#frm_search_docpagoitems .invalid-feedback').remove();
+	    $('#frm_search_horas_docente input,select').removeClass('is-invalid');
+	    $('#frm_search_horas_docente .invalid-feedback').remove();
 	    var url_excel = $("#divcard_ls_reportes input[type='radio']:checked").data('urlexcel');
-	    var fi = $("#fictxtfecha_desde").val();
-	    var ff = $("#fictxtfecha_hasta").val();
-	    var ct = $("#cboconceptos").val();
+	    var fsd = $("#fcahd-cbsede").val();
+	    var fms = $("#cbomeses").val();
+	    var fan = $("#fibtxtanio").val();
 
-	    var url = base_url + url_excel + '?fi=' + fi + '&ff=' + ff + '&ct=' + ct;
+	    var url = base_url + url_excel + '?fsd=' + fsd + '&fms=' + fms + '&fan=' + fan;
 
 	    var ejecuta = false;
-	    if ($.trim(fi) != '') {
-	        ejecuta = true;
-	    }
-	    if ($.trim(ff) != '') {
-	        ejecuta = true;
-	    }
-	    if ($.trim(ct) != '') {
-	        ejecuta = true;
-	    } else {
-	        ejecuta = false;
-	    }
 
-	    if (ejecuta == true) {
+	    var llenos=0;
+	    if ($("#fcahd-cbsede").val()!=="") llenos++;
+	    if ($("#cbomeses").val()!=="") llenos++;
+	    if ($("#fibtxtanio").val()!=="") llenos++;
+
+	    if (llenos == 3) {
 	        window.open(url, '_blank');
 	    } else {
 	        Swal.fire({
@@ -489,39 +454,5 @@
 	    }
 	});
 
-	$("#vw_exp_pdfitem").click(function(e) {
-	    e.preventDefault();
-
-	    $('#frm_search_docpago input,select').removeClass('is-invalid');
-	    $('#frm_search_docpago .invalid-feedback').remove();
-	    var url_pdf = $("#divcard_ls_reportes input[type='radio']:checked").data('urlpdf');
-	    var fi = $("#fictxtfecha_desde").val();
-	    var ff = $("#fictxtfecha_hasta").val();
-	    var ct = $("#cboconceptos").val();
-
-	    var url = base_url + url_pdf + '?fi=' + fi + '&ff=' + ff + '&ct=' + ct;
-	    var ejecuta = false;
-	    if ($.trim(fi) != '') {
-	        ejecuta = true;
-	    }
-	    if ($.trim(ff) != '') {
-	        ejecuta = true;
-	    }
-	    if ($.trim(ct) != '') {
-	        ejecuta = true;
-	    } else {
-	        ejecuta = false;
-	    }
-
-	    if (ejecuta == true) {
-	        window.open(url, '_blank');
-	    } else {
-	        Swal.fire({
-	            title: "Parámetros requeridos",
-	            text: "Completa todos los parámetros de búsqueda",
-	            type: 'error',
-	            icon: 'error',
-	        })
-	    }
-	});*/
+	
 </script>

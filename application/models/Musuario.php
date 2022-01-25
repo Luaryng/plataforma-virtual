@@ -172,31 +172,29 @@ class Musuario extends CI_Model
 						  usu_id = ? AND 
 						  nous_vista = 'NO'",array($rslogin->idusuario));
 					$rsnotifica=$rsntf->row()->total;
-				}
-        		/*if ($rslogin->nivelid==10){
+				
 	        		$resultdoce = $this->db->query("SELECT 
-						  tbdeudas.deu_id AS id,
-						  tbdeudas.deu_codgestion AS codgestion,
-						  tbdeudas.deu_gestion AS gestion,
-						  tbdeudas.deu_creacion AS creacion,
-						  tbdeudas.deu_vence AS vence,
-						  tbdeudas.deu_voucher AS voucher,
-						  tbdeudas.deu_prorroga AS prorroga,
-						  tbdeudas.deu_monto AS monto,
-						  tbdeudas.deu_observacion AS obs,
-						  tbdeudas.deu_saldo AS saldo,
-						  tbdeudas.deu_matricula AS matricula,
-						  
-						  tbperiodo.per_nombre as periodo,
-						  tbciclo.cic_nombre as ciclo
+						  tb_deuda_individual.di_codigo AS coddeuda,
+						  tb_deuda_individual.cod_gestion as codgestion,
+						  tb_gestion.gt_nombre as gestion,
+						  tb_deuda_individual.di_fecha_creacion as creado,
+						  tb_deuda_individual.di_fecha_vencimiento as vence,
+						  tb_deuda_individual.di_fecha_prorroga as prorroga,
+						  tb_deuda_individual.di_monto as monto,
+						  tb_deuda_individual.di_saldo as saldo,
+						  tb_deuda_individual.matricula_cod as codmatricula,
+						  tb_deuda_individual.di_estado as estado,
+						  tb_periodo.ped_nombre as periodo,
+						  tb_ciclo.cic_nombre as ciclo
 						FROM
-						  tbmatricula
-						  RIGHT OUTER JOIN tbdeudas ON (tbmatricula.cac_codigo = tbdeudas.deu_matricula)
-						  LEFT OUTER JOIN tbperiodo ON (tbmatricula.codigoperiodo = tbperiodo.per_codigo)
-						  LEFT OUTER JOIN tbciclo ON (tbmatricula.codigociclo = tbciclo.cic_codigo) 
-						WHERE tbdeudas.deu_carne =? AND tbdeudas.deu_saldo>0 AND tbdeudas.deu_vence<now();", array($rslogin->carne));
+						  tb_gestion
+						  INNER JOIN tb_deuda_individual ON (tb_gestion.gt_codigo = tb_deuda_individual.cod_gestion)
+						  LEFT OUTER JOIN tb_matricula ON (tb_deuda_individual.matricula_cod = tb_matricula.mtr_id)
+						  INNER JOIN tb_periodo ON (tb_matricula.codigoperiodo = tb_periodo.ped_codigo)
+						  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+						WHERE tb_deuda_individual.pagante_cod=? AND tb_deuda_individual.di_saldo > 0 AND tb_deuda_individual.di_fecha_vencimiento < now()",array($rslogin->usuario));
 	        		$rsdeudas=$resultdoce->result();
-	        	}*/
+	        	}
         		
         	}
         }
@@ -313,31 +311,29 @@ class Musuario extends CI_Model
 						  usu_id = ? AND 
 						  nous_vista = 'NO'",array($rslogin->idusuario));
 					$rsnotifica=$rsntf->row()->total;
-				}
-        		/*if ($rslogin->nivelid==10){
-	        		$resultdoce = $this->db->query("SELECT 
-						  tbdeudas.deu_id AS id,
-						  tbdeudas.deu_codgestion AS codgestion,
-						  tbdeudas.deu_gestion AS gestion,
-						  tbdeudas.deu_creacion AS creacion,
-						  tbdeudas.deu_vence AS vence,
-						  tbdeudas.deu_voucher AS voucher,
-						  tbdeudas.deu_prorroga AS prorroga,
-						  tbdeudas.deu_monto AS monto,
-						  tbdeudas.deu_observacion AS obs,
-						  tbdeudas.deu_saldo AS saldo,
-						  tbdeudas.deu_matricula AS matricula,
-						  
-						  tbperiodo.per_nombre as periodo,
-						  tbciclo.cic_nombre as ciclo
+					
+					$resultdoce = $this->db->query("SELECT 
+						  tb_deuda_individual.di_codigo AS coddeuda,
+						  tb_deuda_individual.cod_gestion as codgestion,
+						  tb_gestion.gt_nombre as gestion,
+						  tb_deuda_individual.di_fecha_creacion as creado,
+						  tb_deuda_individual.di_fecha_vencimiento as vence,
+						  tb_deuda_individual.di_fecha_prorroga as prorroga,
+						  tb_deuda_individual.di_monto as monto,
+						  tb_deuda_individual.di_saldo as saldo,
+						  tb_deuda_individual.matricula_cod as codmatricula,
+						  tb_deuda_individual.di_estado as estado,
+						  tb_periodo.ped_nombre as periodo,
+						  tb_ciclo.cic_nombre as ciclo
 						FROM
-						  tbmatricula
-						  RIGHT OUTER JOIN tbdeudas ON (tbmatricula.cac_codigo = tbdeudas.deu_matricula)
-						  LEFT OUTER JOIN tbperiodo ON (tbmatricula.codigoperiodo = tbperiodo.per_codigo)
-						  LEFT OUTER JOIN tbciclo ON (tbmatricula.codigociclo = tbciclo.cic_codigo) 
-						WHERE tbdeudas.deu_carne =? AND tbdeudas.deu_saldo>0 AND tbdeudas.deu_vence<now();", array($rslogin->carne));
-	        		$rsdeudas=$resultdoce->result();
-	        	}*/
+						  tb_gestion
+						  INNER JOIN tb_deuda_individual ON (tb_gestion.gt_codigo = tb_deuda_individual.cod_gestion)
+						  LEFT OUTER JOIN tb_matricula ON (tb_deuda_individual.matricula_cod = tb_matricula.mtr_id)
+						  INNER JOIN tb_periodo ON (tb_matricula.codigoperiodo = tb_periodo.ped_codigo)
+						  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+						WHERE tb_deuda_individual.pagante_cod=? AND tb_deuda_individual.di_saldo > 0 AND tb_deuda_individual.di_fecha_vencimiento < now()",array($rslogin->usuario));
+					$rsdeudas=$resultdoce->result();
+	        	}
         		
         	}
         }
@@ -393,32 +389,31 @@ class Musuario extends CI_Model
         return $result->result();
     }
 
+    
     public function m_filtrar_cuentas_alum($data)
     {
         $rscuentas=array();
         
         $sqltext_array=array();
 	    $data_array=array();
-	    if ($data[0]!="%") {
+	    if ($data[0]!="%%") {
         	$sqltext_array[]="concat(tb_usuario.usu_nick, ' ',tb_persona.per_apel_paterno, ' ',tb_persona.per_apel_materno ,' ',tb_persona.per_nombres) like ?";
         	$data_array[]=$data[0];
       	}
-	    if ($data[1]!="%") {
-        	$sqltext_array[]="tb_usuario.usu_tipo = ?";
-        	$data_array[]=$data[1];
-      	} 
-      	if ($data[2]!="%")  {
+	    
+      	if ($data[1]!="%")  {
         	$sqltext_array[]="tb_inscripcion.ins_sede = ?";
+        	$data_array[]=$data[1];
+      	}
+      	if ($data[2]!="%")  {
+        	$sqltext_array[]="tb_usuario.usu_activo = ?";
         	$data_array[]=$data[2];
       	}
       	if ($data[3]!="%")  {
-        	$sqltext_array[]="tb_usuario.usu_activo = ?";
+        	$sqltext_array[]="tb_usuario.usu_email_corp_generado = ?";
         	$data_array[]=$data[3];
       	}
-      	if ($data[4]!="%")  {
-        	$sqltext_array[]="tb_usuario.usu_email_corp_generado = ?";
-        	$data_array[]=$data[4];
-      	}
+      	$sqltext_array[]="tb_usuario.usu_tipo = 'AL'";
 
       	$sqltext=implode(' AND ', $sqltext_array);
       	if ($sqltext!="") $sqltext= " WHERE ".$sqltext;
@@ -454,7 +449,7 @@ class Musuario extends CI_Model
 
         $sqltext_array=array();
 	    $data_array=array();
-	    if ($data[0]!="%") {
+	    if ($data[0]!="%%") {
         	$sqltext_array[]="concat(tb_usuario.usu_nick, ' ',tb_persona.per_apel_paterno, ' ',tb_persona.per_apel_materno ,' ',tb_persona.per_nombres) like ?";
         	$data_array[]=$data[0];
       	}
@@ -507,6 +502,7 @@ class Musuario extends CI_Model
         return $res->row();
         
     }
+
 
     public function m_get_usuarios_administrativos()
     {
