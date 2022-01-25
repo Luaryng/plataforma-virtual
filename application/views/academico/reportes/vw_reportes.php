@@ -29,7 +29,12 @@
 							</label>
 						</div>
 						
-						
+						<div class="form-check">
+							<input class="form-check-input rd_reportes" data-title='Reporte Cuadro de horas - Personal Docente' data-view='ts_div_vwreportes_horas_docente' data-urlpdf='' data-urlexcel='academico/reportes/carga-x-estudiante-filial/excel' type="radio" name="exampleRadios" id="ra302" value="ra302">
+							<label class="form-check-label" for="ra302">
+								Reporte Cuadro de horas - Personal Docente
+							</label>
+						</div>
 
 						
 					</div>
@@ -39,13 +44,8 @@
 								<h3  id="vw_exp_title_deudas">Total de Unid. didacticas asignadas a estudiante - Filial</h3>
 							</div>
 							<div class="col-12">
-								
 								<form id="frm_search_deudaxcuota" action="" method="post" accept-charset="utf-8">
-									
 									<div class="row mt-2">
-										
-
-											
 				                        <!--SOLO APARECE SI TIENE PERMISO DE EDITAR SEDE DE MATRICULA-->
 				                        <div class="form-group has-float-label col-12">
 				                          <select name="fca-cbsede" id="fca-cbsede" class="form-control form-control-sm">
@@ -146,6 +146,33 @@
 							</div>
 						</div>
 					</div>
+
+					<div class="col-7 ts_div_reportes" id="ts_div_vwreportes_horas_docente">
+						<div class="row">
+							<div class="col-12 mb-2">
+								<h3  id="vw_exp_title_deudas">Reporte Cuadro de horas - Personal Docente</h3>
+							</div>
+							<div class="col-6">
+								<form id="frm_search_horas_docente" action="" method="post" accept-charset="utf-8">
+									<div class="row mt-2">
+				                        <div class="form-group has-float-label col-12">
+				                          	<select name="fcahd-cbsede" id="fcahd-cbsede" class="form-control form-control-sm">
+				                                
+				                                <?php 
+				                                $codsede=$_SESSION['userActivo']->idsede;
+				                                foreach ($_SESSION['userActivo']->sedes as $sede) {
+				                                    $selsede=($codsede==$sede->id)?"selected":"";
+				                                    echo "<option $selsede value='$sede->idsede'>$sede->nombre </option>";
+				                                } ?>
+				                            </select>
+				                            <label for="fcahd-cbsede">Filial</label>
+				                        </div>
+				                    </div>
+				                </form>
+				            </div>
+				        </div>
+					</div>
+
 					<div class="col-7 ts_div_reportes" id="ts_div_vwreportes">
 						<div class="row">
 							<div class="col-12 mb-2">
