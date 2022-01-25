@@ -142,10 +142,12 @@ class Exportarexcel extends CI_Controller {
                 $sheet->setCellValue("A".$fila, "N°");
                 $sheet->setCellValue("B".$fila, "CARNÉ");
                 $sheet->setCellValue("C".$fila, "APELLIDOS Y NOMBRES");
-                $sheet->setCellValue("F".$fila, "CORREO INST.");
-                $sheet->getStyle("A$fila:F$fila")->getFont()->setBold(true);
+                $sheet->setCellValue("F".$fila, "SEXO");
+                $sheet->setCellValue("G".$fila, "EDAD");
+                $sheet->setCellValue("H".$fila, "CORREO INST.");
+                $sheet->getStyle("A$fila:H$fila")->getFont()->setBold(true);
                 $sheet->mergeCells("C$fila:E$fila");
-                $sheet->mergeCells("F$fila:G$fila");
+                $sheet->mergeCells("H$fila:J$fila");
                 $nro=0;
             }
             
@@ -162,8 +164,16 @@ class Exportarexcel extends CI_Controller {
             $sheet->setCellValue('B'.$fila, $mat->carne);
             $sheet->setCellValue('C'.$fila, $mat->paterno." ".$mat->materno." ".$mat->nombres);
             $sheet->mergeCells("C$fila:E$fila");
-            $sheet->setCellValue('F'.$fila, strtolower($mat->carne)."@".getDominio());
-            $sheet->setCellValue('G'.$fila, $txtcelulares);
+            $sheet->setCellValue('F'.$fila, $mat->codsexo);
+
+            date_default_timezone_set ('America/Lima');
+            $dia_actual = date("Y-m-d");
+            $edad_diff = date_diff(date_create($mat->fechanac), date_create($dia_actual))->format('%y');
+            $edad = ($edad_diff>0)?"($edad_diff Años)":"";
+            $sheet->setCellValue('G'.$fila, $edad);
+
+            $sheet->setCellValue('H'.$fila, strtolower($mat->carne)."@".getDominio());
+            $sheet->setCellValue('J'.$fila, $txtcelulares);
             //$sheet->mergeCells("F$fila:G$fila");
             /*$edad=($strtimeact - strtotime($mat->fecnac))/31557600;
             $sheet->setCellValue('J'.$fila, $mat->fecnac);
@@ -2705,6 +2715,7 @@ class Exportarexcel extends CI_Controller {
         $checkbeneficio = $this->input->get("checkbeneficio");
         $checkdni = $this->input->get("checkdni");
         $checkidinscripcion = $this->input->get("checkidinscripcion");
+        $checkedad = $this->input->get("checkedad");
         
         // $idsede=$_SESSION['userActivo']->idsede;
 
@@ -2753,6 +2764,10 @@ class Exportarexcel extends CI_Controller {
         }
         if ($fecnac == "SI") {
             $sheet->setCellValueByColumnAndRow($col,4, "FECHA NAC.");
+            $col++;
+        }
+        if ($checkedad == "SI") {
+            $sheet->setCellValueByColumnAndRow($col,4, "EDAD");
             $col++;
         }
         if ($correo == "SI") {
@@ -2870,6 +2885,15 @@ class Exportarexcel extends CI_Controller {
             }
             if ($fecnac == "SI") {
                 $sheet->setCellValueByColumnAndRow($colrow,$fila, date_format(date_create($mat->fecnac),"d/m/Y"));
+                $colrow++;
+            }
+            if ($checkedad == "SI") {
+                date_default_timezone_set ('America/Lima');
+                $dia_actual = date("Y-m-d");
+                $edad_diff = date_diff(date_create($mat->fecnac), date_create($dia_actual))->format('%y');
+                $edad = ($edad_diff>0)?"($edad_diff Años)":"";
+
+                $sheet->setCellValueByColumnAndRow($colrow,$fila, $edad);
                 $colrow++;
             }
             if ($correo == "SI") {

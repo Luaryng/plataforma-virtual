@@ -432,6 +432,10 @@ class Matricula extends CI_Controller {
             $matriculas=$this->mmatricula->m_filtrar(array($fmcbsede,$fmcbperiodo,$fmcbcarrera,$fmcbplan,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtcbestado,$fmtcbbeneficio,'%'.$fmalumno.'%'));
             foreach ($matriculas as $key => $matricula) {
                 $matriculas[$key]->codmatricula64=base64url_encode($matricula->codmatricula);
+                date_default_timezone_set ('America/Lima');
+                $dia_actual = date("Y-m-d");
+                $edad_diff = date_diff(date_create($matricula->fechanac), date_create($dia_actual))->format('%y');
+                $matriculas[$key]->edad=($edad_diff>0)?"($edad_diff Años)":"";
             }
             $dataex['vdata'] =$matriculas;
             //$dataex['vdataest'] =$cuentas['estadistica'];

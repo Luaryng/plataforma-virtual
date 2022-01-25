@@ -420,7 +420,7 @@ $("#frmfiltro-matriculas").submit(function(event) {
                             '</div>' +
                             '</div>';
                         sexo = (v['sexo'] == "FEMENINO") ? "<i class='fas fa-female text-danger mr-1'></i>" : "<i class='fas fa-male text-primary mr-1'></i>";
-                        estudiante = v['paterno'] + " " + v['materno'] + " " + v['nombres'];
+                        estudiante = v['paterno'] + " " + v['materno'] + " " + v['nombres'] + " " + v['edad'];
                         grupo = v['periodo'] + " " + v['sigla'] + " " + v['codturno'] + " " + v['ciclo'] + " " + v['codseccion'];
                         boleta = '<a class="bg-success text-white py-1 px-2 mt-2 rounded btncall-boleta" data-cm=' + vcm + ' data-prog=' + v['codcarrera'] + ' data-periodo=' + v['codperiodo'] + ' data-ciclo=' + v['codciclo'] + ' data-turno=' + v['codturno'] + ' data-seccion=' + v['codseccion'] + ' href="#" title="Carga académica" data-toggle="modal" data-target="#modmatriculacurso">' +
                             '<i class="fas fa-book"></i> Boleta' +
@@ -1929,8 +1929,9 @@ $('#lbtn_exportar').click(function(e) {
     checkbeneficio = ($("#checkbeneficio").prop('checked') == true ? "&checkbeneficio=SI" : "&checkbeneficio=NO");
     checkdni = ($("#checkdni").prop('checked') == true ? "&checkdni=SI" : "&checkdni=NO");
     checkidinscripcion = ($("#checkidinscripcion").prop('checked') == true ? "&checkidinscripcion=SI" : "&checkidinscripcion=NO");
+    checkedad = ($("#checkedad").prop('checked') == true ? "&checkedad=SI" : "&checkedad=NO");
 
-    var url = urlExcel + checkcarne + checkapellidos + checknombres + checkcorpo + checkacelulares + checkcarrera + checkciclo + checkturno + checkseccion + checkperiodo + checkestado + checkfecmat + checksexo + checkfecnac + checkcorreo + checkdomicilio + checklengua + checkdepart + checkprovin + checkdistrito + checkdiscap + checkplan + checkbeneficio + checkdni + checkidinscripcion;
+    var url = urlExcel + checkcarne + checkapellidos + checknombres + checkcorpo + checkacelulares + checkcarrera + checkciclo + checkturno + checkseccion + checkperiodo + checkestado + checkfecmat + checksexo + checkfecnac + checkcorreo + checkdomicilio + checklengua + checkdepart + checkprovin + checkdistrito + checkdiscap + checkplan + checkbeneficio + checkdni + checkidinscripcion + checkedad;
     var ejecuta = true;
 
     if (ejecuta == true) window.open(url, '_blank');

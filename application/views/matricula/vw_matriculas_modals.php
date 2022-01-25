@@ -51,6 +51,12 @@
           </div>
           <div class="col-12">
             <div class="form-check">
+              <input  class="form-check-input" type="checkbox" id="checkedad">
+              <label for="checkedad">Edad</label>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-check">
               <input checked="" class="form-check-input" type="checkbox" id="checkcorpo">
               <label for="checkcorpo">Correo Institucional</label>
             </div>
