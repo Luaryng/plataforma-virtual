@@ -187,9 +187,6 @@ class Academico_reportes extends CI_Controller{
         $this->load->model('mdocentes');
         $this->load->model('msesiones');
         $docentes = $this->mdocentes->m_docentes_x_periodo_sede(array($fmcbperiodo, $fmcbsede));
-        foreach ($docentes as $key => $dc) {
-            $arraydoc[] = $dc->coddocente;
-        }
 
         $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
         $spreadsheet = $reader->load("plantillas/rp_horas_docentes.xlsx");
@@ -309,9 +306,7 @@ class Academico_reportes extends CI_Controller{
                 $columna2++;
                 $total = $this->sumarHorasD($dtotalhD);
                 $totalN = $this->sumarHorasD($dtotalhN);
-                // // if (($total !== "00:00" && $turno !== "") || ($turno == "N")) {
-                // //     $columna2++;
-                // // }
+                
                 $totalhor = ($total == "00.00") ? "0" : floatval($total);
                 $totalhorN = ($totalN == "00.00") ? "0" : floatval($totalN);
                 if ($totalhor !== "0") {
@@ -329,11 +324,9 @@ class Academico_reportes extends CI_Controller{
                 }
                 
                 // // $sheet->setCellValueByColumnAndRow($columna2,$filasmn, $totalhor);
-                $horastot[] = $totalN;
+                // $horastot[] = $totalN;
 
             }
-            // var_dump($horastot);
-            // exit();
 
         }
         
