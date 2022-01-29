@@ -525,7 +525,74 @@ class Mdocentes extends CI_Model
         return $resultado;
     }
 
+    public function m_docentes_x_periodo_sede($data)
+    {
+        //$this->load->database();
+        $resultmiembro = $this->db->query("SELECT 
+            tb_docente.doc_codigo AS coddocente,
+            tb_persona.per_apel_paterno AS paterno,
+            tb_persona.per_apel_materno AS materno,
+            tb_persona.per_nombres AS nombres,
+            tb_persona.per_sexo AS sexo,
+            tb_docente.doc_emailc AS ecorporativo,
+            count(tb_docente.doc_codigo) AS ctotal,
+            sum(case when tb_carga_academica_subseccion.cas_culminado = 'NO' then 1 else 0 END) AS cactivos
+          FROM
+            tb_persona
+            INNER JOIN tb_docente ON (tb_persona.per_codigo = tb_docente.cod_persona)
+            INNER JOIN tb_carga_academica_subseccion ON (tb_docente.doc_codigo = tb_carga_academica_subseccion.codigodocente)
+            INNER JOIN tb_carga_academica ON (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
+          WHERE tb_carga_academica.codigoperiodo=? AND tb_docente.ins_sede = ? AND tb_carga_academica.cac_activo = 'SI' 
+          GROUP BY
+            tb_docente.doc_codigo,
+            tb_persona.per_apel_paterno,
+            tb_persona.per_apel_materno,
+            tb_persona.per_nombres,
+            tb_persona.per_sexo,
+            tb_docente.doc_emailc,
+            tb_carga_academica.codigoperiodo
+          ORDER BY
+            paterno,
+            materno,
+            nombres", $data);
+        //$this->db->close();
+        return $resultmiembro->result();
+    }
 
+    public function m_horas_x_docente_periodo($data)
+    {
+      // $coddoc = implode("','", $coddoc);
+      $resultmiembro = $this->db->query("SELECT 
+          (CASE WHEN tb_carga_academica.codigoturno = 'D' THEN SEC_TO_TIME(
+            (TIMESTAMPDIFF
+              (MINUTE, tb_carga_sesiones.ses_horaini, tb_carga_sesiones.ses_horafin)
+            ) * 60
+          )ELSE 0 END) AS horasD,
+          (CASE WHEN tb_carga_academica.codigoturno = 'N' THEN SEC_TO_TIME(
+            (TIMESTAMPDIFF
+              (MINUTE, tb_carga_sesiones.ses_horaini, tb_carga_sesiones.ses_horafin)
+            ) * 60
+          )ELSE 0 END) AS horasN,
+          tb_carga_sesiones.ses_fecha AS fecha,
+          tb_carga_academica.codigoturno as turno,
+          tb_carga_sesiones.codigocarga as carga,
+          tb_carga_sesiones.ses_id as idses,
+          tb_carga_academica_subseccion.codigodocente as coddocente
+        FROM
+          tb_carga_academica
+          INNER JOIN tb_carga_sesiones ON (tb_carga_academica.cac_id = tb_carga_sesiones.codigocarga)
+          INNER JOIN tb_carga_academica_subseccion ON (tb_carga_academica.cac_id = tb_carga_academica_subseccion.codigocargaacademica)
+          AND (tb_carga_academica_subseccion.codigosubseccion = tb_carga_sesiones.codigosubseccion)
+        WHERE
+          tb_carga_academica_subseccion.codigodocente = ? AND 
+          tb_carga_academica.codigoperiodo = ? AND 
+          tb_carga_sesiones.ses_fecha BETWEEN ? AND ? 
+        GROUP BY
+          tb_carga_sesiones.ses_fecha,
+          tb_carga_sesiones.codigocarga,
+          tb_carga_sesiones.ses_id", $data);
+      return $resultmiembro->result();
+    }
 
     
     

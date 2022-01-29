@@ -29,7 +29,7 @@ $root.= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME
 $config['base_url'] = $root;
 $config['ses_dominio'] = $root;
 $config['login_url'] = $root.'iniciar-sesion';
-$config['erp_title'] = 'ERP CHARLES ASHBEE';
+$config['erp_title'] = 'CHARLES ASHBEE';
 
 /*
 |--------------------------------------------------------------------------

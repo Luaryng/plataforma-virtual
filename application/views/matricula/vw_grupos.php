@@ -631,6 +631,8 @@ $("#frmfiltro-grupos").submit(function(event) {
                 cl=cl + parseInt(v['cul']);
                 
                 var btn_carga='';
+                var btn_matriculas='';
+                var btn_culminar = '';
                 var params='cp='+ v['codperiodo'] +'&cc='+ v['codcarrera'] + '&ccc='+ v['codciclo'] +'&ct='+ v['codturno']+'&cs='+ v['seccion']+'&cpl='+ v['idplan'];
 
                  btnregeval='<a class="dropdown-item" href="' + base_url + 'academico/consulta/nomina-evaluaciones/excel?' + params + '&at=1'+'"><i class="fas fa-file-excel"></i> Evaluaciones</a>'; 

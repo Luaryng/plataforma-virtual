@@ -44,7 +44,8 @@ class Mtransparencia extends CI_Model {
                 FROM 
                   tb_web_documentos 
                   LEFT OUTER JOIN tb_web_documentos_categoria ON (tb_web_documentos.wd_categoria = tb_web_documentos_categoria.wdc_id) 
-                WHERE tb_web_documentos.wd_categoria like ? AND tb_web_documentos.wd_area = ? AND tb_web_documentos.wd_titulo like ?
+                WHERE tb_web_documentos.wd_categoria like ? AND tb_web_documentos.wd_area = ? AND tb_web_documentos.wd_titulo like ? 
+                AND tb_web_documentos.sede_id = ?
                 order by tb_web_documentos.wd_categoria,tb_web_documentos.wd_orden DESC",$data);
         // $this->db->close();
         return $qry->result();
@@ -54,7 +55,7 @@ class Mtransparencia extends CI_Model {
   public function m_insert($data)
 	{
         //CALL `sp_tb_web_documentos_insert`( @vwd_titulo, @vwd_descripcion, @vwd_ruta, @vwd_peso, @vwd_tipo, @vwd_categoria, @vwd_orden, @vwd_area, @s, @nid);
-		$this->db->query("CALL `sp_tb_web_documentos_insert`(?,?,?,?,?,?,?,?,@s,@nid)",$data);
+		$this->db->query("CALL `sp_tb_web_documentos_insert`(?,?,?,?,?,?,?,?,?,@s,@nid)",$data);
 		$res = $this->db->query('select @s as salida,@nid as nid');
  		return   $res->row();	
 	}

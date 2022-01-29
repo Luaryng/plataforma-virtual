@@ -625,7 +625,7 @@ class Exportarexcel_facturacion extends CI_Controller {
     }
 
     
-public function rpsede_documentos_emitidos_items()
+    public function rpsede_documentos_emitidos_items()
     {
         date_default_timezone_set('America/Lima');
         $emision=$this->input->get("fi");
@@ -1214,7 +1214,7 @@ public function rpsede_documentos_emitidos_items()
     }
 
 
-public function rp_deudas_estudiante_individual_excel()
+    public function rp_deudas_estudiante_individual_excel()
     {
         date_default_timezone_set('America/Lima');
 

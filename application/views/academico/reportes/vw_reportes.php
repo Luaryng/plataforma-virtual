@@ -161,7 +161,7 @@
 							<div class="col-12">
 								<form id="frm_search_horas_docente" action="" method="post" accept-charset="utf-8">
 									<div class="row mt-2">
-				                        <div class="form-group has-float-label col-4">
+				                        <div class="form-group has-float-label col-12 col-sm-3">
 				                          	<select name="fcahd-cbsede" id="fcahd-cbsede" class="form-control form-control-sm">
 				                                <?php 
 				                                $codsede=$_SESSION['userActivo']->idsede;
@@ -172,7 +172,16 @@
 				                            </select>
 				                            <label for="fcahd-cbsede">Filial</label>
 				                        </div>
-				                        <div class="form-group has-float-label col-4">
+				                        <div class="form-group has-float-label col-12  col-sm-3">
+											<select data-currentvalue='' class="form-control form-control-sm" id="fcahd-cbperiodo" name="fcahd-cbperiodo" placeholder="Periodo" required >
+												<option value="">#seleccione</option>
+												<?php foreach ($periodos as $periodo) {?>
+												<option value="<?php echo $periodo->codigo ?>"><?php echo $periodo->nombre ?></option>
+												<?php } ?>
+											</select>
+											<label for="fcahd-cbperiodo">Periodo</label>
+										</div>
+				                        <div class="form-group has-float-label col-12 col-sm-3">
 											<select name="cbomeses" id="cbomeses" class="form-control form-control-sm" required="">
 												<option value="">Mes#</option>
 												<?php
@@ -183,7 +192,7 @@
 											</select>
 											<label for="cbomeses">Meses</label>
 										</div>
-										<div class="form-group has-float-label col-4">
+										<div class="form-group has-float-label col-12 col-sm-3">
 											<input type="number" name="fibtxtanio" id="fibtxtanio" value="<?php echo $anioactual ?>" placeholder="Año" class="form-control form-control-sm" required="">
 											<label for="fibtxtanio">Año</label>
 										</div>
@@ -432,8 +441,9 @@
 	    var fsd = $("#fcahd-cbsede").val();
 	    var fms = $("#cbomeses").val();
 	    var fan = $("#fibtxtanio").val();
+	    var fpd = $('#fcahd-cbperiodo').val();
 
-	    var url = base_url + url_excel + '?fsd=' + fsd + '&fms=' + fms + '&fan=' + fan;
+	    var url = base_url + url_excel + '?fsd=' + fsd + '&fms=' + fms + '&fan=' + fan + '&fpd=' + fpd;
 
 	    var ejecuta = false;
 
@@ -441,8 +451,9 @@
 	    if ($("#fcahd-cbsede").val()!=="") llenos++;
 	    if ($("#cbomeses").val()!=="") llenos++;
 	    if ($("#fibtxtanio").val()!=="") llenos++;
+	    if ($("#fcahd-cbperiodo").val()!=="") llenos++;
 
-	    if (llenos == 3) {
+	    if (llenos > 3) {
 	        window.open(url, '_blank');
 	    } else {
 	        Swal.fire({

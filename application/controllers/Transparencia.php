@@ -51,8 +51,9 @@ class Transparencia extends Error_views{
 			$this->load->view('nav');
 			$this->load->view('sidebar_portal',$asidebar);
 			$items=array();
-			if ($tipo!="")  $items= $this->mtransparencia->m_get_items(array($tipo,'TP','%'));
-			$items = $this->mtransparencia->m_get_items(array($tipo,'TP','%'));
+			$idsede = $_SESSION['userActivo']->idsede;
+			if ($tipo!="")  $items= $this->mtransparencia->m_get_items(array($tipo,'TP','%',$idsede));
+			$items = $this->mtransparencia->m_get_items(array($tipo,'TP','%',$idsede));
 			$categorias = $this->mcategoria_transparencia->m_filtrar_categorias_activasxtipo(array('TP'));
 			$this->load->view('transparencia/index', array('items' => $items, 'categorias' => $categorias ));
 			$this->load->view('footer');
@@ -80,7 +81,7 @@ class Transparencia extends Error_views{
 			if ($titulo == "") {
 				$titulo = "%";
 			}
-			$rstdata = $this->mtransparencia->m_get_items(array($busqueda,'TP','%'.$titulo.'%'));
+			$rstdata = $this->mtransparencia->m_get_items(array($busqueda,'TP','%'.$titulo.'%',$idsede));
 			if (count($rstdata) > 0) {
                 $dataex['status'] = true;
                 $rsdata['items'] = $rstdata;
@@ -138,7 +139,7 @@ class Transparencia extends Error_views{
 	}
 
 
-	 public function uploadfile(){
+	public function uploadfile(){
         $dataex['link']="";
         $fileTmpLoc   = $_FILES["file"]["tmp_name"]; // File in the PHP tmp folder
         $fileType     = $_FILES["file"]["type"]; // The type of file it is
@@ -226,6 +227,7 @@ class Transparencia extends Error_views{
 					$descripcion=$this->input->post('vw_pw_bt_ad_fictxtdesc');
 					$area=base64url_decode($this->input->post('vw_pw_bt_ad_fictxttipo'));
 					$datafile= json_decode($_POST['afiles']);
+					$idsede = $_SESSION['userActivo']->idsede;
 					$link="";
                     $name="";
                     $peso="";
@@ -258,7 +260,7 @@ class Transparencia extends Error_views{
 					$rpta=0;
 	        		//@vwd_titulo, @vwd_descripcion, @vwd_ruta, @vwd_peso, @vwd_tipofile, @vwd_categoria, @vwd_orden, @vwd_area
 	        		if ($codigo=="0"){
-	        			$rpta=$this->mtransparencia->m_insert(array($titulo, $descripcion, $link,$peso,$tipofile, $categoria, $torden,$area));
+	        			$rpta=$this->mtransparencia->m_insert(array($titulo, $descripcion, $link,$peso,$tipofile, $categoria, $torden,$area,$idsede));
 	        		}
 	        		else{
 	        			$rpta=$this->mtransparencia->m_update(array(base64url_decode($codigo),$titulo, $descripcion, $link,$peso,$tipofile, $categoria, $torden,$area));

@@ -177,20 +177,203 @@ class Academico_reportes extends CI_Controller{
 
     public function excel_cuadro_horas_docentes()
     {
-        $fmcbperiodo=$this->input->get("cp");
-        $fmsede='%';
-        if (null !== $this->input->get("sd")){
-            $fmsede=$this->input->get("sd"); 
+        $fmcbsede = $this->input->get("fsd");
+        $fmcbmes = $this->input->get("fms");
+        $fmcbanio = $this->input->get("fan");
+        $fmcbperiodo = $this->input->get("fpd");
+
+        $arraydoc = [];
+        $arraysem = [];
+        $this->load->model('mdocentes');
+        $this->load->model('msesiones');
+        $docentes = $this->mdocentes->m_docentes_x_periodo_sede(array($fmcbperiodo, $fmcbsede));
+        foreach ($docentes as $key => $dc) {
+            $arraydoc[] = $dc->coddocente;
         }
-        $fmcbcarrera=$this->input->get("cc");
-        $fmcbciclo=$this->input->get("ccc");
-        $fmcbturno=$this->input->get("ct");
-        $fmcbseccion=$this->input->get("cs");
-        $fmcbplan=$this->input->get("cpl");
-        $fmcbestado=$this->input->get("es");
-        $busqueda=$this->input->get("ap");
+
+        $reader = new \PhpOffice\PhpSpreadsheet\Reader\Xlsx();
+        $spreadsheet = $reader->load("plantillas/rp_horas_docentes.xlsx");
+
+        //$spreadsheet = new Spreadsheet();
+        $spreadsheet->setActiveSheetIndex(0);
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        $colsmn = 2;
+        $nro=0;
+        $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre");
+        $sheet->setCellValue("A1", "CUADRO DE HORAS PERSONAL DOCENTE - PLANILLAS ".mb_strtoupper($meses[$fmcbmes-1])." ".$fmcbperiodo);
+
+        $dias = array("Dom","Lun","Mar","Mie","Jue","Vie","Sáb");
+        $nrodias = cal_days_in_month(CAL_GREGORIAN, $fmcbmes, $fmcbanio);
+        $primerdia = new DateTime($fmcbanio."-".$fmcbmes."-01");
+        $rptaprd = $dias[$primerdia->format('w')];
+        $dthoras = array();
+
+        // # IMPRESION DE FECHAS POR SEMANA
+        for ($i = 1; $i < $nrodias; $i++) { 
+            $colsmn++;
+            $year=intval($fmcbanio);
+            $month=intval($fmcbmes);
+            $day=intval($i);
+            // # Obtenemos el numero de la semana
+            $semana=date("W",mktime(0,0,0,$month,$day,$year));
+
+            // # Obtenemos el día de la semana de la fecha dada
+            $diaSemana=date("w",mktime(0,0,0,$month,$day,$year));
+
+            // # el 0 equivale al domingo...
+            if($diaSemana==0) $diaSemana=7;
+
+            // # A la fecha recibida, le restamos el dia de la semana y obtendremos el lunes
+            $primerDia=date("d",mktime(0,0,0,$month,$day-$diaSemana+1,$year));
+
+            // # A la fecha recibida, le sumamos el dia de la semana menos siete y obtendremos el domingo
+            $ultimoDia=date("d",mktime(0,0,0,$month,$day+(7-$diaSemana),$year));
+
+            if (($day == 1) &&($diaSemana !== 1)) {
+                $primerDia = "01";
+                if ($rptaprd == "Dom") {
+                    $sheet->setCellValueByColumnAndRow($colsmn,2, $primerDia);
+                } else {
+                    $sheet->setCellValueByColumnAndRow($colsmn,2, $primerDia." - ".$ultimoDia);
+                }
+                
+            } else {
+                if($primerDia > $ultimoDia){
+                    $sheet->setCellValueByColumnAndRow($colsmn,2, $primerDia." - ".$nrodias);
+                    $ultimoDia = $nrodias;
+                } else {
+                    $sheet->setCellValueByColumnAndRow($colsmn,2, $primerDia." - ".$ultimoDia);
+                }
+                
+            }
+
+            $i = $ultimoDia;
+            $arraysem[] = $ultimoDia;
+            $colsmn++;
+
+            $rpmonth = ($month < 10) ? "0".$month : $month;
+            $dthoras[] = array("inicia"=>"{$year}-{$rpmonth}-{$primerDia}","termina"=>"{$year}-{$rpmonth}-{$ultimoDia}");
+
+            if (($i + 1 == $nrodias) ) {
+                $ultimoDia = $ultimoDia + 1;
+                $sheet->setCellValueByColumnAndRow(($colsmn+1),2, $ultimoDia);
+                $arraysem[] = "{$ultimoDia}";
+                $dthoras[] = array("inicia"=>"{$year}-{$rpmonth}-{$ultimoDia}","termina"=>"{$year}-{$rpmonth}-{$ultimoDia}");
+            }
+            
+        }
+        
+        $fila=3;
+        $filasmn = 3;
+        $horastot = [];
+        foreach ($docentes as $doc) {
+                
+            $nro++;
+            $fila++;
+            
+            $sheet->setCellValue("A".$fila, $nro);
+            $sheet->setCellValue('B'.$fila, $doc->paterno." ".$doc->materno." ".$doc->nombres);
+            
+            $filasmn++;
+            $columna2 = 2;
+            $tothorasD = "";
+            $tothorasN = "";
+            
+            foreach ($dthoras as $key => $fec) {
+                
+                $inicia = $fec['inicia'];
+                $termina = $fec['termina'];
+                $rpthoras = $this->mdocentes->m_horas_x_docente_periodo(array($doc->coddocente,$fmcbperiodo,$inicia,$termina));
+                
+                $dtotalhD=[];
+                $dtotalhN=[];
+                $turno = "";
+                foreach ($rpthoras as $key => $rpt) {
+                    $turno = $rpt->turno;
+                    if ($rpt->horasD != "0") {
+                        $tothorasD = $rpt->horasD;
+                        $dtotalhD[] = $tothorasD;
+                    } else {
+                        $dtotalhD[] = "00:00:00";
+                    }
+                    if ($rpt->horasN != "0") {
+                        $tothorasN = $rpt->horasN;
+                        $dtotalhN[] = $tothorasN;
+                    } else {
+                        $dtotalhN[] = "00:00:00";
+                    }
+                    
+                }
+                // }
+                $columna2++;
+                $total = $this->sumarHorasD($dtotalhD);
+                $totalN = $this->sumarHorasD($dtotalhN);
+                // // if (($total !== "00:00" && $turno !== "") || ($turno == "N")) {
+                // //     $columna2++;
+                // // }
+                $totalhor = ($total == "00.00") ? "0" : floatval($total);
+                $totalhorN = ($totalN == "00.00") ? "0" : floatval($totalN);
+                if ($totalhor !== "0") {
+                    $sheet->setCellValueByColumnAndRow($columna2,$filasmn, $totalhor);
+                } else {
+                    $sheet->setCellValueByColumnAndRow($columna2,$filasmn, "0");
+                }
+
+                if ($totalhorN !== "0") {
+                    $columna2++;
+                    $sheet->setCellValueByColumnAndRow($columna2,$filasmn, $totalhorN);
+                } else {
+                    $columna2++;
+                    $sheet->setCellValueByColumnAndRow($columna2,$filasmn, "0");
+                }
+                
+                // // $sheet->setCellValueByColumnAndRow($columna2,$filasmn, $totalhor);
+                $horastot[] = $totalN;
+
+            }
+            // var_dump($horastot);
+            // exit();
+
+        }
+        
+        
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'Cuadro de horas personal docente-'.$meses[$fmcbmes-1];
+ 
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="'. $filename .'.xlsx"'); 
+        header('Cache-Control: max-age=0');
+     
+        $writer->save('php://output'); // download file 
     }
 
+    function sumarHorasD($horas){
+        $total = 0;
+        $totalhr = 0;
+        $salida = "";
+        foreach($horas as $h) {
+            $parts = explode(":", $h);
+            $total += $parts[2] + $parts[1]*60 + $parts[0]*3600;
+        }
+        $totalhr = gmdate("H.i", $total);
+        $parts2 = explode(".", $totalhr);
+        $minuto = intval($parts2[1]);
+        $rptminuto = ($minuto/6) * 10;
+        $salida = $parts2[0].".".$rptminuto;
+        // if ($parts2[1] == "15") {
+        //     $salida = $parts2[0].".25";
+        // } else if ($parts2[1] == "30") {
+        //     $salida = $parts2[0].".5";
+        // } else if ($parts2[1] == "45") {
+        //     $salida = $parts2[0].".75";
+        // } else if ($parts2[1] == "00") {
+        //     $salida = $parts2[0].".00";
+        // }
+        // return gmdate("H.i", $total);
+        return $salida;
+        
+    }
 
 
     public function rpsede_docemitidos_pdf()

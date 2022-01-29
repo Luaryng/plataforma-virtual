@@ -80,10 +80,10 @@ $query_builder = TRUE;
 //IESCOOP 157.230.94.208
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost',//'157.230.94.208',
-	'username' => 'root',//'simpleuser2',
-	'password' => '',//'@Alexander3105',
-	'database' => 'iesap_educaerp',//'iestweb',
+	'hostname' => '157.230.94.208',//'157.230.94.208',
+	'username' => 'simpleuser2',//'simpleuser2',
+	'password' => '@Alexander3105',//'@Alexander3105',
+	'database' => 'iestweb',//'iestweb',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,
