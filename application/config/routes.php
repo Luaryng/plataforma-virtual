@@ -97,6 +97,8 @@ $route['admision/reingresos']      = "reingresos/fn_reingresos";
 
 $route['admision/reingresos/excel']      = "Exportarexcel/dp_reingresos";
 
+$route['admision/traslados'] = "traslados/fn_traslados";
+
 $route['academico']  = "index/vw_academico";
 
 

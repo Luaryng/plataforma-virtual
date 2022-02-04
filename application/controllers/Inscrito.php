@@ -1159,4 +1159,54 @@ class Inscrito extends Sendmail {
             return $mpdf->Output($pdfFilePath, "S");
     }
 
+    public function fn_datos_deudas()
+    {
+        $this->form_validation->set_message('required', '%s Requerido o digite %%%%%%%%');
+        $this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres o digite %%%%%%%%.');
+        $this->form_validation->set_message('max_length', '* {field} debe tener al menos {param} caracteres.');
+    
+        $dataex['status'] =FALSE;
+        $dataex['msg']    = '¿Que Intentas?.';
+        if ($this->input->is_ajax_request())
+        {
+            $dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+            $this->form_validation->set_rules('ce-carne','Carné','trim|required');
+            if ($this->form_validation->run() == FALSE)
+            {
+                $dataex['msg']="Existen errores en los campos";
+                $errors = array();
+                foreach ($this->input->post() as $key => $value){
+                    $errors[$key] = form_error($key);
+                }
+                $dataex['errors'] = array_filter($errors);
+            }
+            else
+            {
+                $this->load->model('mdeudas_individual');
+                $carnet=$this->input->post('ce-carne');
+
+                $deudas = $this->mdeudas_individual->m_get_historial_pagante(array("carnet"=>$carnet,"saldo"=>array(">",0)));
+                if (!is_null($deudas))
+                {
+
+                    foreach ($deudas as $key => $fila) {
+                        $fila->codigo64 = base64url_encode($fila->codigo);
+                        $fechavence = new DateTime($fila->fvence);
+                        $fila->vence = $fechavence->format("d/m/Y");
+                        $fila->persona = $fila->carnet." ".$fila->paterno." ".$fila->materno." ".$fila->nombres;
+                        $fila->grupo = $fila->codperiodo." ".$fila->sigla." - ".$fila->ciclo;
+
+                    }
+
+                    $dataex['vdata'] = $deudas;
+                    $dataex['status'] =true;
+                }
+                
+            }
+        }
+        
+        header('Content-Type: application/x-json; charset=utf-8');
+        echo(json_encode($dataex));
+    }
+
 }

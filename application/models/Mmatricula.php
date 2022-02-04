@@ -9,7 +9,7 @@ class Mmatricula extends CI_Model {
 
 	public function m_insert($items)
 	{
-		$this->db->query("CALL `sp_tb_matricula_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)",$items);
+		$this->db->query("CALL `sp_tb_matricula_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)",$items);
 		$res = $this->db->query('select @s as rs,@nc as newcod');
  		return   $res->row();	
 	}
@@ -19,6 +19,13 @@ class Mmatricula extends CI_Model {
 	{
 		//CALL ``( @vniv_codigo, @vniv_estado, @`s`);
 		$this->db->query("CALL `sp_tb_matricula_update_estado`(?,?,@s)",$items);
+		$res = $this->db->query('select @s as out_param');
+ 		return   $res->row()->out_param;	
+	}
+
+	public function m_cambiar_estado_condicional($items)
+	{
+		$this->db->query("CALL `sp_tb_matricula_update_condicional`(?,?,@s)",$items);
 		$res = $this->db->query('select @s as out_param');
  		return   $res->row()->out_param;	
 	}
@@ -173,11 +180,16 @@ class Mmatricula extends CI_Model {
 				  tb_persona.per_celular2 AS celular2,
 				  tb_persona.per_telefono AS telefono,
 				  tb_matricula.codigosede AS codsede,
+				  tb_matricula.mtr_fecha AS fecregistro,
 				  tb_sede.sed_nombre AS sede,
 				  tb_sede.sed_abreviatura AS sede_abrevia,
 				  tb_persona.per_sexo AS codsexo,
 				  tb_persona.per_fecha_nacimiento AS fechanac,
-				  tb_plan_estudios.pln_nombre as plan
+				  tb_plan_estudios.pln_nombre AS plan,
+				  CONCAT(tb_personaus.per_apel_paterno,' ',tb_personaus.per_apel_materno,' ',tb_personaus.per_nombres) as usuario,
+				  tb_matricula.mtr_cuotapension as pension,
+				  tb_matricula.mtr_mat_condicional as condicional,
+				  tb_beneficio.ben_sigla as beneficio
 				FROM
 				  tb_periodo
 				  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
@@ -187,7 +199,10 @@ class Mmatricula extends CI_Model {
 				  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
 				  INNER JOIN tb_estadoalumno ON (tb_matricula.codigoestado = tb_estadoalumno.esal_id)
 				  INNER JOIN tb_sede ON (tb_matricula.codigosede = tb_sede.id_sede)
-				  INNER JOIN tb_plan_estudios ON (tb_matricula.codigoplan = tb_plan_estudios.pln_id)
+				  LEFT OUTER JOIN tb_plan_estudios ON (tb_matricula.codigoplan = tb_plan_estudios.pln_id)
+				  LEFT OUTER JOIN tb_usuario ON (tb_matricula.usuario_id = tb_usuario.id_usuario)
+				  LEFT OUTER JOIN tb_persona tb_personaus ON (tb_usuario.cod_persona = tb_personaus.per_codigo)
+				  INNER JOIN tb_beneficio ON (tb_matricula.codigobeneficio = tb_beneficio.ben_id)
 				$sqltext  
 				ORDER BY tb_matricula.codigoperiodo,tb_matricula.codigocarrera,tb_matricula.codigoplan,tb_matricula.codigociclo,tb_matricula.codigoturno,tb_matricula.codigoseccion,tb_persona.per_apel_paterno,tb_persona.per_apel_materno , tb_persona.per_nombres", $data_array);
         ////$this->db->close();
@@ -847,6 +862,57 @@ class Mmatricula extends CI_Model {
         return   $result->result();
     }
 
+    public function m_matriculados_miembros_x_grupo($data)
+    {
+
+
+      $result = $this->db->query("SELECT 
+				  tb_matricula_cursos_nota_final.mtr_id AS codmatricula,
+				  tb_matricula.codigoinscripcion AS codinscripcion,
+				  tb_inscripcion.ins_carnet AS carnet,
+				  tb_persona.per_dni AS dni,
+				  tb_persona.per_apel_paterno AS paterno,
+				  tb_persona.per_apel_materno AS materno,
+				  tb_persona.per_nombres AS nombres,
+				  tb_persona.per_sexo AS sexo,
+				  tb_persona.per_fecha_nacimiento AS fecnac,
+				  tb_matricula.codigoestado AS codestado,
+				  tb_matricula.codigosede as codsede,
+				  COUNT(tb_matricula_cursos_nota_final.mtcf_codigo) AS total
+				FROM
+				  tb_matricula
+				  INNER JOIN tb_matricula_cursos_nota_final ON (tb_matricula.mtr_id = tb_matricula_cursos_nota_final.mtr_id)
+				  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
+				  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
+				  INNER JOIN tb_carga_academica ON (tb_matricula_cursos_nota_final.cod_carga_academica = tb_carga_academica.cac_id)
+				  INNER JOIN tb_carga_academica_subseccion ON (tb_matricula_cursos_nota_final.cod_carga_academica = tb_carga_academica_subseccion.codigocargaacademica)
+				  AND (tb_matricula_cursos_nota_final.cod_subseccion = tb_carga_academica_subseccion.codigosubseccion)
+				  AND (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
+        WHERE  tb_matricula.codigosede=? AND tb_carga_academica.codigoperiodo=? AND tb_carga_academica.codigocarrera=? AND tb_matricula.codigoplan=? AND tb_carga_academica.codigociclo=? AND tb_carga_academica.codigoturno=? AND  tb_carga_academica.codigoseccion=? 
+        GROUP BY
+				  tb_matricula_cursos_nota_final.mtr_id,
+				  tb_matricula.codigoinscripcion,
+				  tb_inscripcion.ins_carnet,
+				  tb_persona.per_dni,
+				  tb_persona.per_apel_paterno,
+				  tb_persona.per_apel_materno,
+				  tb_persona.per_nombres,
+				  tb_persona.per_sexo,
+				  tb_persona.per_fecha_nacimiento,
+				  tb_matricula.codigoestado,
+				  tb_matricula.codigosede 
+				ORDER BY
+				  tb_carga_academica.codigoperiodo,
+				  tb_carga_academica.codigocarrera,
+				  tb_carga_academica.codigociclo,
+				  tb_carga_academica.codigoturno,
+				  tb_carga_academica.codigoseccion,
+				  tb_persona.per_apel_paterno,
+				  tb_persona.per_apel_materno,
+				  tb_persona.per_nombres", $data);
+        return   $result->result();
+    }
+
 
      public function m_miscursos_x_matricula($data)
     {
@@ -860,6 +926,9 @@ class Mmatricula extends CI_Model {
 			  tb_carrera.car_nombre AS carrera,
 			  tb_ciclo.cic_nombre AS ciclo,
 			  tb_carga_academica.codigoturno AS codturno,
+			  tb_carga_academica.codigocarrera AS codcarrera,
+			  tb_carga_academica.codigociclo AS codciclo,
+			  tb_carga_academica.codigoperiodo AS codperiodo,
 			  tb_turno.tur_nombre AS turno,
 			  tb_carga_academica.codigoseccion AS codseccion,
 			  tb_carga_academica.codigouindidadd AS codcurso,
@@ -987,23 +1056,23 @@ class Mmatricula extends CI_Model {
     {
        
         $resultmiembro = $this->db->query("SELECT 
-				  tb_matricula.mtr_id AS codigo,
-				  tb_matricula.codigoinscripcion AS codinscripcion,
-				  tb_inscripcion.ins_carnet AS carne,
-				  concat(tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) AS alumno,
-				  tb_periodo.ped_nombre AS periodo,
-				  tb_carrera.car_nombre AS carrera,
-				  tb_ciclo.cic_nombre AS ciclo,
-				  tb_matricula.codigoturno as codturno,
-				  tb_matricula.codigoseccion as codseccion
-				FROM
-				  tb_periodo
-				  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
-				  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
-				  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
-				  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
-				  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
-				WHERE concat(tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) like ? AND tb_periodo.ped_codigo=?", $data);
+		  tb_matricula.mtr_id AS codigo,
+		  tb_matricula.codigoinscripcion AS codinscripcion,
+		  tb_inscripcion.ins_carnet AS carne,
+		  concat(tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) AS alumno,
+		  tb_periodo.ped_nombre AS periodo,
+		  tb_carrera.car_nombre AS carrera,
+		  tb_ciclo.cic_nombre AS ciclo,
+		  tb_matricula.codigoturno as codturno,
+		  tb_matricula.codigoseccion as codseccion
+		FROM
+		  tb_periodo
+		  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
+		  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+		  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+		  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
+		  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
+		WHERE concat(tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) like ? AND tb_periodo.ped_codigo=?", $data);
         ////$this->db->close();
         return $resultmiembro->result();
     }
@@ -1012,23 +1081,23 @@ class Mmatricula extends CI_Model {
     {
        
         $resultmiembro = $this->db->query("SELECT 
-				  tb_matricula.mtr_id AS codigo,
-				  tb_matricula.codigoinscripcion AS codinscripcion,
-				  tb_inscripcion.ins_carnet AS carne,
-				  concat(tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) AS alumno,
-				  tb_periodo.ped_nombre AS periodo,
-				  tb_carrera.car_nombre AS carrera,
-				  tb_ciclo.cic_nombre AS ciclo,
-				  tb_matricula.codigoturno as codturno,
-				  tb_matricula.codigoseccion as codseccion
-				FROM
-				  tb_periodo
-				  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
-				  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
-				  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
-				  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
-				  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
-				WHERE tb_inscripcion.ins_carnet=? AND tb_periodo.ped_codigo=? LIMIT 1", $data);
+		  tb_matricula.mtr_id AS codigo,
+		  tb_matricula.codigoinscripcion AS codinscripcion,
+		  tb_inscripcion.ins_carnet AS carne,
+		  concat(tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) AS alumno,
+		  tb_periodo.ped_nombre AS periodo,
+		  tb_carrera.car_nombre AS carrera,
+		  tb_ciclo.cic_nombre AS ciclo,
+		  tb_matricula.codigoturno as codturno,
+		  tb_matricula.codigoseccion as codseccion
+		FROM
+		  tb_periodo
+		  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
+		  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+		  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+		  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
+		  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
+		WHERE tb_inscripcion.ins_carnet=? AND tb_periodo.ped_codigo=? LIMIT 1", $data);
         ////$this->db->close();
         return $resultmiembro->row();
     }
@@ -1038,38 +1107,40 @@ class Mmatricula extends CI_Model {
     {
        
         $resultmiembro = $this->db->query("SELECT 
-			  tb_inscripcion.ins_carnet AS carne,
-			  tb_persona.per_apel_paterno AS paterno,
-			  tb_persona.per_apel_materno AS materno,
-			  tb_persona.per_nombres AS nombres,
-			  tb_periodo.ped_nombre AS periodo,
-			  tb_inscripcion.id_plan AS codplan,
-			  tb_matricula.codigocarrera as codcarrera,
-			  tb_carrera.car_nombre AS carrera,
-			  tb_carrera.car_nivel_formativo as  nivel,
-			  tb_ciclo.cic_nombre AS ciclo,
-			  tb_ciclo.cic_letras AS ciclol,
-			  tb_turno.tur_nombre AS turno,
-			  tb_matricula.codigoseccion AS codseccion,
-			  tb_matricula.mtr_fecha as fecha,
-			  tb_periodo.ped_anio as anio,
-			  tb_persona.per_tipodoc as tipodoc,
-			  tb_persona.per_dni as dni,
-			  tb_matricula.mtr_id as matricula,
-			  tb_matricula.codigosede as idsede,
-			  tb_inscripcion.ins_identificador as codinscripcion,
-			  tb_inscripcion.ins_emailc as ecorporativo,
-			  tb_plan_estudios.pln_nombre plan
-			FROM
-			  tb_periodo
-			  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
-			  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
-			  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
-			  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
-			  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
-			  INNER JOIN tb_turno ON (tb_matricula.codigoturno = tb_turno.tur_codigo)
-			  INNER JOIN tb_plan_estudios ON (tb_matricula.codigoplan = tb_plan_estudios.pln_id)
-			WHERE tb_matricula.mtr_id=? LIMIT 1", $data);
+				  tb_inscripcion.ins_carnet AS carne,
+				  tb_persona.per_apel_paterno AS paterno,
+				  tb_persona.per_apel_materno AS materno,
+				  tb_persona.per_nombres AS nombres,
+				  tb_periodo.ped_nombre AS periodo,
+				  tb_inscripcion.id_plan AS codplan,
+				  tb_matricula.codigocarrera as codcarrera,
+				  tb_carrera.car_nombre AS carrera,
+				  tb_carrera.car_nivel_formativo as  nivel,
+				  tb_ciclo.cic_nombre AS ciclo,
+				  tb_ciclo.cic_letras AS ciclol,
+				  tb_turno.tur_nombre AS turno,
+				  tb_matricula.codigoseccion AS codseccion,
+				  tb_matricula.mtr_fecha as fecha,
+				  tb_periodo.ped_anio as anio,
+				  tb_persona.per_tipodoc as tipodoc,
+				  tb_persona.per_dni as dni,
+				  tb_matricula.mtr_id as matricula,
+				  tb_matricula.codigosede as idsede,
+				  tb_estadoalumno.esal_nombre AS estado,
+				  tb_inscripcion.ins_identificador as codinscripcion,
+				  tb_inscripcion.ins_emailc as ecorporativo,
+				  tb_plan_estudios.pln_nombre plan
+				FROM
+				  tb_periodo
+				  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
+				  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+				  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+				  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
+				  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
+				  INNER JOIN tb_turno ON (tb_matricula.codigoturno = tb_turno.tur_codigo)
+				  LEFT OUTER JOIN tb_plan_estudios ON (tb_matricula.codigoplan = tb_plan_estudios.pln_id)
+				  INNER JOIN tb_estadoalumno ON (tb_matricula.codigoestado = tb_estadoalumno.esal_id)
+				WHERE tb_matricula.mtr_id=? LIMIT 1", $data);
         ////$this->db->close();
         return $resultmiembro->result();
     }
@@ -1077,7 +1148,7 @@ class Mmatricula extends CI_Model {
     
 
 
-    public function m_get_matriculas_pdf($data)
+     public function m_get_matriculas_pdf($data)
     {
     	$signos=implode("','", $data);
         $resultmiembro = $this->db->query("SELECT 
@@ -1098,15 +1169,15 @@ class Mmatricula extends CI_Model {
 		  tb_matricula.mtr_id as matricula,
 		  tb_matricula.codigocarrera as codcarrera,
  		  tb_ciclo.cic_letras AS ciclol
-			FROM
-			  tb_periodo
-			  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
-			  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
-			  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
-			  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
-			  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
-			  INNER JOIN tb_turno ON (tb_matricula.codigoturno = tb_turno.tur_codigo)
-			WHERE tb_matricula.mtr_id IN ('$signos')");
+		FROM
+		  tb_periodo
+		  INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
+		  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+		  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+		  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
+		  INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
+		  INNER JOIN tb_turno ON (tb_matricula.codigoturno = tb_turno.tur_codigo)
+		WHERE tb_matricula.mtr_id IN ('$signos')");
         ////$this->db->close();
         return $resultmiembro->result();
     }
@@ -1150,6 +1221,7 @@ class Mmatricula extends CI_Model {
 		  tb_matricula.codigoturno AS codturno,
 		  tb_matricula.codigoseccion AS codseccion,
 		  tb_matricula.mtr_cuotapension AS pension,
+		  tb_matricula.mtr_cuotapension_real AS pension_real,
 		  tb_matricula.codigoestado AS estado,
 		  tb_matricula.codigoplan as codplan,
 		  tb_matricula.mtr_fecha as fecha,
@@ -1170,19 +1242,19 @@ class Mmatricula extends CI_Model {
 
     public function m_update_matricula_manual($data)
     {
-    	$this->db->query("CALL `sp_tb_matricula_update_manual`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
+    	$this->db->query("CALL `sp_tb_matricula_update_manual`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
       	$res = $this->db->query('select @s as rs,@nc as newcod');
       	return $res->row();
     }
 
     public function m_update_matricula_manual_consede($data)
     {
-    	$this->db->query("CALL `sp_tb_matricula_update_manual_sede`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
+    	$this->db->query("CALL `sp_tb_matricula_update_manual_sede`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
       	$res = $this->db->query('select @s as rs,@nc as newcod');
       	return $res->row();
     }
 
- 		public function m_filtrar_record_academico($carne)
+ 	public function m_filtrar_record_academico($carne)
     {
     	$result = $this->db->query("SELECT 
 			  tb_matricula_cursos_nota_final.mtcf_codigo as codigo,
@@ -1288,6 +1360,7 @@ class Mmatricula extends CI_Model {
       }
       $sqltext=implode(' AND ', $sqltext_array);
       if ($sqltext!="") $sqltext= " WHERE ".$sqltext;
+
         $resultmiembro = $this->db->query("SELECT 
 				  tb_matricula.mtr_id AS codigo,
 				  tb_matricula.codigoinscripcion AS codinscripcion,
@@ -1342,7 +1415,7 @@ class Mmatricula extends CI_Model {
 				  LEFT OUTER JOIN tb_discapacidades ON (tb_inscripcion_discapacidad.cod_discapacidad = tb_discapacidades.dcd_id)
 				  LEFT OUTER JOIN tb_plan_estudios ON (tb_matricula.codigoplan = tb_plan_estudios.pln_id)
 				  INNER JOIN tb_beneficio ON (tb_matricula.codigobeneficio = tb_beneficio.ben_id)
-				$sqltext  
+				$sqltext 
 				ORDER BY tb_matricula.codigoperiodo,tb_matricula.codigocarrera,tb_matricula.codigoplan,tb_matricula.codigociclo,tb_matricula.codigoturno,tb_matricula.codigoseccion,tb_persona.per_apel_paterno,tb_persona.per_apel_materno , tb_persona.per_nombres", $data_array);
         ////$this->db->close();
         return $resultmiembro->result();

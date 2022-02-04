@@ -77,7 +77,7 @@
                             <span class="badge <?php echo $bgstatus ?> p-2"><?php echo $usuario->estado ?></span>
                         </div>
                         <div class='col-6 col-md-6 td'>
-                            <a class="btn-anexados bg-primary py-1 px-2 rounded" data-ci="<?php echo $idins ?>" data-toggle="modal" data-target="#modal-docporanexar" title="Documentos anexados">
+                            <a class="btn-anexados bg-primary py-1 px-2 rounded" data-ci="<?php echo $idins ?>" data-toggle="modal" data-target="#modal-docporanexar" title="Documentos anexados" data-carrera="<?php echo $usuario->carrera ?>">
                                 <i class="far fa-folder-open"></i>
                             </a>
                         </div>
@@ -96,6 +96,7 @@
         $("#lista-no").removeClass('ocultar');
         btn= $(e.relatedTarget);
         var cins=btn.data('ci');
+        var carrera = btn.data('carrera');
         $("#fdacodins").val(cins);
         var fila=btn.parents(".cfila");
         var carne=fila.find('.cell-carne').html();
@@ -103,6 +104,7 @@
           //$('#divboxhistorial').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
         $("#frm-docanexar #spn-carne").html(carne);
         $("#frm-docanexar #spn-alumno").html(alumno);
+        $("#frm-docanexar #spn_carrera").html(carrera);
         $('#frm-docanexar input[type=checkbox]').prop('checked', false);
         $.ajax({
             url: base_url + 'inscrito/fn_getdocanexados',
@@ -129,9 +131,17 @@
                     //if (this.checked) {
                     var check=$(this);
                     var valor=check.attr('id').substring(2);
+                    $('#frm-docanexar #period_'+check.attr('id')).val('');
+                    $('#frm-docanexar #period_'+check.attr('id')).attr('disabled', true);
+                    $('#frm-docanexar #txt_'+check.attr('id')).val('');
+                    $('#frm-docanexar #txt_'+check.attr('id')).prop('disabled', true);
                     $.each(e.vdata, function(index, v) {
                         if (v['coddoc']==valor){
                             check.prop('checked', true);
+                            $('#frm-docanexar #period_'+check.attr('id')).val(v['periodo']);
+                            $('#frm-docanexar #period_'+check.attr('id')).attr('disabled', false);
+                            $('#frm-docanexar #txt_'+check.attr('id')).val(v['detalle']);
+                            $('#frm-docanexar #txt_'+check.attr('id')).prop('disabled', false);
                         }
                     });
 

@@ -42,30 +42,39 @@ class Mdeudas_individual extends CI_Model
   public function m_get_historial_pagante($data)
   {
     $sqltext_array=array();
+
       $data_array=array();
-      if ($data[0]!="%") {
+      if (isset($data['codperiodo']) and ($data['codperiodo']!="%")) {
         $sqltext_array[]="tb_matricula.codigoperiodo = ?";
-        $data_array[]=$data[0];
+        $data_array[]=$data['codperiodo'];
       } 
-      if ($data[1]!="%") {
+      if (isset($data['codcarrera']) and ($data['codcarrera']!="%")) {
         $sqltext_array[]="tb_matricula.codigocarrera = ?";
-        $data_array[]=$data[1];
+        $data_array[]=$data['codcarrera'];
       } 
-      if ($data[2]!="%")  {
+      if (isset($data['codturno']) and ($data['codturno']!="%")) {
         $sqltext_array[]="tb_matricula.codigoturno = ?";
-        $data_array[]=$data[2];
+        $data_array[]=$data['codturno'];
       }
-      if ($data[3]!="%")  {
+      if (isset($data['codciclo']) and ($data['codciclo']!="%")) {
         $sqltext_array[]="tb_matricula.codigociclo = ?";
-        $data_array[]=$data[3];
+        $data_array[]=$data['codciclo'];
       }
-      if ($data[4]!="%")  {
+      if (isset($data['codseccion']) and ($data['codseccion']!="%")) {
         $sqltext_array[]="tb_matricula.codigoseccion = ?";
-        $data_array[]=$data[4];
+        $data_array[]=$data['codseccion'];
       }
-      if ($data[5]!="%%")  {
+      if (isset($data['buscar']) and ($data['buscar']!="%")) {
         $sqltext_array[]="concat(tb_inscripcion.ins_carnet,' ',tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) like ?";
-        $data_array[]=$data[5];
+        $data_array[]=$data['buscar'];
+      }
+      if (isset($data['carnet']) and ($data['carnet']!="%")) {
+        $sqltext_array[]="tb_inscripcion.ins_carnet=?";
+        $data_array[]=$data['carnet'];
+      }
+      if (isset($data['saldo'])) {
+        $sqltext_array[]="tb_deuda_individual.di_saldo ".$data['saldo'][0]." ?";
+        $data_array[]=$data['saldo'][1];
       }
       $sqltext=implode(' AND ', $sqltext_array);
       if ($sqltext!="") $sqltext= " WHERE ".$sqltext;
@@ -98,7 +107,8 @@ class Mdeudas_individual extends CI_Model
               $sqltext
               ORDER BY tb_persona.per_apel_paterno,tb_persona.per_apel_materno,tb_persona.per_nombres,tb_deuda_individual.di_fecha_vencimiento DESC",$data_array);
         return $result->result();
-  }
+  
+    }
 
     public function m_get_deuda_activa_xpagante($data)
     {
@@ -122,6 +132,39 @@ class Mdeudas_individual extends CI_Model
         WHERE tb_deuda_individual.pagante_cod=? AND tb_deuda_individual.di_saldo>0 AND tb_deuda_individual.di_estado='ACTIVO'",$data);
         return $result->result();
     }
+
+    /*public function m_get_historial_deudas_carnet($data)
+    {
+      $result = $this->db->query("SELECT 
+                tb_deuda_individual.di_codigo AS codigo,
+                tb_persona.per_dni AS dni,
+                tb_inscripcion.ins_carnet as carnet,
+                tb_persona.per_apel_paterno as paterno,
+                tb_persona.per_apel_materno as materno,
+                tb_persona.per_nombres AS nombres,
+                tb_deuda_individual.di_monto AS monto,
+                tb_deuda_individual.di_fecha_vencimiento AS fvence,
+                tb_deuda_individual.di_saldo AS saldo,
+                tb_deuda_individual.di_estado AS estado,
+                tb_carrera.car_nombre AS carrera,
+                tb_ciclo.cic_nombre AS ciclo,
+                tb_deuda_individual.cod_gestion as codgestion,
+                tb_gestion.gt_nombre as gestion,
+                tb_matricula.codigoperiodo as codperiodo,
+                tb_carrera.car_sigla as sigla
+              FROM
+                tb_matricula
+                INNER JOIN tb_deuda_individual ON (tb_matricula.mtr_id = tb_deuda_individual.matricula_cod)
+                INNER JOIN tb_inscripcion ON (tb_inscripcion.ins_identificador = tb_matricula.codigoinscripcion)
+                INNER JOIN tb_persona ON (tb_persona.per_codigo = tb_inscripcion.cod_persona)
+                INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+                INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+                INNER JOIN tb_gestion ON (tb_deuda_individual.cod_gestion = tb_gestion.gt_codigo)
+              WHERE
+                tb_deuda_individual.pagante_cod = ?
+              ORDER BY tb_persona.per_apel_paterno,tb_persona.per_apel_materno,tb_persona.per_nombres,tb_deuda_individual.di_fecha_vencimiento DESC",$data);
+        return $result->result();
+    }*/
 
 
 
@@ -223,39 +266,6 @@ class Mdeudas_individual extends CI_Model
           tb_matricula.codigoseccion,tb_matricula.mtr_apel_paterno,
           tb_matricula.mtr_apel_materno,
           tb_matricula.mtr_nombres",$data);
-        return $result->result();
-    }
-
-    public function m_get_historial_deudas_carnet($data)
-    {
-      $result = $this->db->query("SELECT 
-                tb_deuda_individual.di_codigo AS codigo,
-                tb_persona.per_dni AS dni,
-                tb_inscripcion.ins_carnet as carnet,
-                tb_persona.per_apel_paterno as paterno,
-                tb_persona.per_apel_materno as materno,
-                tb_persona.per_nombres AS nombres,
-                tb_deuda_individual.di_monto AS monto,
-                tb_deuda_individual.di_fecha_vencimiento AS fvence,
-                tb_deuda_individual.di_saldo AS saldo,
-                tb_deuda_individual.di_estado AS estado,
-                tb_carrera.car_nombre AS carrera,
-                tb_ciclo.cic_nombre AS ciclo,
-                tb_deuda_individual.cod_gestion as codgestion,
-                tb_gestion.gt_nombre as gestion,
-                tb_matricula.codigoperiodo as codperiodo,
-                tb_carrera.car_sigla as sigla
-              FROM
-                tb_matricula
-                INNER JOIN tb_deuda_individual ON (tb_matricula.mtr_id = tb_deuda_individual.matricula_cod)
-                INNER JOIN tb_inscripcion ON (tb_inscripcion.ins_identificador = tb_matricula.codigoinscripcion)
-                INNER JOIN tb_persona ON (tb_persona.per_codigo = tb_inscripcion.cod_persona)
-                INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
-                INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
-                INNER JOIN tb_gestion ON (tb_deuda_individual.cod_gestion = tb_gestion.gt_codigo)
-              WHERE
-                tb_deuda_individual.pagante_cod = ?
-              ORDER BY tb_persona.per_apel_paterno,tb_persona.per_apel_materno,tb_persona.per_nombres,tb_deuda_individual.di_fecha_vencimiento DESC",$data);
         return $result->result();
     }
 

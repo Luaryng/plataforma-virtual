@@ -5,9 +5,11 @@ class Traslados extends CI_Controller {
 	function __construct() {
 		parent::__construct();
 		$this->load->model('minscrito');
+		$this->load->model('mdiscapacidad');
+		$this->load->model('mpublicidad');
 	}
 	
-	public function fn_traslados(){
+	public function fn_traslados($dnipostula=""){
 		
 			$ahead= array('page_title' =>'Admisión | IESTWEB'  );
 			$asidebar= array('menu_padre' =>'admision','menu_hijo' =>'traslado');
@@ -28,6 +30,10 @@ class Traslados extends CI_Controller {
 				$a_ins['turnos']=$this->mtemporal->m_get_turnos_activos();
 				$a_ins['secciones']=$this->mtemporal->m_get_secciones();
 				$a_ins['docs_anexar']=$this->mtemporal->m_get_docs_por_anexar();
+				$a_ins['dnipostula']=$dnipostula;
+
+				$a_ins['discapacidades']=$this->mdiscapacidad->m_filtrar_discapacidadxestado();
+				$a_ins['publicidad'] = $this->mpublicidad->m_get_publicidades();
 
 				$this->load->view('admision/vw_traslados',$a_ins);
 			}

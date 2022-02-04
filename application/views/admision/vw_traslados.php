@@ -11,7 +11,7 @@
 </style>
 <link rel="stylesheet" href="<?php echo $vbaseurl ?>resources/plugins/bootstrap-select-1.13.9/css/bootstrap-select.min.css">
 
-<div class="modal fade" id="modal-docporanexar" role="dialog" tabindex="-1" data-keyboard="true" data-backdrop="static">
+<!-- <div class="modal fade" id="modal-docporanexar" role="dialog" tabindex="-1" data-keyboard="true" data-backdrop="static">
     <div class="modal-dialog">
         <div class="modal-content">
             
@@ -49,9 +49,146 @@
                 </div>
             </form>
         </div>
+        
+    </div>
+    
+</div> -->
+<div class="modal fade" id="modal-docporanexar" role="dialog" tabindex="-1" data-keyboard="true" data-backdrop="static">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h4 class="modal-title">DOCUMENTOS ANEXADOS</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id='frm-docanexar' name='frm-docanexar' method='post' accept-charset='utf-8'>
+                <div class="modal-body">
+                  <span id="spn-carne"></span> <span id="spn_carrera" class="text-primary text-bold"></span><br>  
+                  <b><span id="spn-alumno"></span></b>
+                  <hr>
+                  <input id="fdacodins" name="fdacodins" type="hidden" class="form-control" value="">
+                  <div id="lista-no" class="col-12 text-center ocultar">
+                    <div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>
+                  </div>
+                  <div id="lista-ok" class="row ocultar">
+                    <div class="col-12">
+                      <div class="d-none d-md-block">
+                        <div class="row mt-3">
+                          <div class="col-6">
+                            <span class="h6"><b>Documentos</b></span>
+                          </div>
+                          <div class="col-2">
+                            <span class="h6"><b>Periodo</b></span>
+                          </div>
+                          <div class="col-4">
+                            <span class="h6"><b>Fecha de entrega / Observaciones</b></span>
+                          </div>
+                        </div>
+                        <hr>
+                      </div>
+                    <?php foreach ($docs_anexar as $doc_anexar) {?>
+                      <div class="row mb-2">
+                        <div class="col-12 col-md-6">
+                          <div class="brcheck">
+                            <input class="check" type="checkbox" name="it<?php echo $doc_anexar->coddocumento ?>" id="it<?php echo $doc_anexar->coddocumento ?>" value="<?php echo $doc_anexar->coddocumento ?>" />
+                            <label class="check__label" for="it<?php echo $doc_anexar->coddocumento ?>">
+                                <i class="fas fa-check"></i>
+                                <span class="texto"><?php echo $doc_anexar->nombre ?></span>
+                            </label>
+                          </div>
+                        </div>
+                        <div class="col-6 col-md-2">
+                          <select class="form-control form-control-sm" id="period_it<?php echo $doc_anexar->coddocumento ?>" name="period_it<?php echo $doc_anexar->coddocumento ?>" disabled="">
+                              <option value=""></option>
+                              <?php foreach ($periodos as $periodo) {?>
+                              <option value="<?php echo $periodo->codigo ?>"><?php echo $periodo->nombre ?></option>
+                              <?php } ?>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-4">
+                          <input type="text" name="txt_it<?php echo $doc_anexar->coddocumento ?>" id="txt_it<?php echo $doc_anexar->coddocumento ?>" class="form-control form-control-sm" disabled="">
+                        </div>
+                      </div>
+                      
+                      <?php } ?> 
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Cerrar</button>
+                    <?php if (getPermitido("143")=='SI') { ?>
+                    <button class="btn btn-primary float-right" type="submit" > Guardar</button>
+                    <?php } ?>
+                </div>
+            </form>
+        </div>
         <!-- /.modal-content -->
     </div>
     <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="modanexadocs" tabindex="-1" role="dialog" aria-labelledby="modanexadocs" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content" id="divmodanexar">
+      <div class="modal-header">
+        <h4 class="modal-title">Documentos anexados</h4>
+        <button type="button" class="close anexclose" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body" id="">
+        <div class="col-12">
+          <div class="row">
+            <span class="text-primary text-bold" id="msgcarrera"></span>
+          </div>
+          <hr>
+          <div class="d-none d-md-block">
+            <div class="row mt-3">
+              <div class="col-6">
+                  <span class="h6"><b>Documentos</b></span>
+              </div>
+              <div class="col-2">
+                <span class="h6"><b>Periodo</b></span>
+              </div>
+              <div class="col-4">
+                  <span class="h6"><b>Fecha de entrega / Observaciones</b></span>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <?php foreach ($docs_anexar as $doc_anexar) {?>
+            <div class="row mb-2">
+              <div class="col-12 col-md-6">
+                  <div class="brcheck">
+                    <input class="check checkman" type="checkbox" name="itm<?php echo $doc_anexar->coddocumento ?>" id="itm<?php echo $doc_anexar->coddocumento ?>" value="<?php echo $doc_anexar->coddocumento ?>" data-abrev="<?php echo $doc_anexar->abrevia ?>" />
+                    <label class="check__label" for="itm<?php echo $doc_anexar->coddocumento ?>">
+                        <i class="fas fa-check"></i>
+                        <span class="texto"><?php echo $doc_anexar->nombre ?></span>
+                    </label>
+                  </div>
+              </div>
+              <div class="col-6 col-md-2">
+                <select class="form-control form-control-sm" id="period_itm<?php echo $doc_anexar->coddocumento ?>" name="period_itm<?php echo $doc_anexar->coddocumento ?>" disabled="">
+                    <option value=""></option>
+                    <?php foreach ($periodos as $periodo) {?>
+                    <option value="<?php echo $periodo->codigo ?>"><?php echo $periodo->nombre ?></option>
+                    <?php } ?>
+                  </select>
+              </div>
+              <div class="col-6 col-md-4">
+                  <input type="text" name="txt_itm<?php echo $doc_anexar->coddocumento ?>" id="txt_itm<?php echo $doc_anexar->coddocumento ?>" class="form-control form-control-sm" disabled="">
+              </div>
+            </div>
+            
+            <?php } ?> 
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary anexclose" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary anexclose" data-dismiss="modal">Aceptar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="content-wrapper">
@@ -78,7 +215,7 @@
           </li>
           <li id="tabli-aperturafile" class="nav-item">
             <a class="nav-link" href="#ficha-personal" data-toggle="tab">
-              <i class="fas fa-user"></i> Ficha Personal
+              <i class="fas fa-user-plus"></i> Inscripciones
             </a>
           </li>
         </ul>
@@ -167,14 +304,31 @@
 
             <form id="frmins-inscripcion" action="<?php echo $vbaseurl ?>inscrito/fn_insert" method="post" accept-charset='utf-8'>
               <div class="row mt-2">
-                <div class="form-group has-float-label col-12 col-sm-4">
+                <div class="form-group has-float-label col-12 col-sm-3">
                   <select name="cbodispacacidad" id="cbodispacacidad" class="form-control">
                     <option value="NO">NO</option>
                     <option value="SI">SI</option>
                   </select>
                   <label for="cbodispacacidad">¿Tiene alguna discapacidad?</label>
                 </div>
-                <div class="form-group has-float-label col-12 col-sm-8 d-none" id="divcard_detdiscap">
+                <div class="form-group has-float-label col-12 col-sm-4 d-none divcard_detdiscap">
+                  <select data-currentvalue='' class="form-control" id="ficbdiscapacidad" name="ficbdiscapacidad" >
+                    <option value="0">Selecciona discapacidad</option>
+                    <?php 
+                    foreach ($discapacidades as $disc) {
+                      $grupod = "";
+                      if ($disc->detalle != "" || $disc->detalle != null) {
+                        $grupod = $disc->grupo." - ".$disc->detalle;
+                      } else {
+                        $grupod = $disc->grupo;
+                      }
+                    ?>
+                    <option value="<?php echo $disc->codigo ?>"><?php echo $grupod ?></option>
+                    <?php } ?>
+                  </select>
+                  <label for="ficbdiscapacidad"> Discapacidad</label>
+                </div>
+                <div class="form-group has-float-label col-12 col-sm-5 d-none divcard_detdiscap" id="">
                   <input class="form-control" type="text" name="txtdetadiscapac" id="txtdetadiscapac" placeholder="Especificar ¿Cúal es su discapacidad?">
                   <label for="txtdetadiscapac">Especificar ¿Cúal es su discapacidad?</label>
                 </div>
@@ -235,7 +389,7 @@
                   <select data-currentvalue='' class="form-control" id="ficbcarrera" name="ficbcarrera" placeholder="Programa de estudios" required >
                     <option value="0">Selecciona</option>
                     <?php foreach ($carreras as $carrera) {?>
-                    <option value="<?php echo $carrera->codcarrera ?>" data-sigla="<?php echo $carrera->sigla ?>"><?php echo $carrera->nombre ?></option>
+                    <option value="<?php echo $carrera->codcarrera ?>" data-sigla="<?php echo $carrera->sigla ?>" data-nombre="<?php echo $carrera->nombre ?>"><?php echo $carrera->nombre ?></option>
                     <?php } ?>
                   </select>
                   <label for="ficbcarrera"> Programa de estudios</label>
@@ -268,17 +422,34 @@
                   <label for="ficbseccion"> Sección</label>
                 </div>
                 <div class="form-group col-12 col-sm-12">
-                  <label for="ficbsdocanexados">Documentos anexados</label>
-                  <select id="ficbsdocanexados" title='Selecciona documentos anexados' data-actions-box="true" multiple class="selectpicker form-control" multiple data-live-search="true">
-                    <?php foreach ($docs_anexar as $doc_anexar) {?>
-                    <option value="<?php echo $doc_anexar->coddocumento ?>" title="<?php echo $doc_anexar->abrevia ?>"><?php echo $doc_anexar->nombre ?></option>
-                    <?php } ?>
-                  </select>
+                  <button type="button" class="btn btn-outline-secondary btn-block text-left" id="btn_docanex" data-toggle="modal" data-target="#modanexadocs">Documentos anexados</button>
                 </div>
                 <div class="form-group has-float-label col-12 col-sm-12">
                   <textarea class="form-control" id="fitxtobservaciones" name="fitxtobservaciones" placeholder="Observaciones"  rows="3"></textarea>
                   <label for="fitxtobservaciones"> Observaciones</label>
                 </div>
+
+                <div class="col-12 mb-3" id="divcard_publicidad">
+                  <h4 class="title-seccion text-danger">¿Como se enteró de nuestros programas?</h4>
+                  <div class="row ml-3">
+                    <?php
+                      $nro = 0;
+                      foreach ($publicidad as $key => $pb) {
+                        $nro ++;
+                    ?>
+                    <div class="col-12 divcheck">
+                      <div class="custom-control custom-switch">
+                          <input type="checkbox" class="custom-control-input checkpublicidad" id="checkpub<?php echo $nro ?>" data-codigo="<?php echo $pb->codigo ?>">
+                          <label class="custom-control-label" for="checkpub<?php echo $nro ?>"><?php echo $pb->nombre ?></label>
+                      </div>
+                    </div>
+                    <?php
+                      }
+                    ?>
+                    
+                  </div>
+                </div>
+
                 <div class="form-group has-float-label col-12 col-sm-3">
                   <input data-currentvalue='' class="form-control text-uppercase" value="<?php echo date("Y-m-d"); ?>" id="fitxtfecinscripcion" name="fitxtfecinscripcion" type="date" placeholder="Fec. Inscripción"   />
                   <label for="fitxtfecinscripcion">Fec. Inscripción</label>
@@ -305,7 +476,18 @@
 <script>
 
   $(document).ready(function() {
-    $("#frm-filtro-inscritos").submit();
+    // $("#frm-filtro-inscritos").submit();
+    if (vdnipostulante!==""){
+      $('.nav-pills a[href="#ficha-personal"]').tab('show');
+      $("#frmins-postulante #ficodpostulante").val(vdnipostulante);
+      $("#frmins-postulante").submit();
+    }
+    else{
+      var jscarnet=getUrlParameter("fcarnet","");
+      $("#fbus-txtbuscar").val(jscarnet);
+      $("#frm-filtro-inscritos").submit();
+      
+    }
     $('#ficbmodalidad').change();
   });
 
@@ -330,11 +512,13 @@
     var combo = $(this);
     var item = combo.val();
     if (item =='SI') {
-      $('#divcard_detdiscap').removeClass('d-none');
+      $('.divcard_detdiscap').removeClass('d-none');
     } else {
-      $('#divcard_detdiscap').addClass('d-none');
+      $('.divcard_detdiscap').addClass('d-none');
     }
   });
+
+  var vdnipostulante='<?php echo $dnipostula; ?>';
 
   $("#frmins-inscripcion").hide();
 
@@ -460,12 +644,41 @@
      
 
       Arrdocs = [];
-        $.each($("#ficbsdocanexados option:selected"), function() {
-            Arrdocs.push($(this).val());
-        });
-      adocs= JSON.stringify(Arrdocs),
+      arraypublic = [];
+      arraydocs = [];
+      
+      $('#divcard_publicidad .divcheck .checkpublicidad').each(function() {
+        var check = $(this);
+        var idpub = "";
+        if (check.prop('checked') == true) {
+          var idpub = check.data('codigo');
+        }
+
+        if (idpub !== "") {
+          // var myvals = [idpub];
+          arraypublic.push(idpub);
+        }
+        
+      })
+
+      $('#modanexadocs input[type=checkbox]').each(function () {
+        if (this.checked) {
+            var check=$(this);
+            var valor=check.attr('id').substring(3);
+            var detalle = $('#txt_'+check.attr('id')).val();
+            var periodo = $('#period_'+check.attr('id')).val();
+
+            var myvals = [valor,detalle, periodo];
+            arraydocs.push(myvals);
+        }
+      });
+
+      adocs= JSON.stringify(arraydocs);
+      apublic = JSON.stringify(arraypublic);
+
       fdata=$(this).serializeArray();
       fdata.push({name: 'doc-anexados', value: adocs});
+      fdata.push({name: 'inspublicidad', value: apublic});
 
 
       $.ajax({
@@ -496,6 +709,9 @@
                   })
                 }
               } else {
+                var sb=(getUrlParameter("sb","")=="") ? "":"&sb=admision";
+                location.href = base_url + "admision/traslados?fcarnet=" + e.newcarnet + sb;
+
                   Swal.fire({
                     type: 'success',
                     title: 'Felcicitaciones, inscripción registrada',
@@ -551,6 +767,26 @@
       if ($(this).val !== "0") cbcmp.val($('option:selected', this).data('sigla'))
   });
 
+  $('.check').change(function(e) {
+    $('#frm-docanexar input[type=checkbox]').each(function () {
+          if (this.checked) {
+            var check=$(this);
+            var codigo = check.attr('id');
+            var valor=check.attr('id').substring(2);
+            $('#frm-docanexar #period_'+check.attr('id')).attr('disabled', false);
+            $('#frm-docanexar #txt_'+check.attr('id')).attr('disabled', false);
+            $('#frm-docanexar #txt_'+check.attr('id')).focus();
+            
+          } else {
+            var check=$(this);
+            $('#frm-docanexar #period_'+check.attr('id')).val('');
+            $('#frm-docanexar #period_'+check.attr('id')).attr('disabled', true);
+            $('#frm-docanexar #txt_'+check.attr('id')).attr('disabled', true);
+            $('#frm-docanexar #txt_'+check.attr('id')).val("");
+          }
+    });
+  });
+
   $("#frm-docanexar").submit(function(event) {
     $('#divboxhistorial').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
     var cins=$("#fdacodins").val();
@@ -560,8 +796,10 @@
           if (this.checked) {
             var check=$(this);
             var valor=check.attr('id').substring(2);
+            var detalle = $('#frm-docanexar #txt_'+check.attr('id')).val();
+            var periodo = $('#frm-docanexar #period_'+check.attr('id')).val();
 
-            var myvals = [valor];
+            var myvals = [valor, detalle, periodo];
             arrdata.push(myvals);
           }
     });
@@ -579,6 +817,7 @@
           if (e.status == false) {
               Swal.fire({
                   type: 'error',
+                  icon: 'error',
                   title: 'Error!',
                   text: e.msg,
                   backdrop: false,
@@ -588,6 +827,7 @@
               $('#modal-docporanexar').modal('hide')
               Swal.fire({
                   type: 'success',
+                  icon: 'success',
                   title: 'Actualización correcta',
                   text: 'Se ha actualizaron los datos de la inscripción',
                   backdrop: false,
@@ -602,6 +842,7 @@
           $('#divboxhistorial #divoverlay').remove();
           Swal.fire({
               type: 'error',
+              icon: 'error',
               title: 'Error',
               text: msgf,
               backdrop: false,
@@ -611,5 +852,40 @@
     return false;
     //***************************************
   });
+
+  $('.checkman').change(function(e) {
+    docarray = [];
+    $('#modanexadocs input[type=checkbox]').each(function () {
+        if (this.checked) {
+            var check=$(this);
+            var valor=check.attr('id').substring(3);
+            var abrev = check.data('abrev');
+            $('#period_'+check.attr('id')).attr('disabled', false);
+            $('#txt_'+check.attr('id')).attr('disabled', false);
+            $('#txt_'+check.attr('id')).focus();
+
+            docarray.push(abrev);
+            
+        } else {
+            var check=$(this);
+            $('#period_'+check.attr('id')).val('');
+            $('#period_'+check.attr('id')).attr('disabled', true);
+            $('#txt_'+check.attr('id')).attr('disabled', true);
+            $('#txt_'+check.attr('id')).val("");
+        }
+    });
+    docsanex = JSON.stringify(docarray);
+    if (docarray.length > 0) {
+      $('#btn_docanex').html("Documentos anexados: "+docsanex);
+    } else {
+      $('#btn_docanex').html("Documentos anexados");
+    }
+    
+  });
+
+  $('#modanexadocs').on('show.bs.modal', function (e) {
+    $('#msgcarrera').html('');
+    if ($('#ficbcarrera').val !== "0") $('#msgcarrera').html($('option:selected', $('#ficbcarrera')).data('nombre'));
+  })
 
 </script>
