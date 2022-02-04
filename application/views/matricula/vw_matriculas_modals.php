@@ -246,10 +246,11 @@
                     <?php endif ?>
                     <div class="form-group has-float-label col-12 col-sm-6 col-md-4">
                       <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbtipoup" name="fm-cbtipoup" required="">
-                        <option value="O">Matricula Ordinaria</option>
-                        <option value="E">Matricula Extraordinaria</option>
-                        <option value="RO">Ratificación Ordinaria</option>
-                        <option value="RE">Ratificación Extraordinaria</option>
+                        <option value="0"></option>
+                        <option data-nromat="1" value="O">Matricula Ordinaria</option>
+                        <option data-nromat="1" value="E">Matricula Extraordinaria</option>
+                        <option data-nromat="2" value="RO">Ratificación Ordinaria</option>
+                        <option data-nromat="2" value="RE">Ratificación Extraordinaria</option>
                       </select>
                       <label for="fm-cbtipoup">Tipo</label>
                     </div>

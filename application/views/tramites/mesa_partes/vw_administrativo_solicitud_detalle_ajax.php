@@ -143,6 +143,7 @@
         $bgcolorsituacion="bg-success";
         foreach ($rutas['ruta'] as $key => $rt) {
            $div_nuevo="";
+           
           if ($nro>0){
             if ($solicitud->idruta_actual==$rt->codruta){
               $div_nuevo="<div class='float-right pt-1'><i class='fas fa-star fa-spin fa-lg text-success'></i></div>";

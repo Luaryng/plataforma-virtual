@@ -189,6 +189,7 @@ class Mmatricula extends CI_Model {
 				  CONCAT(tb_personaus.per_apel_paterno,' ',tb_personaus.per_apel_materno,' ',tb_personaus.per_nombres) as usuario,
 				  tb_matricula.mtr_cuotapension as pension,
 				  tb_matricula.mtr_mat_condicional as condicional,
+				  tb_matricula.mtr_observacion as observacion,
 				  tb_beneficio.ben_sigla as beneficio
 				FROM
 				  tb_periodo

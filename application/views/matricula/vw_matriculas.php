@@ -349,23 +349,7 @@ $(".btn-excel").click(function(e) {
     $('#frm-filtro-inscritos .invalid-feedback').remove();*/
     var url = base_url + 'academico/matriculas/excel?cp=' + $("#fmt-cbperiodo").val() + '&cc=' + $("#fmt-cbcarrera").val() + '&ccc=' + $("#fmt-cbciclo").val() + '&ct=' + $("#fmt-cbturno").val() + '&cs=' + $("#fmt-cbseccion").val() + '&cpl=' + $("#fmt-cbplan").val() + '&ap=' + $("#fmt-alumno").val() + '&es=' + $("#fmt-cbestado").val() + '&sed=' + $("#fmt-cbsede").val() + '&benf=' + $("#fmt-cbbeneficio").val();
     var ejecuta = true;
-    /*if ($.trim($("#fbus-txtbuscar").val())=='%%%%'){
-    if (($("#fbus-periodo").val()!="%") || ($("#fbus-carrera").val()!="%")){
-    ejecuta=true;
-    }
-    else{
-    $('#fbus-carrera').addClass('is-invalid');
-    $('#fbus-carrera').parent().append("<div class='invalid-feedback'> Seleccionar</div>");
-    $('#fbus-periodo').addClass('is-invalid');
-    $('#fbus-periodo').parent().append("<div class='invalid-feedback'> Seleccionar</div>");
-    }
-    }else if($.trim($("#fbus-txtbuscar").val()).length>3){
-    ejecuta=true;
-    }
-    else{
-    $('#fbus-txtbuscar').addClass('is-invalid');
-    $('#fbus-txtbuscar').parent().append("<div class='invalid-feedback'> Ingrese mínimo 4 caracteres o %%%%</div>");
-    }*/
+    
     if (ejecuta == true) window.open(url, '_blank');
 });
 
@@ -408,6 +392,8 @@ $("#frmfiltro-matriculas").submit(function(event) {
                         var rowcolor = (nro % 2 == 0) ? 'bg-lightgray' : '';
                         var btnscolor = "";
                         var btnactcondi = "";
+                        var textobs = (v['observacion']!= "") ? v['observacion'] : "Ninguna";
+                        var observacion = "<br><b>Observación:</b><br>"+textobs;
                         switch (v['estado']) {
                             case "ACT":
                                 btnscolor = "btn-success";
@@ -443,7 +429,7 @@ $("#frmfiltro-matriculas").submit(function(event) {
                             '</div>';
                         sexo = (v['codsexo'] == "FEMENINO") ? "<i class='fas fa-female text-danger mr-1'></i>" : "<i class='fas fa-male text-primary mr-1'></i>";
                         estudiante = sexo + v['paterno'] + " " + v['materno'] + " " + v['nombres'] + " " + v['edad'];
-                        fecharegistro = v['registro'] + " <a href='#' class='view_user_reg' tabindex='0' role='button' data-toggle='popover' data-trigger='hover' title='Matriculado por: ' data-content='"+v['usuario']+"'><i class='fas fa-info-circle fa-lg'></i></a>";
+                        fecharegistro = v['registro'] + " <a href='#' class='view_user_reg' tabindex='0' role='button' data-toggle='popover' data-trigger='hover' title='Matriculado por: ' data-content='"+v['usuario']+observacion+"'><i class='fas fa-info-circle fa-lg'></i></a>";
                         vcuota = v['vpension'] + " ("+v['beneficio']+")";
                         grupo = v['periodo'] + " " + v['sigla'] + " " + v['codturno'] + " " + v['ciclo'] + " " + v['codseccion'];
                         boleta = '<a class="bg-success text-white py-1 px-2 mr-1 rounded btncall-boleta" data-cm=' + vcm + ' data-prog=' + v['codcarrera'] + ' data-periodo=' + v['codperiodo'] + ' data-ciclo=' + v['codciclo'] + ' data-turno=' + v['codturno'] + ' data-seccion=' + v['codseccion'] + ' href="#" title="Carga académica" data-toggle="modal" data-target="#modmatriculacurso">' +
@@ -486,7 +472,8 @@ $("#frmfiltro-matriculas").submit(function(event) {
                     $('#divcard-matricular #divoverlay').remove();
 
                     $('.view_user_reg').popover({
-                      trigger: 'hover'
+                      trigger: 'hover',
+                      html: true
                     })
 
                 }
@@ -1542,10 +1529,10 @@ $("#modupmat").on('shown.bs.modal', function(e) {
                         $('#fm-cbsedeup').val(e.matdata['codsede']);
                     }
                     $('#fm-txtobservacionesup').val(e.matdata['observacion']);
-
+                    $("#frm_updmatri #fm-cbcicloup").change();
                     fn_data_academico(carne);
                     fn_data_deudas(carne);
-                    fn_historias_matriculas(carne);
+                    fn_historias_matriculas(carne,0);
 
                 }
             },
@@ -1593,6 +1580,16 @@ $("#modupmat").on('hidden.bs.modal', function(e) {
     $('#nrodesap').html("");
     $('#msgdesaprobados_estudiante').html("");
     $('#msghistorial_estudiante').html("");
+    $('#msgcursos_deudas').html('');
+
+    $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
+      $(this).removeClass('ocultar');
+      $(this).data('autorizado', 'SI');
+    })
+
+    $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+      $(this).removeClass('ocultar');
+    })
 })
 
 $('#modfiltroins').on('hidden.bs.modal', function(e) {
@@ -1844,30 +1841,67 @@ $("#frm-getinscritonew").submit(function(event) {
 
                                     fn_data_academico(carne);
                                     fn_data_deudas(carne);
-                                    fn_historias_matriculas(carne);
+                                    fn_historias_matriculas(carne,e.vcreditosmat);
                                     
-                                    if (e.vcreditosmat >= 6 || e.vdeudasmat > 0) {
+                                    if (e.vestadomat == "DES" && (e.vcreditosmat >= 6 || e.vdeudasmat > 0)) {
                                       $('#lbtn_editamat').attr('disabled', true);
+                                      $('#msgcursos_deudas').show();
                                       $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
                                           '<h5><i class="icon fas fa-ban"></i> Advertencia!</h5>'+
                                           'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
                                         '</div>');
-                                    } else {
+                                    } else if (e.vcreditosmat >= 6 || e.vdeudasmat > 0){
+                                      $('#lbtn_editamat').attr('disabled', true);
+                                      $('#msgcursos_deudas').show();
+                                      $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
+                                          '<h5><i class="icon fas fa-ban"></i> Advertencia!</h5>'+
+                                          'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
+                                        '</div>');
+                                    }
+                                    else {
                                       $('#lbtn_editamat').attr('disabled', false);
                                       $('#msgcursos_deudas').html('');
                                     }
 
-                                    if (e.vestadomat == "DES" && e.vcondicionalmat == "NO") {
+                                    if ((e.vestadomat == "DES" || e.vcondicionalmat == "NO")) {
                                       $('#btn_refresh_cond').show();
                                       $('#lbtn_condic_refresh').show();
                                       $('#lbtn_condic_refresh').data('carne', carne);
                                       $('#lbtn_editamat').attr('disabled', true);
-                                    } else if (e.vestadomat == "DES" && e.vcondicionalmat == "SI"){
+                                    } else if (e.vestadomat == "DES" || e.vcondicionalmat == "SI"){
                                       $('#btn_refresh_cond').hide();
                                       $('#lbtn_editamat').attr('disabled', false);
                                       $('#msgcursos_deudas').html('');
                                     } else {
                                       $('#btn_refresh_cond').hide();
+                                    }
+
+                                    if (e.vnromat > 1) {
+                                      $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+                                        if ($(this).data('nromat') == '0') {
+                            
+                                        } else if ($(this).data('nromat') == "2") {
+                                            $(this).removeClass('ocultar');
+                                        } else {
+                                            if (!$(this).hasClass("ocultar")){
+                                             $(this).addClass('ocultar');
+                                             $(this).data('autorizado', 'NO');
+                                            }
+                                        }
+
+                                      });
+                                    } else {
+                                      $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+                                        if ($(this).data('nromat') == "1") {
+                                            $(this).removeClass('ocultar');
+                                        } else {
+                                            if (!$(this).hasClass("ocultar")){
+                                             $(this).addClass('ocultar');
+                                             $(this).data('autorizado', 'NO');
+                                            }
+                                        }
+
+                                      });
                                     }
                                 }
                             }
@@ -2163,6 +2197,7 @@ function fn_carga_mat_estudiante(btn){
 
 $('#modview_carga').on('hidden.bs.modal', function(e){
   $('#divcard_data_academico').hide();
+  $('#divcard_data_cursos_disponibles').html("");
 })
 
 function fn_cambiarestado(btn) {
@@ -2490,24 +2525,17 @@ function fn_data_academico(carnet) {
                 nro = 0;
                 nrodsp = 0;
                 grupoac = "";
+                grupodes = "";
                 $.each(e.cursos, function(index, v) {
-                  grupoint = v['codperiodo'];
+                  grupoint = v['codperiodo']+v['ciclo'];
                   vestado = v['estado'];
                   if (grupoac != grupoint) {
                       grupoac = grupoint;
                       nro = 0;
-                      nrodsp = 0;
                       tblacademico = tblacademico + 
                           "<div class='row cfila'>"+
                               "<div class='col-12 td text-center p-1 bg-lightgray'><b>"+v['periodo']+"</b></div>"+
                           "</div>";
-
-                      if (vestado == "DES" || vestado == "DPI" || vestado == "NSP") {
-                        tbldesaprobados = tbldesaprobados+
-                          "<div class='row cfila'>"+
-                              "<div class='col-12 td text-center p-1 bg-lightgray'><b>"+v['periodo']+"</b></div>"+
-                          "</div>";
-                      }
                   }
                   nro++;
                   tblacademico = tblacademico + 
@@ -2531,6 +2559,14 @@ function fn_data_academico(carnet) {
 
                     // LISTAR UNIDADES DESAPROBADAS
                     if (vestado == "DES" || vestado == "DPI" || vestado == "NSP") {
+                      if (grupodes != grupoint) {
+                        nrodsp = 0;
+                        grupodes = grupoint;
+                        tbldesaprobados = tbldesaprobados+
+                          "<div class='row cfila'>"+
+                              "<div class='col-12 td text-center p-1 bg-lightgray'><b>"+v['periodo']+"</b></div>"+
+                          "</div>";
+                      }
                       nrodsp ++;
                       tbldesaprobados = tbldesaprobados+
                               "<div class='row cfila'>"+
@@ -2628,8 +2664,10 @@ function fn_data_deudas(carnet) {
           else {
               
                 nro = 0;
+                totald = 0;
                 $.each(e.vdata, function(index, v) {
                   nro++;
+                  totald = totald + parseFloat(v['saldo']);
                   var bgsaldo = (v['saldo']>0) ? "text-danger":"text-success";
                   tbldeudas = tbldeudas + 
                           "<div class='row cfila'>"+
@@ -2681,8 +2719,9 @@ function fn_data_deudas(carnet) {
                     "</div>"+
                     "<div class='tbody col-12'>"+
                       "<div class='row cfila'>"+
-                        "<div class='col-9 col-md-9 td'><b>Deudas</b></div>"+
+                        "<div class='col-6 col-md-6 td'><b>Deudas</b></div>"+
                         "<div class='col-3 col-md-3 td'>"+nro+"</div>"+
+                        "<div class='col-3 col-md-3 td'><b>Total: </b>"+parseFloat(totald).toFixed(2)+"</div>"+
                       "</div>"+
                     "</div>"+
                   "</div>";
@@ -2707,7 +2746,7 @@ function fn_data_deudas(carnet) {
   });
 }
 
-function fn_historias_matriculas(carnet){
+function fn_historias_matriculas(carnet,creditos){
   $('#divmodaddmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
   $('#msghistorial_estudiante').html("");
   tblhistorial = "";
@@ -2739,7 +2778,12 @@ function fn_historias_matriculas(carnet){
                 $.each(e.vdata, function(index, v) {
                   nro++;
                   var btnscolor = "";
-                  estado = v['estado'];
+                  var textobs = (v['observacion']!= "") ? v['observacion'] : "Ninguna";
+                  var observacion = "<br><b>Observación:</b><br>"+textobs;
+                  if (v['estado'] != "RES") {
+                    estado = v['estado'];
+                  }
+                  
                   condicional = v['condicional'];
                   codciclo = v['codciclo'];
                   switch (v['estado']) {
@@ -2755,7 +2799,7 @@ function fn_historias_matriculas(carnet){
                       default:
                           btnscolor = "bg-warning";
                   }
-                  fecharegistro = v['registro'] + " <a href='#' class='view_user_reg_hst' tabindex='0' role='button' data-toggle='popover' data-trigger='hover' title='Matriculado por: ' data-content='"+v['usuario']+"'><i class='fas fa-info-circle fa-lg'></i></a>";
+                  fecharegistro = v['registro'] + " <a href='#' class='view_user_reg_hst' tabindex='0' role='button' data-toggle='popover' data-trigger='hover' title='Matriculado por: ' data-content='"+v['usuario']+observacion+"'><i class='fas fa-info-circle fa-lg'></i></a>";
                   grupo = v['periodo'] + " " + v['sigla'] + " " + v['codturno'] + " " + v['ciclo'] + " " + v['codseccion'];
                   tblhistorial = tblhistorial + 
                           "<div class='row cfila'>"+
@@ -2769,7 +2813,8 @@ function fn_historias_matriculas(carnet){
                                     "<span class='badge "+btnscolor+"'>"+v['estado']+"</span>"+
                                 "</div>"+
                             "</div>";
-                    if (estado == "DES") {
+
+                    if (estado == "DES" || creditos >= 6) {
                       $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
                         if ($(this).data('codigo') == '0') {
                             
@@ -2792,21 +2837,31 @@ function fn_historias_matriculas(carnet){
                     
                 })
 
-                if (estado == "DES") {
+                if (estado == "DES" || creditos >= 6) {
                   rpdtid = parseInt(codciclo)+1;
                   dataid = (rpdtid < 10 ? '0' : '')+rpdtid;
                   $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
                     if ($(this).data('codigo') == dataid) {
                       $(this).removeClass('ocultar');
                     }
-                    // console.log($(this).data('codigo'),$(this).data('autorizado'));
                   })
+                  
+                  for (i = parseInt(codciclo) - 1; i >= 1; i--) {
+                    iddata = (i < 10 ? '0' : '')+i;
+                    $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
+                      if ($(this).data('codigo') == iddata) {
+                        $(this).removeClass('ocultar');
+                        $(this).data('autorizado', 'SI');
+                      }
+                    })
+                  }
                 }
                 
                 $('#msghistorial_estudiante').html(tblhistorial);
                 $('#divmodaddmatricula #divoverlay').remove();
                 $('.view_user_reg_hst').popover({
-                  trigger: 'hover'
+                  trigger: 'hover',
+                  html: true
                 })
                 // mat_condicional.push(estado,condicional);
           }
@@ -2908,6 +2963,15 @@ function fn_refresca_condicional(boton) {
             })
 
             $("#frm_updmatri #fm-cbcicloup").change();
+          } else if (e.vcondic == "SI") {
+            $('#lbtn_editamat').attr('disabled', false);
+            boton.hide();
+
+            $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
+              if (!$(this).hasClass("ocultar")){
+                $(this).data('autorizado', 'SI');
+              }
+            })
           }
         }
       },

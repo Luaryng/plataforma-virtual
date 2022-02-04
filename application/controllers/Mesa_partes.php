@@ -128,6 +128,9 @@ class Mesa_partes  extends Sendmail
                 $dataex['codseguim'] = $solicitud->codseg;
                 $dataex['solicitante'] = $solicitante;
 
+                $dataex['vdata'] = $arraytip['rutas'];
+                $dataex['vdata2'] = $arraytip;
+
                 //$dataex['asunto'] = $solicitud->asunto;
                 /*$datereg =  new DateTime($solicitud->fecha);
                 $dataex['fecha'] = $datereg->format('d/m/Y h:i a');*/

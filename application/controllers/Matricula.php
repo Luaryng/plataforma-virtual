@@ -1122,8 +1122,10 @@ class Matricula extends CI_Controller {
 
                 $registro = new DateTime($matricula->fecregistro);
                 $matriculas[$key]->registro = $registro->format("d/m/Y");
-                $rpestado = $matricula->estado;
-                $rpcondic = $matricula->condicional;
+                if ($matricula->estado != "RES") {
+                    $rpestado = $matricula->estado;
+                    $rpcondic = $matricula->condicional;
+                }
 
             }
             $dataex['vdata'] =$matriculas;
@@ -1226,10 +1228,10 @@ class Matricula extends CI_Controller {
 
                         // OBTENER EL TOTAL DE CREDITOS SI ES QUE ESTA DESAPROBADO
                         $cursos = $this->mmatricula->m_filtrar_record_academico(array($rsfila->carnet));
-                        foreach ($cursos as $key => $fila) {
-                            if (($fila->estado == "DES")||($fila->estado == "DPI")||($fila->estado == "NSP")) {
+                        foreach ($cursos as $key => $cfila) {
+                            if (($cfila->estado == "DES")||($cfila->estado == "DPI")||($cfila->estado == "NSP")) {
                                 $nrodesaprobados ++;
-                                $sumcredesap = $fila->cp + $fila->ct;
+                                $sumcredesap = $cfila->cp + $cfila->ct;
                                 $totcredesap = $totcredesap + $sumcredesap;
                             }
                         }
@@ -1242,13 +1244,19 @@ class Matricula extends CI_Controller {
                         // OBTENER EL ESTADO DE LA ULTIMA MATRICULA Y SU CONDICIONAL
                         $vestado = "";
                         $vcondicional = "";
+                        $nromat = 0;
                         $hmatriculas=$this->mmatricula->m_filtrar(array("%","%","%","%","%","%","%","%","%",'%'.$rsfila->carnet.'%'));
                         foreach ($hmatriculas as $key => $mat) {
-                            $vestado = $mat->estado;
+                            $nromat++;
+                            if ($mat->estado != "RES") {
+                                $vestado = $mat->estado;
+                            }
+                            
                             $vcondicional = $mat->condicional;
                         }
                         $dataex['vestadomat'] = $vestado;
                         $dataex['vcondicionalmat'] = $vcondicional;
+                        $dataex['vnromat'] = $nromat;
                     }
                     else{
                         $dataex['msg']="La inscripción de $fila->paterno $fila->materno $fila->nombres NO se encuentra ACTIVA, estado actual: $fila->estado";
