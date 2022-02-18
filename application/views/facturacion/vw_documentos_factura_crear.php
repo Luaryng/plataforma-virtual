@@ -200,6 +200,7 @@ padding-bottom: 0px !important;
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="modaddcobros" tabindex="-1" role="dialog" aria-labelledby="modaddcobros" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" id="divmodaladdcob">
@@ -332,6 +333,7 @@ padding-bottom: 0px !important;
             </div>
         </div>
     </div>
+
     <!-- MODAL AGREGAR PAGANTE -->
     <div class="modal fade" id="modaddpagante" tabindex="-1" role="dialog" aria-labelledby="modaddpagante" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
@@ -447,6 +449,7 @@ padding-bottom: 0px !important;
         </div>
     </div>
     <!-- FIN MODAL AGREGAR PAGANTE -->
+
     <!-- BUSCAR MODAL PAGANTE -->
     <div class="modal fade" id="modsearchpagante" tabindex="-1" role="dialog" aria-labelledby="modsearchpagante" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog  modal-xl" role="document">
@@ -484,6 +487,7 @@ padding-bottom: 0px !important;
         </div>
     </div>
     <!-- FIN MODAL BUSCAR PAGANTE -->
+
     <!-- AGREGAR MODAL ITEM -->
     <div class="modal fade" id="modadditem" tabindex="-1" role="dialog" aria-labelledby="modadditem" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-lg" role="document">
@@ -645,6 +649,7 @@ padding-bottom: 0px !important;
     <!-- FIN MODAL AGREGAR ITEM -->
     <!-- BUSCAR MODAL ITEM -->
     <!-- FIN MODAL BUSCAR ITEM -->
+    
     <section class="content-header">
         <div class="container-fluid">
             <div class="row">
@@ -794,8 +799,8 @@ padding-bottom: 0px !important;
                     </div>
                     <div class="row mt-3" id="divcard_detalle_deuda">
                         <div class="col-12">
-                            <div class="card border border-info ">
-                                <div class="card-header text-bold">
+                            <div class="card card-danger border border-danger">
+                                <div class="card-header text-bold ">
                                     <h4>Deudas del Cliente</h4>
                                 </div>
                                 <div class="card-body pt-0" id="">
@@ -1992,7 +1997,9 @@ function mostrar_pagante_deudas() {
                         $.each(e.vdeudas, function(index, dd) {
                             //prorroga
                             nro++;
+                            bgsaldo=(dd['estado']=="VENCIDO")? "bg-danger": "";
                             tbdeudas = tbdeudas +
+
                                 "<div class='row cfila rowcolor' data-coditem=" + dd['codgestion'] + " data-monto=" + dd['saldo'] + " data-coddeuda='" + dd['codigo'] + "'>" +
 
                                 "<div class='col-8 col-md-4 td'>" +
@@ -2007,7 +2014,7 @@ function mostrar_pagante_deudas() {
                                 "<div class='col-6 col-md-2 td text-center'>" +
                                 "<span>" + dd['vence'] + "</span>" +
                                 "</div> " +
-                                "<div class='col-6 col-md-1 td text-right'>" +
+                                "<div class='col-6 col-md-1 td text-right " + bgsaldo + "'>" +
                                 "<span>" + parseFloat(dd['saldo']).toFixed(2) + "</span>" +
                                 "</div> " +
                                 "<div class='col-6 col-md-2 td text-center'>" +

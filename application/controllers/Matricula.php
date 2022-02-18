@@ -37,6 +37,9 @@ class Matricula extends CI_Controller {
             //PERMISO PARA CAMBIAR DE SEDE A UNA MATRICULA
         $this->load->model('msede');
         $a_ins['sedes'] = $this->msede->m_get_sedes_activos();
+
+        $this->load->model('mfacturacion');
+        $a_ins['tipdoc'] = $this->mfacturacion->m_get_tiposdoc();
         
         //}
 		//$modl=$this->mmodalidad->m_modalidad();
@@ -786,7 +789,7 @@ class Matricula extends CI_Controller {
 
     public function fn_insert_update_matricula()
     {
-        $this->form_validation->set_message('required', '%s Requerido');
+        $this->form_validation->set_message('required', '* %s Requerido');
         $this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
         $this->form_validation->set_message('is_unique', '* {field} ya se encuentra registrado.');
         $this->form_validation->set_message('alpha', '* {field} requiere un valor de la lista.');
@@ -818,8 +821,22 @@ class Matricula extends CI_Controller {
 
             $fmtxtidmat64 = $this->input->post('fm-txtidmatriculaup');
 
+            $checksindoc = "NO";
+            if ($this->input->post('checkdocumen')!==null){
+                $checksindoc = $this->input->post('checkdocumen');
+            }
+            if ($checksindoc=="on"){
+                $checksindoc = "SI";
+            }
+
             if ($fmtxtidmat64 == "0") {
                 $this->form_validation->set_rules('fm-cbperiodoup','Periodo','trim|required|exact_length[5]|is_natural_no_zero');
+            }
+
+            if ($checksindoc == "NO") {
+                $this->form_validation->set_rules('fm-tipdocuf','Tipo documento','trim|required');
+                $this->form_validation->set_rules('fm-serie','Serie','trim|required');
+                $this->form_validation->set_rules('fm-numdocum','N° documento','trim|required');
             }
 
             if ($this->form_validation->run() == FALSE)
@@ -870,21 +887,25 @@ class Matricula extends CI_Controller {
                     
                 }
 
+                $fmttipodocf = $this->input->post('fm-tipdocuf');
+                $fmtserie = $this->input->post('fm-serie');
+                $fmtnrodoc = $this->input->post('fm-numdocum');
+
                 $this->load->model('minscrito');
                 $newcod=$this->minscrito->m_update_asignarplan(array($fmtxtid,$fmtxtperiodo,$fmcbplan));
                 $contenido = "";
                 if ($fmtxtfecmatricula=="0") $fmtxtfecmatricula= date("Y-m-d H:i:s");
 
                 if ($fmtxtidmat64 == "0") {
-                    $rsrow=$this->mmatricula->m_insert(array($fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmcbperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtapepaterno,$fmtapematerno,$fmtnombres,$fmtsexo,$idsede,$fmtxtcuotareal,$idusuario));
+                    $rsrow=$this->mmatricula->m_insert(array($fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmcbperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtapepaterno,$fmtapematerno,$fmtnombres,$fmtsexo,$idsede,$fmtxtcuotareal,$idusuario,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
                     $matstatus = "INSERTAR";
                     $contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está insertando una matricula en la tabla TB_MATRICULA COD.".$rsrow->newcod." ".$fmtapepaterno." ".$fmtapematerno." ".$fmtnombres." id inscripción ".$fmtxtid;
                 } else {
                     if (getPermitido("151")=="SI"){
-                         $rsrow=$this->mmatricula->m_update_matricula_manual_consede(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$idsede,$fmtxtcuotareal));
+                         $rsrow=$this->mmatricula->m_update_matricula_manual_consede(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$idsede,$fmtxtcuotareal,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
                     }
                     else{
-                         $rsrow=$this->mmatricula->m_update_matricula_manual(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtxtcuotareal));
+                         $rsrow=$this->mmatricula->m_update_matricula_manual(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtxtcuotareal,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
                     }
 
                     $contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está editando una matricula en la tabla TB_MATRICULA COD.".$fmtxtidmat." ".$fmtapepaterno." ".$fmtapematerno." ".$fmtnombres." id inscripción ".$fmtxtid;
@@ -1271,5 +1292,98 @@ class Matricula extends CI_Controller {
         echo(json_encode($dataex));
     }
     
+    public function fn_search_documentopago()
+    {
+        $this->form_validation->set_message('required', '%s Requerido o digite %%%%%%%%');
+        $this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres o digite %%%%%%%%.');
+        $this->form_validation->set_message('max_length', '* {field} debe tener al menos {param} caracteres.');
+    
+        $dataex['status'] =FALSE;
+        $dataex['vdata'] = "No se encontro";
+        $dataex['msg']    = '¿Que Intentas?.';
+        if ($this->input->is_ajax_request())
+        {
+            $dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+            $this->form_validation->set_rules('fm-tipdocuf','Tipo','trim|required');
+            $this->form_validation->set_rules('fm-serie','serie','trim|required');
+            $this->form_validation->set_rules('fm-numdocum','nro documento','trim|required');
+            if ($this->form_validation->run() == FALSE)
+            {
+                $dataex['msg']="Existen errores en los campos";
+                $errors = array();
+                foreach ($this->input->post() as $key => $value){
+                    $errors[$key] = form_error($key);
+                }
+                $dataex['errors'] = array_filter($errors);
+            }
+            else
+            {
+                $this->load->model('minscrito');
+                $tipo = $this->input->post('fm-tipdocuf');
+                $serie = $this->input->post('fm-serie');
+                $nrodoc = $this->input->post('fm-numdocum');
+                
+                $documento = $this->mmatricula->m_get_emitidos_tipserie(array($tipo, $serie, $nrodoc));
+                if (!is_null($documento))
+                {   
+                    $dataex['rpta'] =true;
+                    $dataex['vdata'] = $documento;
+                    $dataex['rptitle'] = $documento->tipodoc." ".$documento->serie." - ".$documento->numero;
+                    $dataex['msg'] = "Pertenece a ".$documento->pagante." <b>Total: </b>S/.".number_format($documento->total,2);
+
+                } else {
+                    $dataex['rpta'] =false;
+                    $dataex['vdata'] = "No se encontro el documento de pago";
+                    $dataex['rptitle'] = "Aviso!";
+                    $dataex['msg'] = "No se encontro el documento de pago";
+                }
+                $dataex['status'] =true;
+                
+            }
+        }
+        
+        header('Content-Type: application/x-json; charset=utf-8');
+        echo(json_encode($dataex));
+    }
+
+    public function fn_cambiar_origen()
+    {
+        $this->form_validation->set_message('required', '%s Requerido');
+        $dataex['status'] =FALSE;
+        $dataex['msg']    = '¿Que Intentas?.';
+        if ($this->input->is_ajax_request())
+        {
+            $dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+
+            $this->form_validation->set_rules('ce-idmat','Id Matrícula','trim|required');
+            $this->form_validation->set_rules('ce-norigen','Estado','trim|required');
+
+            if ($this->form_validation->run() == FALSE)
+            {
+                $dataex['msg']="Existen errores en los campos";
+                $errors = array();
+                foreach ($this->input->post() as $key => $value){
+                    $errors[$key] = form_error($key);
+                }
+                $dataex['errors'] = array_filter($errors);
+            }
+            else
+            {
+                $dataex['msg'] ="Cambio NO realizado";
+                $dataex['status'] =FALSE;
+                $ceidmat = base64url_decode($this->input->post('ce-idmat'));
+                $cenorigen = $this->input->post('ce-norigen');
+                    
+                $newcod=$this->mmatricula->m_cambiar_origen(array($ceidmat,$cenorigen));
+                if ($newcod==1){
+                    $dataex['status'] =TRUE;
+                    $dataex['msg'] ="Cambio registrado correctamente";
+                }
+            }
+
+        }
+        header('Content-Type: application/x-json; charset=utf-8');
+        echo json_encode($dataex);
+    }
 
 }

@@ -7,8 +7,9 @@ $fechahoy = date('Y-m-d');
 <!--<link rel="stylesheet" href="<?php echo $vbaseurl ?>resources/plugins/bootstrap-select-1.13.9/css/bootstrap-select.min.css">-->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.3/b-2.1.1/sl-1.3.4/datatables.min.css"/>
 <style>
-  table.dataTable tbody tr.selected a {
-    color: #007bff;
+  .btn_search_bol {
+    border-top-right-radius: 0.25rem!important;
+    border-bottom-right-radius: 0.25rem!important;
   }
 </style>
 <div class="content-wrapper">
@@ -1048,9 +1049,9 @@ function get_matriculas_cursos(matricula) {
                             val['tipo'].substring(0, 2) +
                             '</button>' +
                             '<div class="dropdown-menu">' +
-                            '<a href="#" class="btn-cborigen dropdown-item" data-origen="PLATAFORMA">PLATAFORMA</a>' +
-                            '<a href="#" class="btn-cborigen dropdown-item" data-origen="MANUAL">MANUAL</a>' +
-                            '<a href="#" class="btn-cborigen dropdown-item" data-origen="CONVALIDA">CONVALIDA</a>' +
+                            '<a href="#" onclick="fn_cambiar_origen($(this));return false;" class="btn-cborigen dropdown-item" data-origen="PLATAFORMA">PLATAFORMA</a>' +
+                            '<a href="#" onclick="fn_cambiar_origen($(this));return false;" class="btn-cborigen dropdown-item" data-origen="MANUAL">MANUAL</a>' +
+                            '<a href="#" onclick="fn_cambiar_origen($(this));return false;" class="btn-cborigen dropdown-item" data-origen="CONVALIDA">CONVALIDA</a>' +
                             '</div>' +
                             "</div>" +
                             "</div>" +
@@ -1482,7 +1483,7 @@ $("#modupmat").on('shown.bs.modal', function(e) {
     if (accion == "EDITAR") {
         $('#divsearch_ins').hide();
         $('#divalert_mat').hide();
-        $('#btn_refresh_cond').hide();
+        $('#lbtn_condic_refresh').hide();
         $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
         $('#divmodaddmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
         $.ajax({
@@ -1534,6 +1535,18 @@ $("#modupmat").on('shown.bs.modal', function(e) {
                     fn_data_deudas(carne);
                     fn_historias_matriculas(carne,0);
 
+                    check = false;
+                    if (e.matdata['fsindoc'] == "SI") {
+                      check = true;
+                      
+                    }
+                    $("#checkdocumen").prop('checked', check);
+                    $("#checkdocumen").change();
+
+                    $('#fm-tipdocuf').val(e.matdata['ftipodoc']);
+                    $('#fm-serie').val(e.matdata['fserie']);
+                    $("#fm-numdocum").val(e.matdata['fnumero']);
+
                 }
             },
             error: function(jqXHR, exception) {
@@ -1554,7 +1567,7 @@ $("#modupmat").on('shown.bs.modal', function(e) {
         $('#divsearch_ins').show();
         $('#fm-cbperiodoup').attr('disabled', false);
         $('#divalert_mat').show();
-        // $('#btn_refresh_cond').show();
+        // $('#lbtn_condic_refresh').show();
         $('#modfiltroins').modal('show');
     }
 });
@@ -1590,6 +1603,8 @@ $("#modupmat").on('hidden.bs.modal', function(e) {
     $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
       $(this).removeClass('ocultar');
     })
+
+    $('#msg_rpta_documento').html('');
 })
 
 $('#modfiltroins').on('hidden.bs.modal', function(e) {
@@ -1845,16 +1860,16 @@ $("#frm-getinscritonew").submit(function(event) {
                                     
                                     if (e.vestadomat == "DES" && (e.vcreditosmat >= 6 || e.vdeudasmat > 0)) {
                                       $('#lbtn_editamat').attr('disabled', true);
-                                      $('#msgcursos_deudas').show();
+                                      //$('#msgcursos_deudas').show();
                                       $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
-                                          '<h5><i class="icon fas fa-ban"></i> Advertencia!</h5>'+
+                                          '<i class="icon fas fa-ban mr-1"></i>'+
                                           'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
                                         '</div>');
                                     } else if (e.vcreditosmat >= 6 || e.vdeudasmat > 0){
                                       $('#lbtn_editamat').attr('disabled', true);
-                                      $('#msgcursos_deudas').show();
+                                      //$('#msgcursos_deudas').show();
                                       $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
-                                          '<h5><i class="icon fas fa-ban"></i> Advertencia!</h5>'+
+                                          '<i class="icon fas fa-ban mr-1"></i>'+
                                           'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
                                         '</div>');
                                     }
@@ -1864,16 +1879,16 @@ $("#frm-getinscritonew").submit(function(event) {
                                     }
 
                                     if ((e.vestadomat == "DES" || e.vcondicionalmat == "NO")) {
-                                      $('#btn_refresh_cond').show();
+                                      $('#lbtn_condic_refresh').show();
                                       $('#lbtn_condic_refresh').show();
                                       $('#lbtn_condic_refresh').data('carne', carne);
                                       $('#lbtn_editamat').attr('disabled', true);
                                     } else if (e.vestadomat == "DES" || e.vcondicionalmat == "SI"){
-                                      $('#btn_refresh_cond').hide();
+                                      $('#lbtn_condic_refresh').hide();
                                       $('#lbtn_editamat').attr('disabled', false);
                                       $('#msgcursos_deudas').html('');
                                     } else {
-                                      $('#btn_refresh_cond').hide();
+                                      $('#lbtn_condic_refresh').hide();
                                     }
 
                                     if (e.vnromat > 1) {
@@ -2994,10 +3009,163 @@ $("#frm_updmatri #fm-cbcicloup").change(function(e) {
   var autoriza = item.find(':selected').data('autorizado');
   if (autoriza == "SI") {
     $('#lbtn_editamat').attr('disabled', false);
-    $('#msgcursos_deudas').hide();
+    $('#msgcursos_deudas').html("");
   } else {
     $('#lbtn_editamat').attr('disabled', true);
-    $('#msgcursos_deudas').show();
+    $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
+                                          '<i class="icon fas fa-ban mr-1"></i>'+
+                                          'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
+                                        '</div>');
   }
 });
+
+$("#checkdocumen").change(function(e) {
+  var check = true;
+  var btn = $(this);
+  
+  if (btn.prop('checked') == false) {
+      var check = false;
+  }
+  $(".checkdocumento").prop('disabled', check);
+  $(".checkdocumento").val('');
+  
+});
+
+$('#btn_doc_search').click(function(e) {
+  var tipodoc = $("#fm-tipdocuf").val();
+  var serie = $("#fm-serie").val();
+  var nrodoc = $("#fm-numdocum").val();
+
+  var llenos=0;
+  if ($("#fm-tipdocuf").val()!=="") llenos++;
+  if ($("#fm-serie").val()!=="") llenos++;
+  if ($("#fm-numdocum").val()!=="") llenos++;
+  
+  if (llenos > 2) {
+    $('#divmodaddmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    $.ajax({
+        url: base_url + 'matricula/fn_search_documentopago',
+        type: 'post',
+        dataType: 'json',
+        data: {
+            'fm-tipdocuf': tipodoc,
+            'fm-serie': serie,
+            'fm-numdocum': nrodoc
+        },
+        success: function(e) {
+          $('#divmodaddmatricula #divoverlay').remove();
+          if (e.status == false) {
+              Swal.fire({
+                  type: 'error',
+                  icon: 'error',
+                  title: 'Error!',
+                  text: e.msg,
+                  backdrop: false,
+              })
+              
+          } 
+          else {
+            if (e.rpta == false) {
+              mensaje = '<div class="alert alert-danger alert-dismissible">'+
+                          '<i class="icon fas fa-info mr-1"></i>'+
+                          e.msg +
+                        '</div>';
+            } else {
+              mensaje = '<div class="alert alert-success alert-dismissible">'+
+                          '<i class="icon fas fa-check-circle mr-1"></i>'+
+                          e.rptitle +", "+ e.msg +
+                        '</div>';
+            }
+            $('#msg_rpta_documento').html(mensaje);
+          }
+        },
+        error: function(jqXHR, exception) {
+            var msgf = errorAjax(jqXHR, exception, 'text');
+            $('#divmodaddmatricula #divoverlay').remove();
+            Swal.fire({
+                type: 'error',
+                icon: 'error',
+                title: 'Error',
+                text: msgf,
+                backdrop: false,
+            })
+        }
+    });
+  }
+  
+});
+
+function fn_cambiar_origen(btn) {
+  var fila = btn.closest('.cfila');
+  var codigo = fila.data('idmatnf');
+
+  var origen = btn.data('origen');
+  var btdt = btn.parents(".btn-group").find('.dropdown-toggle');
+  var texto = btn.html();
+  $('#divmodalnewmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+  
+  $.ajax({
+      url: base_url + 'matricula/fn_cambiar_origen',
+      type: 'post',
+      dataType: 'json',
+      data: {
+          'ce-idmat': codigo,
+          'ce-norigen': origen
+      },
+      success: function(e) {
+          $('#divmodalnewmatricula #divoverlay').remove();
+          if (e.status == false) {
+              Swal.fire({
+                  type: 'error',
+                  icon: 'error',
+                  title: 'Error!',
+                  text: e.msg,
+                  backdrop: false,
+              })
+          } else {
+              /*$("#fm-txtidmatricula").html(e.newcod);*/
+              Swal.fire({
+                  type: 'success',
+                  icon: 'success',
+                  title: 'Felicitaciones, origen actualizado',
+                  text: 'Se ha actualizado el origen',
+                  backdrop: false,
+              })
+              btdt.removeClass('btn-primary');
+              btdt.removeClass('btn-info');
+              btdt.removeClass('btn-secondary');
+              switch (texto) {
+                  case "PLATAFORMA":
+                      btdt.addClass('btn-primary');
+                      btdt.html("PL");
+                      break;
+                  case "MANUAL":
+                      btdt.addClass('btn-secondary');
+                      btdt.html("MA");
+                      break;
+                  case "CONVALIDA":
+                      btdt.addClass('btn-info');
+                      btdt.html("CO");
+                      break;
+                  default:
+                      btdt.addClass("btn-info");
+              }
+              
+          }
+      },
+      error: function(jqXHR, exception) {
+          var msgf = errorAjax(jqXHR, exception, 'text');
+          $('#divmodalnewmatricula #divoverlay').remove();
+          Swal.fire({
+              type: 'error',
+              icon: 'error',
+              title: 'Error',
+              text: msgf,
+              backdrop: false,
+          })
+      }
+  });
+  return false;
+}
+
 </script>

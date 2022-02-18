@@ -9,7 +9,7 @@ class Mmatricula extends CI_Model {
 
 	public function m_insert($items)
 	{
-		$this->db->query("CALL `sp_tb_matricula_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)",$items);
+		$this->db->query("CALL `sp_tb_matricula_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)",$items);
 		$res = $this->db->query('select @s as rs,@nc as newcod');
  		return   $res->row();	
 	}
@@ -19,6 +19,13 @@ class Mmatricula extends CI_Model {
 	{
 		//CALL ``( @vniv_codigo, @vniv_estado, @`s`);
 		$this->db->query("CALL `sp_tb_matricula_update_estado`(?,?,@s)",$items);
+		$res = $this->db->query('select @s as out_param');
+ 		return   $res->row()->out_param;	
+	}
+
+	public function m_cambiar_origen($items)
+	{
+		$this->db->query("CALL `sp_tb_matricula_cursos_nota_final_update_origen`(?,?,@s)",$items);
 		$res = $this->db->query('select @s as out_param');
  		return   $res->row()->out_param;	
 	}
@@ -1210,47 +1217,51 @@ class Mmatricula extends CI_Model {
     public function m_filtrar_matriculaxcodigo($data)
     {
        
-        $resultmiembro = $this->db->query("SELECT 
-		  tb_matricula.mtr_id AS codigo,
-		  tb_matricula.codigoinscripcion AS codinscripcion,
-		  tb_matricula.mt_tipo AS tipo,
-		  tb_matricula.codigobeneficio AS beneficio,
-		  tb_matricula.codigoperiodo as codperiodo,
-		  tb_matricula.codigocarrera as codcarrera,
-		  tb_carrera.car_nombre AS carrera,
-		  tb_matricula.codigociclo as codciclo,
-		  tb_matricula.codigoturno AS codturno,
-		  tb_matricula.codigoseccion AS codseccion,
-		  tb_matricula.mtr_cuotapension AS pension,
-		  tb_matricula.mtr_cuotapension_real AS pension_real,
-		  tb_matricula.codigoestado AS estado,
-		  tb_matricula.codigoplan as codplan,
-		  tb_matricula.mtr_fecha as fecha,
-		  tb_matricula.mtr_observacion as observacion,
-		  tb_matricula.mtr_apel_paterno as paterno,
-		  tb_matricula.mtr_apel_materno as materno,
-		  tb_matricula.mtr_nombres as nombres,
-		  tb_matricula.mtr_bloquear_evaluaciones as bloqueo,
-		  tb_matricula.codigosede as codsede
-		FROM
-		  tb_matricula
-		  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
-		WHERE 
-		  tb_matricula.mtr_id = ?
-		LIMIT 1", $data);
+      $resultmiembro = $this->db->query("SELECT 
+				  tb_matricula.mtr_id AS codigo,
+				  tb_matricula.codigoinscripcion AS codinscripcion,
+				  tb_matricula.mt_tipo AS tipo,
+				  tb_matricula.codigobeneficio AS beneficio,
+				  tb_matricula.codigoperiodo as codperiodo,
+				  tb_matricula.codigocarrera as codcarrera,
+				  tb_carrera.car_nombre AS carrera,
+				  tb_matricula.codigociclo as codciclo,
+				  tb_matricula.codigoturno AS codturno,
+				  tb_matricula.codigoseccion AS codseccion,
+				  tb_matricula.mtr_cuotapension AS pension,
+				  tb_matricula.mtr_cuotapension_real AS pension_real,
+				  tb_matricula.codigoestado AS estado,
+				  tb_matricula.codigoplan as codplan,
+				  tb_matricula.mtr_fecha as fecha,
+				  tb_matricula.mtr_observacion as observacion,
+				  tb_matricula.mtr_apel_paterno as paterno,
+				  tb_matricula.mtr_apel_materno as materno,
+				  tb_matricula.mtr_nombres as nombres,
+				  tb_matricula.mtr_bloquear_evaluaciones as bloqueo,
+				  tb_matricula.codigosede as codsede,
+				  tb_matricula.tipodoc_cod as ftipodoc,
+				  tb_matricula.dcp_serie as fserie,
+				  tb_matricula.dcp_numero as fnumero,
+				  tb_matricula.mtr_sin_documento_pago as fsindoc
+				FROM
+				  tb_matricula
+				  INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+				WHERE 
+				  tb_matricula.mtr_id = ?
+				LIMIT 1", $data);
         return $resultmiembro->row();
     }
 
     public function m_update_matricula_manual($data)
     {
-    	$this->db->query("CALL `sp_tb_matricula_update_manual`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
+    	$this->db->query("CALL `sp_tb_matricula_update_manual`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
       	$res = $this->db->query('select @s as rs,@nc as newcod');
       	return $res->row();
     }
 
     public function m_update_matricula_manual_consede($data)
     {
-    	$this->db->query("CALL `sp_tb_matricula_update_manual_sede`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
+    	$this->db->query("CALL `sp_tb_matricula_update_manual_sede`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nc)", $data);
       	$res = $this->db->query('select @s as rs,@nc as newcod');
       	return $res->row();
     }
@@ -1420,6 +1431,39 @@ class Mmatricula extends CI_Model {
 				ORDER BY tb_matricula.codigoperiodo,tb_matricula.codigocarrera,tb_matricula.codigoplan,tb_matricula.codigociclo,tb_matricula.codigoturno,tb_matricula.codigoseccion,tb_persona.per_apel_paterno,tb_persona.per_apel_materno , tb_persona.per_nombres", $data_array);
         ////$this->db->close();
         return $resultmiembro->result();
+    }
+
+    public function m_get_emitidos_tipserie($data)
+    {
+        $qry = $this->db->query("SELECT 
+            tb_docpago.dcp_id AS codigo,
+            tb_docpago.dcp_serie AS serie,
+            tb_docpago.dcp_numero AS numero,
+            tb_docpago.dcp_fecha_hora AS fecha_hora,
+            tb_docpago.pagante_cod AS codpagante,
+            tb_docpago.dcp_pagante AS pagante,
+            tb_docpago.pagante_tipodoc AS pagantetipodoc,
+            tb_docpago.pagante_nrodoc AS pagantenrodoc,
+            tb_docpago.tipodoc_cod AS tipodoc,
+            tb_docpago.dcp_estado AS estado,
+            tb_docpago.dcp_total AS total,
+            tb_docpago.sede_id AS sede,
+            tb_docpago.dcp_mnto_igv AS migv,
+            tb_docpago_sunat.dcps_aceptado as s_aceptado,
+            tb_docpago_sunat.dcps_snt_descripcion as s_descripcion,
+            tb_matricula.mtr_id AS codmat,
+            tb_periodo.ped_nombre AS periodo,
+            tb_ciclo.cic_nombre AS ciclo
+          FROM
+            tb_docpago_sunat
+            INNER JOIN tb_docpago ON (tb_docpago_sunat.dcps_id = tb_docpago.dcp_id) 
+            LEFT OUTER JOIN tb_matricula ON (tb_docpago.matricula_cod = tb_matricula.mtr_id) 
+            LEFT OUTER JOIN tb_periodo ON (tb_matricula.codigoperiodo = tb_periodo.ped_codigo)
+            LEFT OUTER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+          WHERE 
+          	tb_docpago.tipodoc_cod = ? AND tb_docpago.dcp_serie = ? AND tb_docpago.dcp_numero = ?
+          LIMIT 1", $data);
+        return $qry->row();
     }
 
 

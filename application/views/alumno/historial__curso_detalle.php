@@ -32,7 +32,7 @@
 				
 			</div>
 			<div class="card-body ">
-				<?php if ($config->conf_est_notas=="SI"){ ?>
+			<?php if ($config->conf_est_notas=="SI"){ ?>
 				<h4 class="p-0"><b>ASISTENCIAS</b></h4>
 				<hr class="m-0 p-0">
 				<br>

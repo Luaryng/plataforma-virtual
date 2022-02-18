@@ -310,6 +310,13 @@ class Mfacturacion extends CI_Model {
     return   $res->row(); 
   }
 
+  public function m_update_facturacion($data)
+  {
+    $this->db->query("CALL  `sp_tb_docpago_boleta_update`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid,@nrodoc)",$data);
+    $res = $this->db->query('select @s as salida,@nid as nid,@nrodoc as nrodoc');
+    return $res->row(); 
+  }
+
   public function m_insert_facturacion_rpsunat($data)
   {
   
@@ -360,6 +367,13 @@ class Mfacturacion extends CI_Model {
   public function m_insert_facturacion_detalle($data)
   {
     $this->db->query("CALL `sp_tb_docpago_detalle_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid)",$data);
+    $res = $this->db->query('select @s as salida,@nid as nid');
+    return   $res->row(); 
+  }
+
+  public function m_update_facturacion_detalle($data)
+  {
+    $this->db->query("CALL `sp_tb_docpago_detalle_update`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid)",$data);
     $res = $this->db->query('select @s as salida,@nid as nid');
     return   $res->row(); 
   }

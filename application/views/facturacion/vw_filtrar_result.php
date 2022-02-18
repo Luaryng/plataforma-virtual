@@ -68,6 +68,7 @@
     $btnmatricula = "";
 
     $btnupdateclient = "";
+    $btnupdatedoc = "";
     
     if (getPermitido("97") == "SI") {
 
@@ -130,6 +131,13 @@
                 <i class='fas fa-edit mr-1'></i> Actualizar Pagante
             </a>";
     }
+
+    if ((getPermitido("174") == "SI")) {
+        $btnupdatedoc = "<a data-codigo='$codigo_enc' class='dropdown-item text-success' href='#' title='Actualizar Documento' onclick='fn_view_data_doc($(this));return false' >
+                <i class='fas fa-edit mr-1'></i> Actualizar Documento
+            </a>";
+    }
+
     $vrtotal=number_format($docp->total, 2);
     $vrigv=number_format($docp->migv, 2);
     echo 
@@ -189,6 +197,7 @@
                                                     $btnconsultar
                                                     $btnmatricula
                                                     $btnupdateclient
+                                                    $btnupdatedoc
                                                 </div>
                                             </div>
                                         

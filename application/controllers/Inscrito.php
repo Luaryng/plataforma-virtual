@@ -230,7 +230,8 @@ class Inscrito extends Sendmail {
 		$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
 		$this->form_validation->set_message('is_unique', '* {field} ya se encuentra registrado.');
 		$this->form_validation->set_message('is_natural_no_zero', '* {field} requiere un valor de la lista.');
-		
+		$this->form_validation->set_message('exact_length', '* {field} debe tener exactamente {param} caracteres de longitud.');
+		$this->form_validation->set_message('alpha', '* {field} requiere un valor de la lista.');
 	
 		$dataex['status'] =FALSE;
 		$dataex['msg']    = '¿Que Intentas?.';
@@ -246,10 +247,11 @@ class Inscrito extends Sendmail {
 			$this->form_validation->set_rules('ficbperiodo','Periodo','trim|required|exact_length[5]');
 			$this->form_validation->set_rules('ficbcampania','Campaña','trim|required|is_natural_no_zero');
 			$this->form_validation->set_rules('ficbciclo','Ciclo','trim|required|exact_length[2]');
-			$this->form_validation->set_rules('fitxtfecinscripcion','Fec. Nac.','trim|required');
+			$this->form_validation->set_rules('fitxtfecinscripcion','Fecha.','trim|required');
+			$this->form_validation->set_rules('ficbseccion','Sección','trim|required|alpha');
 
 			$discapacidad = $this->input->post('cbodispacacidad');
-
+			
 			if ($discapacidad == "SI") {
 				$this->form_validation->set_rules('ficbdiscapacidad','Discapacidad','trim|required|is_natural_no_zero');
 			}

@@ -108,7 +108,8 @@ class Mfacturacion_impresion extends CI_Model {
           tb_docpago_detalle.dpd_icbper_mnto as icbmonto,
           tb_docpago_detalle.dpd_igv_afectado as igvafect,
           tb_docpago_detalle.dpd_tipoitem as tipoitem,
-          tb_docpago_detalle.dpd_esgratis as esgratis
+          tb_docpago_detalle.dpd_esgratis as esgratis,
+          tb_docpago_detalle.codmatricula as codmat
         FROM
           tb_docpago_detalle
             WHERE cod_docpago = ? ", $data);

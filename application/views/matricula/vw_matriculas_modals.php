@@ -179,32 +179,35 @@
 <div class="modal fade" id="modupmat" tabindex="-1" role="dialog" aria-labelledby="modupmat" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
     <div class="modal-content" id="divmodaddmatricula">
-      <div class="modal-header">
-        <h5 class="modal-title text-bold px-1" id="titlemodal">MATRICULAR</h5>
-        <div id="divsearch_ins" style="display: none;">
-          <button class="btn btn-success" data-toggle="modal" data-target="#modfiltroins">
-          <i class="fas fa-search"></i> Buscar alumno
-          </button>
+      <div class="modal-header d-inline pb-0">
+        <div class="row">
+          <div class="col-10">
+            <h5 id="titlemodal" class="modal-title text-bold px-1" >MATRICULAR</h5>
+          </div>
+          <div class="col-2 text-right" id="divsearch_ins" style="display: none;">
+            <button class="btn btn-success" data-toggle="modal" data-target="#modfiltroins">
+              <i class="fas fa-search"></i> Buscar alumno
+            </button>
+          </div>
+          <div class="col-12">
+            <h6 id="fm-carreraup" class="border rounded px-1 py-1 bg-light">PROGRAMA ACADÉMICO</h6>
+          </div>
         </div>
       </div>
-      <div class="modal-body">
-        
-        <div class="row mb-2">
-          <div class="col-11 col-sm-11">
-            <h5 id="fm-carreraup" class="border rounded px-1 py-1 bg-light">PROGRAMA ACADÉMICO</h5>
-          </div>
-          <div class="col-1 col-sm-1 text-center mt-2" id="btn_refresh_cond" style="display: none;">
-            <a href="#" onclick="fn_refresca_condicional($(this));return false;" data-carne="" id="lbtn_condic_refresh">
-              <i class="fas fa-sync-alt fa-lg"></i>
-            </a>
-          </div>
-        </div>
+      <div class="modal-body pt-1">
+
 
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <a class="nav-item nav-link active" id="nav-matricular-tab" data-toggle="tab" href="#nav-matricular" role="tab" aria-controls="nav-matricular" aria-selected="true">Matrícular</a>
             <a class="nav-item nav-link" id="nav-macadem-tab" data-toggle="tab" href="#nav-macadem" role="tab" aria-controls="nav-macadem" aria-selected="false">Académico <span id="nrodesap"></span></a>
             <a class="nav-item nav-link" id="nav-mdeudas-tab" data-toggle="tab" href="#nav-mdeudas" role="tab" aria-controls="nav-mdeudas" aria-selected="false">Deudas <span id="nrodeudas"></span></a>
+            <!--<div class="col-1 col-sm-1 text-center mt-2" id="btn_refresh_cond" style="display: none;" >-->
+            <a class="nav-item nav-link ml-auto"  role="tab" style="display: none;" href="#" onclick="fn_refresca_condicional($(this));return false;" data-carne="" id="lbtn_condic_refresh">
+              <i class="fas fa-sync-alt fa-lg"></i>
+            </a>
+
+
           </div>
         </nav>
 
@@ -340,6 +343,42 @@
                       <input data-currentvalue="" class="form-control form-control-sm" type="number" step="0.01" value="0.00" id="fm-txtcuotaupreal" name="fm-txtcuotaupreal" placeholder="Cuota">
                       <label for="fm-txtcuotaupreal">Cuota Real</label>
                     </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group has-float-label col-12 col-sm-3">
+                      <select data-currentvalue="" class="form-control form-control-sm checkdocumento" id="fm-tipdocuf" name="fm-tipdocuf">
+                        <?php
+                          foreach ($tipdoc as $key => $tdocf) {
+                            echo "<option value='$tdocf->codigo'>$tdocf->nombre</option>";
+                          }
+                        ?>
+                        
+                      </select>
+                      <label for="fm-tipdocuf"> Tipo Doc.</label>
+                    </div>
+
+                    <div class="form-group has-float-label col-12 col-sm-4">
+                      <input type="text" name="fm-serie" id="fm-serie" placeholder="Serie" class="form-control form-control-sm checkdocumento">
+                      <label for="fm-serie"> Serie</label>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-3">
+                      <div class="input-group mb-3">
+                        <input type="text" class="form-control form-control-sm checkdocumento" name="fm-numdocum" id="fm-numdocum" placeholder="N° Documento">
+                        <div class="input-group-prepend">
+                          <button type="button" id="btn_doc_search" class="btn btn-sm btn-info btn_search_bol">
+                            <i class="fas fa-search"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 form-group">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkdocumen" name="checkdocumen">
+                        <label for="checkdocumen">Sin Documento de Pago</label>
+                      </div>
+                    </div>
+                    <div class="col-12" id="msg_rpta_documento"></div>
                   </div>
                   <div class="row">
                     <div class="form-group has-float-label col-12 col-xs-12 col-sm-12">
@@ -487,14 +526,17 @@
         </div>
         
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer d-inline">
         <div class="row">
-          <div class="col-12" id="msgcursos_deudas">
+          <div id="msgcursos_deudas" class="col-10 p-0">
             
           </div>
-        </div>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-        <button type="button" id="lbtn_editamat" class="btn btn-primary">Guardar</button>
+          <div class="col-2 p-0 text-right">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" id="lbtn_editamat" class="btn btn-primary">Guardar</button>
+          </div>
+       </div>
+        
       </div>
     </div>
   </div>

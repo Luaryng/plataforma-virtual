@@ -351,6 +351,190 @@
         </div>
     </div>
 
+    <div class="modal fade" id="modupdatedocumento" tabindex="-1" role="dialog" aria-labelledby="modupdatedocumento" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+            <div class="modal-content" id="divmodalupdatedocum">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="divcard_title">Actualizar Documento</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="frm_update_documento" action="" method="post" accept-charset="utf-8">
+                        <input type="hidden" name="vw_dp_txt_codocument" id="vw_dp_txt_codocument">
+                        <input name="vw_fcb_txtigvp_up" id="vw_fcb_txtigvp_up" type="hidden" value="">
+                        <div class="row mt-2">
+                            <div class="input-group input-group-sm col-md-3">
+                                <input type="hidden" name="vw_fcb_tipo_up" id="vw_fcb_tipo_up" value="">
+                                <input readonly="" type="text" class="form-control" placeholder="Serie" name="vw_fcb_serie_up" id="vw_fcb_serie_up" value="">
+                                <input type="text" class="form-control" placeholder="N°" name="vw_fcb_sernumero_up" id="vw_fcb_sernumero_up" value="">
+                            </div>
+                            <div class="col-md-3"></div>
+                            <div class="input-group input-group-sm col-md-6">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="">Emisión: </span>
+                                </div>
+                                <input type="date" class="form-control " name="vw_fcb_emision_up" id="vw_fcb_emision_up" value="">
+                                <input type="time" class="form-control " name="vw_fcb_emishora_up" id="vw_fcb_emishora_up" value="">
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="form-group has-float-label col-6 col-md-2">
+                                <select name="vw_dp_txt_tipdocpagante_up" id="vw_dp_txt_tipdocpagante_up" class="form-control form-control-sm">
+                                    
+                                </select>
+                                <label for="vw_dp_txt_tipdocpagante_up">Tipo doc.</label>
+                            </div>
+                            <div class="form-group has-float-label col-6 col-md-3">
+                                <input type="text" name="vw_dp_txt_dnipagante_up" id="vw_dp_txt_dnipagante_up" placeholder="N° documento" class="form-control form-control-sm">
+                                <label for="vw_dp_txt_dnipagante_up">N° documento</label>
+                            </div>
+                            <div class="form-group has-float-label col-4 col-sm-2">
+                                <input type="text" name="vw_dp_txt_codigpagante_up" id="vw_dp_txt_codigpagante_up" placeholder="Cod. Pagante" class="form-control form-control-sm">
+                                <label for="vw_dp_txt_codigpagante_up">Cod. Pagante</label>
+                            </div>
+                            <div class="form-group has-float-label col-8 col-md-5">
+                                <input type="text" name="vw_dp_txt_dpagante_up" id="vw_dp_txt_dpagante_up" placeholder="Cliente" class="form-control form-control-sm">
+                                <label for="vw_dp_txt_dpagante_up">Cliente</label>
+                            </div>
+                            <div class="form-group has-float-label col-12 col-md-8">
+                                <input type="text" name="vw_dp_txt_direccion_pag_up" id="vw_dp_txt_direccion_pag_up" placeholder="Dirección" class="form-control form-control-sm">
+                                <label for="vw_dp_txt_direccion_pag_up">Dirección</label>
+                            </div>
+                            <div class="form-group has-float-label col-12 col-md-4">
+                                <select name="vw_fcb_ai_txtcodmatricula" id="vw_fcb_ai_txtcodmatricula" class="form-control control form-control-sm text-sm text-danger">
+
+                                </select>
+                            </div>      
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="card border border-secondary ">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <h4>Detalle</h4>
+                                        </div>
+                                    </div>
+                                    <div class="card-body pt-0" id="divcard_detail_doc">
+                                        <div class="row text-bold">
+                                            <span class="text-sm col-1">Und.</span>
+                                            <span class="text-sm col-1">Cód.</span>
+                                            <span class="text-sm col-4">Concepto</span>
+                                            <span class="text-sm col-1">Cant.</span>
+                                            <span class="text-sm col-1">P.U</span>
+                                            <span class="text-sm col-1">Monto</span>
+                                            <span class="text-sm col-1">Cod.Deud</span>
+                                            <span class="text-sm col-1">Cod.Mat</span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <div class="row mb-2">
+                                            <label for="vw_fcb_txtobservaciones">Mas Información</label>
+                                            <textarea name="vw_fcb_txtobservaciones" id="vw_fcb_txtobservaciones" class="form-control " rows="2"></textarea>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-6">
+                                                <div class="form-check d-none">
+                                                    <input class="form-check-input " type="checkbox" value="" id="vw_fcb_chk_dsct_global">
+                                                    <label class="form-check-label" for="vw_fcb_chk_dsct_global">
+                                                        Descuento Global
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="text-sm col-4"><span class="float-right">Operación Gravada</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtoper_gravada" id="vw_fcb_txtoper_gravada" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-2 ">
+                                                <input type="text" name="vw_fcb_txt_dsct_general" id="vw_fcb_txt_dsct_general" class="form-control  form-control-sm text-sm div_dctoglobal" value="0.00">
+                                            </div>
+                                            <div class="form-group has-float-label col-12 col-md-2 ">
+                                                <select name="vw_fcb_cbdsctglobalfactor" id="vw_fcb_cbdsctglobalfactor" class="form-control  control form-control-sm text-sm div_dctoglobal">
+                                                    <option  value='1'>Soles</option>
+                                                    <option  value='100'>%</option>
+                                                    
+                                                </select>
+                                                <input type="hidden" name="vw_fcb_cbdsctglobalmontobase_final" id="vw_fcb_cbdsctglobalmontobase_final" placeholder="mb" >
+                                                <input type="hidden" name="vw_fcb_cbdsctglobalfactor_final" id="vw_fcb_cbdsctglobalfactor_final" placeholder="factor" >
+                                            </div>
+                                            <div class="text-sm col-6"><span class="float-right">Operación Inafecta</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtoper_inafecta" id="vw_fcb_txtoper_inafecta" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">Operación Exonerada</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtoper_exonerada" id="vw_fcb_txtoper_exonerada" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">Operación Exportación</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtoper_exportacion" id="vw_fcb_txtoper_exportacion" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">Descuentos Totales</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtoper_desctotal" id="vw_fcb_txtoper_desctotal" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">Total de Op. Gratuitas</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtoper_gratuitas" id="vw_fcb_txtoper_gratuitas" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">Subtotal</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtsubtotal" id="vw_fcb_txtsubtotal" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">ICBPER</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txticbpertotal" id="vw_fcb_txticbpertotal" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">ISC Total</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtisctotal" id="vw_fcb_txtisctotal" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">IGV Total</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txtigvtotal" id="vw_fcb_txtigvtotal" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="text-sm col-10"><span class="float-right">TOTAL</span></div>
+                                            <div class="text-sm col-2">
+                                                <input type="text" name="vw_fcb_txttotal" id="vw_fcb_txttotal" class="form-control vw_fcb_frmcontrols form-control-sm text-sm" readonly="" value="0.00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Salir</button>
+                    <button type="button" id="vw_dp_em_btnupdate_docum" data-codigo='' class="btn btn-primary">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 	<section id="s-cargado" class="content pt-1">
 		<div id="divcard_bolsa" class="card h-100 my-0">
 		    <div class="card-header">
@@ -408,13 +592,13 @@
                     <div class="row mb-1">
                         <div class="col-12 col-md-4 ">
                             <div class="row ">
-                                <div class="col-md-3 col-3">
+                                <div class="col-md-3 col-3 form-group">
                                     <div class="form-check">
                                         <input checked="" class="form-check-input checkradio" value="todo" type="radio" name="radio1" id="radioall">
                                         <label class="form-check-label" for="radioall">Todo</label>
                                     </div>
                                 </div>
-                                <div class="col-md-3 col-3">
+                                <div class="col-md-3 col-3 form-group">
                                     <div class="form-check">
                                         <input class="form-check-input checkradio" value="hoy" type="radio" name="radio1" id="radiohoy">
                                         <label class="form-check-label" for="radiohoy">Hoy</label>
@@ -426,13 +610,13 @@
                                         <label class="form-check-label" for="radioayer">Ayer</label>
                                     </div>
                                 </div>-->
-                                <div class="col-md-3 col-3">
+                                <div class="col-md-3 col-3 form-group">
                                     <div class="form-check">
                                         <input class="form-check-input checkradio" value="mes" type="radio" name="radio1" id="radiomes">
                                         <label class="form-check-label" for="radiomes">Mes</label>
                                     </div>
                                 </div>
-                                <div class="col-md-3 col-3">
+                                <div class="col-md-3 col-3 form-group">
                                     <div class="form-check">
                                         <input class="form-check-input checkradio" value="entre" type="radio" name="radio1" id="radioentre">
                                         <label class="form-check-label" for="radioentre">Entre</label>
@@ -583,6 +767,73 @@
             </div>
 		</div>
 	</section>
+
+    <div id="vw_fcb_rowitem" class="row rowcolor vw_fcb_class_rowitem" data-arraypos="-1">
+        <div class="col-12 col-md-1 p-0">
+            <input type="hidden" name="vw_fcb_ai_cod_detalle" >
+            <select readonly name="vw_fcb_ai_cbunidad"  class="form-control control form-control-sm text-sm">
+                <?php
+                foreach ($unidad as $key => $und) {
+                echo "<option  value='$und->codigo' >$und->nombre</option>";
+                }
+                ?>
+            </select>
+        </div>
+
+        <div class="col-12 col-md-1 p-0">
+            <input readonly type="text"  name="vw_fcb_ai_cbgestion" class="form-control form-control-sm text-sm">
+        </div>
+        <div class="col-12 col-md-4 p-0">
+            <input autocomplete="off" type="text"  onchange="fn_update_concepto($(this));return false" name="vw_fcb_ai_txtgestion" placeholder="Gestion" class="form-control form-control-sm text-sm divcard_campos_read">
+        </div>
+        <div class="col-12 col-md-1 p-0">
+            <input autocomplete="off" onkeyup="fn_update_precios($(this));return false" onchange="fn_update_precios($(this));return false" type="number" name="vw_fcb_ai_txtcantidad"  placeholder="Cantidad" class="form-control form-control-sm text-sm text-right divcard_campos_read">
+        </div>
+        <div class="col-12 col-md-1 p-0">
+            <input autocomplete="off" onkeyup="fn_update_precios($(this));return false" onchange="fn_update_precios($(this));return false" type="number" name="vw_fcb_ai_txtpreciounitario"  placeholder="pu" class="form-control form-control-sm text-sm text-right divcard_campos_read">
+        </div>
+        <div class="col-12 col-md-1 p-0">
+            <input readonly type="text" name="vw_fcb_ai_txtprecioventa"  placeholder="pv" class="form-control form-control-sm text-sm text-right">
+        </div>
+        <div class="col-12 col-md-1 p-0">
+            <input type="text" onkeyup="fn_update_cod_deuda($(this));return false" onchange="fn_update_cod_deuda($(this));return false" name="vw_fcb_ai_txtcoddeuda" class="form-control form-control-sm text-sm">
+        </div>
+        <div class="col-12 col-md-1 p-0">
+            <select onchange="fn_update_cod_matricula_deta($(this));return false;" name="vw_fcb_ai_txtcodmatricula_det" class="form-control control form-control-sm text-sm text-danger form_select_mat" data-prb="hola">
+
+            </select>
+        </div>
+        <div class="row">
+            <input readonly type="hidden" name="vw_fcb_ai_txtvalorunitario"  >
+            <div class="col-12 col-md-3">
+                <input  type="hidden" name="vw_fcb_ai_cbisc"  >
+            </div>
+            <div class="col-12 col-md-2">
+                <input  type="hidden" name="vw_fcb_ai_txtiscvalor"  placeholder="Impuesto" >
+            </div>
+            <div class="col-12 col-md-3">
+                <input  type="hidden" name="vw_fcb_ai_cbiscfactor" >
+            </div>
+            <div  class="col-12 col-md-2">
+                <input  type="hidden" name="vw_fcb_ai_txtiscbase"  placeholder="Base Imponible" >
+            </div>
+            <div class="col-12 col-md-2">
+                <input  type="hidden" name="vw_fcb_ai_txtdsctvalor"  placeholder="Impuesto">
+            </div>
+            <div class="col-12 col-md-3" name="vw_fcb_ai_cbdsctfactor">
+                <input  type="hidden">
+                
+            </div>
+            <div class="col-12 col-md-4">
+                <input  type="hidden"  name="vw_fcb_ai_cbafectacion">
+            </div>
+            <div class="col-12 col-md-4">
+                <input  type="hidden"  name="vw_fcb_ai_cbafectaigv">
+            </div>
+            
+        </div>
+    </div>
+    
 </div>
 <?php  
 echo 
@@ -597,6 +848,8 @@ echo
     $(document).ready(function() {
        
         $("#vw_dp_em_divoverlay").hide();
+        $('#vw_fcb_rowitem').hide();
+        $(".div_dctoglobal").hide();
 
         $('.vw_btn_msjsunat').popover({
           trigger: 'focus'
@@ -2358,5 +2611,398 @@ echo
         })
         return false;
     });
-    
+
+    var itemsDocumento = {};
+    itemsNro = 0;
+    function mostrar_montos() {
+        //var itemsNro = 0;
+        var ops_grav = 0;
+        var ops_inaf = 0;
+        var ops_exon = 0;
+        var ops_expo = 0;
+        var dsctos_globales = 0;
+        var dsctos_detalles = 0;
+        var ops_grat = 0;
+        var js_subtotal = 0;
+        var js_icbper = 0;
+        var js_isc = 0;
+        var js_igv = 0;
+        //var pigv = 0;
+        var js_total = 0;
+        // console.log("itemsDocumento", itemsDocumento);
+        $.each(itemsDocumento, function(ind, elem) {
+            var pu = Number(elem['vw_fcb_ai_txtpreciounitario']);
+            var valorventa = Number(elem['vw_fcb_ai_txtcantidad']) * pu;
+            if (elem['vw_fcb_ai_cbafectacion'] == "10") {
+                //GRAVADO
+                valorventa_sinigv = Number(elem['vw_fcb_ai_txtvalorunitario']) * Number(elem['vw_fcb_ai_txtcantidad']);
+                ops_grav = ops_grav + valorventa_sinigv;
+                js_total = js_total + valorventa;
+            } else if (elem['vw_fcb_ai_cbafectacion'] == "30") {
+                //INAFECTO
+                ops_inaf = ops_inaf + valorventa;
+                js_total = js_total + valorventa;
+            } else if (elem['vw_fcb_ai_cbafectacion'] == "20") {
+                //EXONERADO
+                ops_exon = ops_exon + valorventa;
+                js_total = js_total + valorventa;
+            } else if (elem['vw_fcb_ai_cbafectacion'] == "40") {
+                //EXONERADO
+                elem['vw_fcb_ai_txtvalorunitario'] = pu;
+                elem['vw_fcb_ai_txtprecioventa'] = valorventa;
+                ops_inaf = ops_inaf + valorventa;
+                js_total = js_total + valorventa;
+            } else {
+                //GRATUITA
+                ops_grat = ops_grat + valorventa;
+                //js_total=js_total + valorventa;
+            }
+        });
+        //SUBTOTAL
+        js_subtotal = ops_grav + ops_exon + ops_inaf - (dsctos_globales + dsctos_detalles);
+        //IGV
+        js_igv = Math.round((js_total - js_subtotal - js_isc - js_icbper) * 100) / 100;
+        $("#vw_fcb_txtoper_gravada").val(ops_grav);
+        $("#vw_fcb_txtoper_inafecta").val(ops_inaf);
+        $("#vw_fcb_txtoper_exonerada").val(ops_exon);
+        $("#vw_fcb_txtoper_exportacion").val(ops_expo);
+        $("#vw_fcb_txtoper_desctotal").val(dsctos_globales + dsctos_detalles);
+        $("#vw_fcb_txtoper_gratuitas").val(ops_grat);
+        $("#vw_fcb_txtsubtotal").val(js_subtotal);
+        $("#vw_fcb_txticbpertotal").val(js_icbper);
+        $("#vw_fcb_txtisctotal").val(js_isc);
+        $("#vw_fcb_txtigvtotal").val(js_igv);
+        $("#vw_fcb_txtsubtotal").val(js_subtotal);
+        $("#vw_fcb_txttotal").val(js_total);
+        $(".vw_fcb_frmcontrols").each(function() {
+            $(this).val(parseFloat($(this).val()).toFixed(2));
+        });
+    }
+
+    function fn_view_data_doc(btn) {
+        var codigo=btn.data('codigo');
+        var fila=btn.closest('.cfila');
+            
+        $('#divcard_bolsa').append('<div id="divoverlay" class="overlay d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+        $.ajax({
+                url: base_url + "facturacion/fn_datos_documento_facturacion",
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    vw_fcb_codigo:codigo
+                },
+                success: function(e) {
+                    $('#divcard_bolsa #divoverlay').remove();
+                    if (e.status == false) {
+                        Swal.fire({
+                            title: "ERROR!",
+                             text: "SIN RESULTADOS",
+                            type: 'error',
+                            icon: 'error',
+                        })
+                        
+                    } else {
+                        var estado = e.vdata['estado'];
+                        inputstatus = true;
+                        if (estado == "PENDIENTE") {
+                            inputstatus = false;
+                        } else {
+                            inputstatus = true;
+                        }
+                        $('#modupdatedocumento #vw_dp_txt_codocument').val(e.vdata['codigo64']);
+                        $('#modupdatedocumento #vw_fcb_txtigvp_up').val(e.vdata['igv']);
+                        $('#modupdatedocumento #vw_fcb_serie_up').val(e.vdata['serie']);
+                        $('#modupdatedocumento #vw_fcb_tipo_up').val(e.vdata['tdocid']);
+                        $('#modupdatedocumento #vw_fcb_sernumero_up').val(e.vdata['numero']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_fcb_emision_up').val(e.vdata['fechaem']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_fcb_emishora_up').val(e.vdata['horaem']).attr('readonly', inputstatus);
+
+                        $('#modupdatedocumento #vw_dp_txt_codigpagante_up').val(e.vdata['pagante']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_dp_txt_tipdocpagante_up').html(e.tiposdoc);
+                        $('#modupdatedocumento #vw_dp_txt_tipdocpagante_up').val(e.vdata['ptipodoc']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_dp_txt_dnipagante_up').val(e.vdata['pnrodoc']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_dp_txt_dpagante_up').val(e.vdata['pagantenom']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_dp_txt_direccion_pag_up').val(e.vdata['direccion']).attr('readonly', inputstatus);
+                        $('#modupdatedocumento #vw_fcb_txtobservaciones').val(e.vdata['observacion']).attr('readonly', inputstatus);
+
+                        if (e.rscountmatricula > 0) {
+                            var matricula = "";
+                            matricula = "<option value=''>Sin Asignar</option>";
+                            $.each(e.vmatriculas, function(key, mt) {
+                                if (mt['estado'] !== '2') {
+                                    matricula = matricula + "<option value='" + mt['codigo'] + "'>" + mt['periodo'] + " - " + mt['ciclo'] + "</option>";
+                                }
+
+                            });
+
+                        } else {
+                            matricula = "<option value=''>Sin Asignar</option>";
+                        }
+
+                        $('#modupdatedocumento #vw_fcb_ai_txtcodmatricula').html(matricula);
+                        $('#modupdatedocumento #vw_fcb_ai_txtcodmatricula').val(e.vdata['matriculaid']);
+
+                        pigv = e.vseries['igvpr'];
+                        pigv = Number(pigv) / 100;
+                        itemsNro = 0;
+                        $.each(e.vdetail, function(index, v) {
+                            var itemd = {};
+                            itemd['vw_fcb_ai_cbunidad'] = v['undid']
+
+                            //llenar gestion
+                            itemd['vw_fcb_ai_cbgestion'] = v['gestid'];
+                            itemd['vw_fcb_ai_txtgestion'] = v['gestion'];
+                            // console.log(itemd)
+                            
+                            itemd['vw_fcb_ai_txtcantidad'] = v['cantidad'];
+                            itemd['vw_fcb_ai_txtpreciounitario'] = v['unitariov'];
+                            itemd['vw_fcb_ai_txtprecioventa'] = v['ventaval'];
+                            itemd['vw_fcb_ai_txtcoddeuda'] = v['deudaid'];
+                            itemd['vw_fcb_ai_txtcodmatricula_det'] = v['codmat'];
+                            itemd['vw_fcb_ai_cod_detalle'] = v['cod64det'];
+
+                            itemd['vw_fcb_ai_cbiscfactor'] = v['dfactor'];
+                            itemd['vw_fcb_ai_cbafectaigv'] = v['igvafect'];
+
+                            itemd['vw_fcb_ai_txtiscvalor'] = v['iscvalor'];
+                            itemd['vw_fcb_ai_txtiscbase'] = v['iscbimp'];
+                            itemd['vw_fcb_ai_txtdsctvalor'] = v['dvalor'];
+                            itemd['vw_fcb_ai_cbdsctfactor'] = v['dfactor'];
+                            itemd['vw_fcb_ai_cbtipoitem'] = v['tipoitem'];
+                            itemd['vw_fcb_ai_cbgratis'] = v['esgratis'];
+
+                            itemd['vw_fcb_ai_cbafectacion'] = v['tafigv'];
+
+                            var pu = Number(itemd['vw_fcb_ai_txtpreciounitario']);
+                            var valorventa = Number(itemd['vw_fcb_ai_txtcantidad']) * pu;
+                            if (itemd['vw_fcb_ai_cbafectacion'] == "10") {
+                                //GRAVADO
+                                itemd['vw_fcb_ai_txtvalorunitario'] = Math.round((pu / (pigv + 1)) * 100) / 100;
+                                itemd['vw_fcb_ai_txtprecioventa'] = valorventa;
+                                
+                            } else if (itemd['vw_fcb_ai_cbafectacion'] == "30") {
+                                //INAFECTO
+                                itemd['vw_fcb_ai_txtvalorunitario'] = pu;
+                                itemd['vw_fcb_ai_txtprecioventa'] = valorventa;
+                                
+                            } else if (itemd['vw_fcb_ai_cbafectacion'] == "20") {
+                                //EXONERADO
+                                itemd['vw_fcb_ai_txtvalorunitario'] = pu;
+                                itemd['vw_fcb_ai_txtprecioventa'] = valorventa;
+                                
+                            } else if (itemd['vw_fcb_ai_cbafectacion'] == "40") {
+                                //EXONERADO
+                                itemd['vw_fcb_ai_txtvalorunitario'] = pu;
+                                itemd['vw_fcb_ai_txtprecioventa'] = valorventa;
+                                
+                            } else {
+                                //GRATUITA
+                                itemd['vw_fcb_ai_txtvalorunitario'] = pu;
+                                itemd['vw_fcb_ai_txtprecioventa'] = valorventa;
+                                
+                            }
+
+                            var row = $("#vw_fcb_rowitem").clone();
+                            row.attr('id', 'vw_fcb_rowitem' + itemsNro);
+                            row.data('arraypos', itemsNro);
+                            itemsDocumento[itemsNro] = itemd;
+                            itemsNro++;
+                            row.find('input,select').each(function(index, el) {
+                                if ($(this).attr('name') == "vw_fcb_ai_txtcodmatricula_det") {
+                                    $(this).html(matricula);
+                                }
+                                if ($(this).hasClass('divcard_campos_read')) {
+                                    $(this).attr('readonly', inputstatus);
+                                }
+
+                                $(this).val(itemd[$(this).attr('name')]);
+                            });
+
+                            row.show();
+                            $('#divcard_detail_doc').append(row);
+                            
+                        })
+                        mostrar_montos();
+                        $('#modupdatedocumento').modal();
+
+                    }
+                },
+                error: function(jqXHR, exception) {
+                    var msgf = errorAjax(jqXHR, exception,'text');
+                    $('#divcard_bolsa #divoverlay').remove();
+                    Swal.fire({
+                        title: "ERROR!",
+                        text:  msgf,
+                        type: 'error',
+                        icon: 'error',
+                    })
+                }
+        });
+        return false;
+          
+    }
+
+    $("#modupdatedocumento").on('hidden.bs.modal', function (e) {
+        $('#divcard_detail_doc .rowcolor').remove();
+        $.each(itemsDocumento, function(ind, elem) {
+            delete itemsDocumento[ind];
+            mostrar_montos();
+        })
+        
+    })
+
+    function fn_update_concepto(txt) {
+
+        var fila = txt.closest('.rowcolor');
+        var pos = fila.data('arraypos');
+        var concepto = fila.find('input[name="vw_fcb_ai_txtgestion"]').val();
+        itemsDocumento[pos]['vw_fcb_ai_txtgestion'] = concepto;
+        // console.log("itemsDocumento", itemsDocumento);
+    }
+
+    function fn_update_precios(txt) {
+
+        var fila = txt.closest('.rowcolor');
+        var pos = fila.data('arraypos');
+
+        var pu = Number(fila.find('input[name="vw_fcb_ai_txtpreciounitario"]').val());
+        itemsDocumento[pos]['vw_fcb_ai_txtpreciounitario'] = pu;
+        var vcnt = fila.find('input[name="vw_fcb_ai_txtcantidad"]').val();
+        var valorventa = Number(vcnt) * pu;
+        itemsDocumento[pos]['vw_fcb_ai_txtcantidad'] = vcnt;
+
+        var afectacion = itemsDocumento[pos]['vw_fcb_ai_cbafectacion'];
+        console.log("IGV",pigv);
+        if (afectacion == "10") {
+            //GRAVADO
+            itemsDocumento[pos]['vw_fcb_ai_txtvalorunitario'] = Math.round((pu / (pigv + 1)) * 100) / 100;
+            itemsDocumento[pos]['vw_fcb_ai_txtprecioventa'] = valorventa;
+        } else if (afectacion == "30") {
+            //INAFECTO
+            itemsDocumento[pos]['vw_fcb_ai_txtvalorunitario'] = pu;
+            itemsDocumento[pos]['vw_fcb_ai_txtprecioventa'] = valorventa;
+        } else if (afectacion == "20") {
+            //EXONERADO
+            itemsDocumento[pos]['vw_fcb_ai_txtvalorunitario'] = pu;
+            itemsDocumento[pos]['vw_fcb_ai_txtprecioventa'] = valorventa;
+        } else if (afectacion == "40") {
+            //EXONERADO
+            itemsDocumento[pos]['vw_fcb_ai_txtvalorunitario'] = pu;
+            itemsDocumento[pos]['vw_fcb_ai_txtprecioventa'] = valorventa;
+        } else {
+            //GRATUITA
+            itemsDocumento[pos]['vw_fcb_ai_txtvalorunitario'] = pu;
+            itemsDocumento[pos]['vw_fcb_ai_txtprecioventa'] = valorventa;
+        }
+
+        fila.find('input[name="vw_fcb_ai_txtprecioventa"]').val(valorventa);
+        console.log("itemsDocumento", itemsDocumento)
+
+        mostrar_montos();
+    }
+
+    function fn_update_cod_deuda(txt) {
+
+        var fila = txt.closest('.rowcolor');
+        var pos = fila.data('arraypos');
+        var coddeuda = fila.find('input[name="vw_fcb_ai_txtcoddeuda"]').val();
+        itemsDocumento[pos]['vw_fcb_ai_txtcoddeuda'] = coddeuda;
+    }
+
+    function fn_update_cod_matricula_deta(txt) {
+
+        var fila = txt.closest('.rowcolor');
+        var pos = fila.data('arraypos');
+        // var codigomat = fila.find('input[name="vw_fcb_ai_txtcodmatricula_det"] option:selected').val();
+        var codigomat = txt.val();
+        console.log("codigomat", codigomat);
+        itemsDocumento[pos]['vw_fcb_ai_txtcodmatricula_det'] = codigomat;
+        console.log("itemsDocumento", itemsDocumento);
+    }
+
+    $("#vw_dp_em_btnupdate_docum").click(function(e) {
+        e.preventDefault();
+        // modmatricula = false;
+        // $('#divdata_detalle input[name="vw_fcb_ai_cbgestion"]').each(function() {
+        //     campo = $(this).val();
+        //     if ((campo == "01.01") || (campo == "01.02") || (campo == "01.03")) {
+        //         modmatricula = true;
+        //     }
+        // })
+        if ($('#vw_dp_txt_dnipagante_up').val() == "") {
+            Swal.fire(
+                'Cliente!',
+                "Debes indicar un cliente registrado",
+                'warning'
+            );
+            return false;
+        }
+        //alert(itemsDocumento.size();)
+        if (($.isEmptyObject(itemsDocumento)) || (itemsDocumento.length == 0)) {
+            Swal.fire(
+                'Items!',
+                "Se necesitan Items para generar un documento de pago",
+                'warning'
+            );
+            return false;
+        }
+        $('#divmodalupdatedocum').append('<div id="divoverlay" class="overlay d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+        $('input:text,select').removeClass('is-invalid');
+        $('.invalid-feedback').remove();
+        // $('.vw_fcb_frmcontrols').attr('readonly', false);
+        // $('.vw_fcb_class_rowitem input,select').attr('readonly', false);
+        
+        var formData = new FormData($("#frm_update_documento")[0]);
+        formData.append('vw_fcb_items', JSON.stringify(itemsDocumento));
+        
+        $.ajax({
+            url: base_url + 'facturacion/fn_actualizar_docpago',
+            type: 'POST',
+            data: formData,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            success: function(e) {
+                $('#divmodalupdatedocum #divoverlay').remove();
+                if (e.status == true) {
+                    // if (modmatricula == true) {
+                        
+                    //     datos_carne($('#vw_fcb_codpagante').val(), e.coddocpago);
+                    // }
+                    Swal.fire(
+                        'Exito!',
+                        'Los datos fueron actualizados correctamente.',
+                        'success'
+                    );
+                    $("#modupdatedocumento").modal('hide');
+
+                } else {
+                    $.each(e.errors, function(key, val) {
+                        $('#' + key).addClass('is-invalid');
+                        $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+                    });
+                    
+                    // $('.vw_fcb_frmcontrols').attr('readonly', true);
+                    // $('.vw_fcb_class_rowitem input,select').attr('readonly', true);
+
+                    Swal.fire(
+                        'Error!',
+                        e.msg,
+                        'error'
+                    )
+                }
+            },
+            error: function(jqXHR, exception) {
+                $('#divmodalupdatedocum #divoverlay').remove();
+                var msgf = errorAjax(jqXHR, exception, 'text');
+                Swal.fire(
+                    'Error!',
+                    msgf,
+                    'error'
+                )
+            }
+        });
+        return false;
+    });
+        
 </script>

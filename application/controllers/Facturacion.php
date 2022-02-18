@@ -18,7 +18,7 @@ class Facturacion extends Error_views{
     public function vw_documentos_de_pago()
 	{
 		if (((getPermitido("97") == "SI")) && (($_SESSION['userActivo']->tipo == 'DA') || ($_SESSION['userActivo']->tipo == 'AD'))){
-			$ahead= array('page_title' =>'Documentos de Pago | ERP'  );
+			$ahead= array('page_title' =>'Documentos de Pago | Plataforma Virtual '.$this->ci->config->item('erp_title')  );
 			$asidebar= array('menu_padre' =>'mn_facturaerp');
 			$this->load->view('head',$ahead);
 			$this->load->view('nav');
@@ -31,6 +31,7 @@ class Facturacion extends Error_views{
 			$rstdata['mediosp'] = $this->mfacturacion->m_get_medios_pago();
 			$rstdata['bancos'] = $this->mfacturacion->m_get_bancos();
 			$rstdata['tipdoc'] = $this->mfacturacion->m_get_tiposdoc();
+			$rstdata['unidad'] =$this->mfacturacion->m_get_unidades_habilitados();
 			// $rstdata['items'] = $this->mfacturacion->m_get_emitidos_index(array($_SESSION['userActivo']->idsede));
 			//$rstdata['numitems'] = count($this->mfacturacion->m_get_emitidos_index(array($_SESSION['userActivo']->idsede)));
 			
@@ -1490,6 +1491,421 @@ class Facturacion extends Error_views{
         }
         header('Content-Type: application/x-json; charset=utf-8');
         echo json_encode($dataex);
+	}
+
+	public function fn_datos_documento_facturacion()
+	{
+		$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres o digite %%%%%%%%.');
+		$this->form_validation->set_message('max_length', '* {field} debe tener al menos {param} caracteres.');
+		$dataex['status'] =FALSE;
+		$dataex['msg']    = '¿Que Intentas?.';
+		$rspitems = "";
+
+		if ($this->input->is_ajax_request())
+		{
+			$dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+			
+			$codigo = base64url_decode($this->input->post('vw_fcb_codigo'));
+			$rstipos=array();
+			$this->load->model("mfacturacion_impresion");
+			$pagos=$this->mfacturacion_impresion->m_get_docpagos(array($codigo));
+        	$detalle = $this->mfacturacion_impresion->m_get_pagos_detalle(array($codigo));
+        	$serie_sede= $this->mfacturacion->m_get_docserie(array($pagos->tdocid,$_SESSION['userActivo']->idsede));
+
+			$rptatipo = $this->mfacturacion->m_get_tipo_identidad_habilitados();
+
+			$mismatriculas = array();
+			$this->load->model('minscrito');
+			$this->load->model('malumno');
+			$inscrito = $this->minscrito->m_get_inscrito_por_carne(array($pagos->pagante));
+			if (@count($inscrito) > 0) {
+				$mismatriculas = $this->malumno->m_matriculasxcarne(array($inscrito->idinscripcion));
+			}
+
+			$dataex['rscountmatricula']=count($mismatriculas);
+			$dataex['vmatriculas']=$mismatriculas;
+
+			if (count($rptatipo) > 0) $rstipos = "<option value='0'>Seleccionar tipo</option>";
+			foreach ($rptatipo as $tip) {
+				$rstipos = $rstipos."<option value='$tip->codigo'>$tip->nombre</option>";
+			}
+
+			$pagos->codigo64 = base64url_encode($pagos->id);
+			$fechaemi = new DateTime($pagos->fecha);
+			$pagos->fechaem = $fechaemi->format('Y-m-d');
+			$pagos->horaem = $fechaemi->format('H:i:s');
+
+			foreach ($detalle as $det) {
+				$det->cod64det = base64url_encode($det->id);
+				$det->unitariov = number_format($det->vunitario, 2, '.', '');
+				$det->ventaval = number_format($det->valventa, 2, '.', '');
+			}
+			
+			$dataex['status'] = TRUE;
+		}
+		$dataex['vdata'] = $pagos;
+		$dataex['vdetail'] = $detalle;
+		$dataex['tiposdoc']=$rstipos;
+		$dataex['vseries'] = $serie_sede;
+		header('Content-Type: application/x-json; charset=utf-8');
+		echo(json_encode($dataex));
+	}
+
+	public function fn_actualizar_docpago()
+	{
+		$dataex['status'] =FALSE;
+		$dataex['msg']    = '¿Que Intentas?.';
+		if ($this->input->is_ajax_request())
+		{	
+			$pbol=getPermitido("99");// boleta
+			$pfac=getPermitido("100");// boleta
+			$cpermitido=false;
+			if (($pbol=="SI") || ($pfac=="SI")) $cpermitido=true;
+			if ($cpermitido==true){
+
+				$this->form_validation->set_message('required', '%s Requerido');
+				
+				$this->form_validation->set_rules('vw_fcb_serie_up','Serie','trim|required');
+				$this->form_validation->set_rules('vw_fcb_sernumero_up','NÚmero','trim|required');
+				$this->form_validation->set_rules('vw_fcb_emision_up','Fecha emision','trim|required');
+				//$this->form_validation->set_rules('vw_fcb_vencimiento','Fecha vencimiento','trim|required');
+				$this->form_validation->set_rules('vw_dp_txt_dnipagante_up','Nro documento','trim|required');
+
+				if ($this->form_validation->run() == FALSE)
+				{ 
+					$dataex['msg']="Existen errores en los campos";
+					$errors = array();
+			        foreach ($this->input->post() as $key => $value){
+			            $errors[$key] = form_error($key);
+			        }
+			        $dataex['errors'] = array_filter($errors);
+				}
+				else
+				{
+					$dataex['msg'] ='Ocurrio un error, intente nuevamente o comuniquese con un administrador.';
+					$items          = json_decode($_POST['vw_fcb_items'],true);
+					$n_items_recibidos=count($items);
+					$esta_matriculando="NO";
+					$matriculas_h=array();
+					if ($n_items_recibidos>0){
+						$tipodoc_cod=$this->input->post('vw_fcb_tipo_up');
+						$pagante_tipodoc=$this->input->post('vw_dp_txt_tipdocpagante_up');
+						$pagante_nrodoc=$this->input->post('vw_dp_txt_dnipagante_up');
+						$dcp_pagante=$this->input->post('vw_dp_txt_dpagante_up');
+						$pagante_cod=$this->input->post('vw_dp_txt_codigpagante_up');
+
+						// $codtipoo_peracion_51=$this->input->post('vw_fcb_cbtipo_operacion51');
+
+						$dcp_serie=$this->input->post('vw_fcb_serie_up');
+						$dcp_total=$this->input->post('vw_fcb_txttotal');
+
+						$validacion=true;
+						// if (($codtipoo_peracion_51=="0200") && ($pagante_tipodoc!="SDI")){
+						// 	$validacion=false;
+						// 		$dataex['msg']="Si es una operación de EXPORTACIÓN, el cliente debe tener como tipo de documento DOC.TRIB.NO.DOM.SIN.RUC (EXPORTACIÓN)";
+						// }
+						
+						
+						if ($tipodoc_cod=="FC") {
+							if (substr($dcp_serie, 0, 1)!="F" ){
+								$validacion=false;
+								$dataex['msg']="Serie debe empezar con F";
+							}
+							
+						}
+						if ($tipodoc_cod=="BL") {
+
+							if (substr($dcp_serie, 0, 1)!="B" ){
+								$validacion=false;
+								$dataex['msg']="Serie debe empezar con B";
+							}
+							
+						}
+						if (($tipodoc_cod=="FC") && ($pagante_tipodoc!="RUC")){
+							$validacion=false;
+								$dataex['msg']="Documeto de Identidad incorrecto para una Factura";
+						}
+						if ($pagante_tipodoc=="DNI"){
+							if (strlen($pagante_nrodoc)!=8){
+								$validacion=false;
+								$dataex['msg']="DNI requiere de 8 carácteres";
+							}
+						}
+						else if ($pagante_tipodoc=="RUC"){
+							if (strlen($pagante_nrodoc)!=11){
+								$validacion=false;
+								$dataex['msg']="RUC requiere de 11 carácteres";
+							}
+						}
+						else if ($pagante_tipodoc=="VAR"){
+								
+								$dcp_pagante="VARIOS";
+								$pagante_cod="-";
+								$pagante_nrodoc="-";
+								if ($dcp_total>=700){
+									$validacion=false;
+									$dataex['msg']="Para ventas mayores o iguales a 700 debe Indicar un Cliente";
+								}
+
+						}
+						if (trim($pagante_cod)=="") {
+							
+								$validacion=false;
+								$dataex['msg']="Debes escoger a un Cliente";
+							
+							
+						}
+						foreach ($items as $key => $it) {
+							if (trim($it['vw_fcb_ai_cbunidad'])==""){
+								$validacion=false;
+								$dataex['msg']="RUC requiere de 11 carácteres";
+								break;
+							}
+							// if ($codtipoo_peracion_51=="0200"){
+							// 	if  ($it['vw_fcb_ai_cbafectacion']!="40"){
+							// 		$validacion=false;
+							// 		$dataex['msg']="Si es una operación de EXPORTACIÓN, el tipo de IGV debe ser:  40  Exportación de Bienes o Servicios";
+							// 	}
+								
+							// }
+							// if ($codtipoo_peracion_51=="0101"){
+							// 	if  ($it['vw_fcb_ai_cbafectacion']=="40"){
+							// 		$validacion=false;
+							// 		$dataex['msg']="Para una Operación de VENTA, el tipo de IGV NO debe ser Exportación";
+							// 	}
+								
+							// }
+						}
+
+						if ($validacion==true){
+							// $dcp_numero=$this->input->post('vw_fcb_sernumero_real');
+							$codocumento = base64url_decode($this->input->post('vw_dp_txt_codocument'));
+							$femision=$this->input->post('vw_fcb_emision_up');
+							$emishora=$this->input->post('vw_fcb_emishora_up');
+							$dcp_fecha_hora = $femision.' '.$emishora;;
+							
+							$dcp_direccion=$this->input->post('vw_dp_txt_direccion_pag_up');
+							$dcp_numero_doc = $this->input->post('vw_fcb_sernumero_up');
+
+							//Email
+							// $email=$this->input->post('vw_fcb_txtemail1');
+							// $email2=$this->input->post('vw_fcb_txtemail2');
+							// $email3=$this->input->post('vw_fcb_txtemail3');
+
+
+							$matricula_cod = $this->input->post('vw_fcb_ai_txtcodmatricula');
+							$dcp_observacion=$this->input->post('vw_fcb_txtobservaciones');
+							$sede_id=$_SESSION['userActivo']->idsede;
+							
+							$dcp_descuento_general=$this->input->post('vw_fcb_txt_dsct_general');
+							$dcp_igv=$this->input->post('vw_fcb_txtigvp_up');
+							
+							
+							$dcp_mnto_oper_gravadas=$this->input->post('vw_fcb_txtoper_gravada');
+							$dcp_mnto_oper_inafecta=$this->input->post('vw_fcb_txtoper_inafecta');
+							$dcp_mnto_oper_exonerada=$this->input->post('vw_fcb_txtoper_exonerada');
+							$dcp_mnto_oper_exportacion=$this->input->post('vw_fcb_txtoper_exportacion');
+
+							$dcp_descuento_factor=$this->input->post('vw_fcb_txtoper_descfactor');
+							$dcp_mnto_dsctos_totales=$this->input->post('vw_fcb_txtoper_desctotal');
+							
+							$dcp_mnto_oper_gratis=$this->input->post('vw_fcb_txtoper_gratuitas');
+							
+							
+							$dcp_valor_venta=$this->input->post('vw_fcb_txtsubtotal');
+							$dcp_subtotal=$this->input->post('vw_fcb_txtsubtotal');
+
+							$dcp_monto_icbper=$this->input->post('vw_fcb_txticbpertotal');
+
+							$dcp_mnto_isc_base= 0;// Sumatoria MtoBaseISC detalles
+							$dcp_mnto_isc=$this->input->post('vw_fcb_txtisctotal');
+
+							$dcp_mnto_igv=$this->input->post('vw_fcb_txtigvtotal');
+							$dcp_total_impuestos= floatval($dcp_mnto_igv) + floatval($dcp_mnto_isc) + floatval($dcp_monto_icbper);
+							
+							// $dcp_fecha_vence=$this->input->post('vw_fcb_vencimiento');
+							// if ($dcp_fecha_vence=="") $dcp_fecha_vence=null;
+							
+				            $usuario = $_SESSION['userActivo'];
+							$sede = $_SESSION['userActivo']->idsede;
+		                    
+							date_default_timezone_set ('America/Lima');
+							$rpta=0;
+							$rptad=0;
+							
+							$datosDocumento=array($codocumento, $tipodoc_cod, $dcp_serie, $dcp_numero_doc, $dcp_fecha_hora, $pagante_cod, $dcp_pagante, $pagante_tipodoc, $pagante_nrodoc, $dcp_direccion, $matricula_cod, $dcp_observacion, $dcp_descuento_general, $dcp_igv, $dcp_total, $dcp_mnto_oper_gravadas, $dcp_mnto_oper_inafecta, $dcp_mnto_oper_exonerada, $dcp_mnto_oper_exportacion, $dcp_mnto_dsctos_totales, $dcp_mnto_oper_gratis, $dcp_mnto_igv, $dcp_mnto_isc, $dcp_monto_icbper, $dcp_total_impuestos, $dcp_valor_venta, $dcp_subtotal, $dcp_descuento_factor);
+							$rpta = $this->mfacturacion->m_update_facturacion($datosDocumento);	
+							
+							$dataex['error_especial']='DP';
+							$dataex['msg'] ='No se pudo guardar el Documento de Pago - Error: DD';
+							if ($rpta->salida == '1') {
+								$cod_docpago=$rpta->nid;
+								$n_items_guardados=0;
+								foreach ($items as $key => $item) {
+									//RECORRER LOS ITEM DE DOCUMENTO
+									
+									$dcp_codetalle = base64url_decode($item['vw_fcb_ai_cod_detalle']);
+									$dcp_codmat_det = $item['vw_fcb_ai_txtcodmatricula_det'];
+									$cod_unidad=$item['vw_fcb_ai_cbunidad'];
+									$gestion_cod=$item['vw_fcb_ai_cbgestion'];
+									$dpd_gestion = $item['vw_fcb_ai_txtgestion'];
+									$dpd_cantidad=$item['vw_fcb_ai_txtcantidad'];
+									$dpd_mnto_valor_unitario=$item['vw_fcb_ai_txtvalorunitario'];//precio Unit. sin IGV
+									$dpd_mnto_precio_unit=$item['vw_fcb_ai_txtpreciounitario']; //Precio Unit. con IGV.
+									$dpd_mnto_descuento="";
+									$cod_tipoafc_igv=$item['vw_fcb_ai_cbafectacion'];
+									$dpd_mnto_igv= floatval($dpd_mnto_precio_unit) - floatval($dpd_mnto_valor_unitario);
+									$dpd_mnto_valor_venta=$item['vw_fcb_ai_txtprecioventa'];
+									$dpd_mnto_base_sinigv=$dpd_mnto_valor_venta - $dpd_mnto_igv;
+									$dpd_porc_igv=$dcp_igv;
+									// monto IGV
+									$dpd_icbper_factor=0;//$item['vw_fcb_ai_txticbper_factor'];
+									$dpd_icbper_mnto=floatval($dpd_cantidad) * floatval($dpd_icbper_factor);
+									$dpd_facturar_como="";
+									$dpd_facturar_como_cant="";
+									$deuda_cod=$item['vw_fcb_ai_txtcoddeuda'];
+									$cod_isc="";
+									$dpd_isc_factor=$item['vw_fcb_ai_cbiscfactor'];
+									$dpd_isc_valor=$item['vw_fcb_ai_txtiscvalor'];
+									$dpd_isc_base_imponible=$item['vw_fcb_ai_txtiscbase'];
+									$dpd_dscto_factor=$item['vw_fcb_ai_cbdsctfactor'];
+									$dpd_dscto_valor=$item['vw_fcb_ai_txtdsctvalor'];
+									$dpd_igv_afectado=$item['vw_fcb_ai_cbafectaigv'];//GRAVADO INAFECTO EXONERADO
+		  							$dpd_tipoitem=$item['vw_fcb_ai_cbtipoitem']; // BIEN // SERVICIO
+		  							$dpd_esgratis=$item['vw_fcb_ai_cbgratis'];
+									$dpd_monto_total_impuesto=$dpd_mnto_igv;// IGV + ISC + OTH + ICBPER
+
+									$itemDocumento=array($dcp_codetalle, $tipodoc_cod, $cod_unidad, $gestion_cod, $dpd_gestion, $dpd_cantidad, $dpd_mnto_valor_unitario, $dpd_mnto_valor_venta, $dpd_mnto_base_sinigv, $dpd_porc_igv, $dpd_mnto_igv, $cod_tipoafc_igv, $dpd_monto_total_impuesto, $dpd_mnto_precio_unit, $dpd_facturar_como, $dpd_facturar_como_cant, $deuda_cod, $cod_isc, $dpd_isc_factor, $dpd_isc_valor, $dpd_isc_base_imponible, $dpd_dscto_factor, $dpd_dscto_valor, $dpd_icbper_factor, $dpd_icbper_mnto, $dpd_igv_afectado, $dpd_tipoitem, $dpd_esgratis, $dpd_mnto_descuento,$dcp_codmat_det);
+									$rptadt = $this->mfacturacion->m_update_facturacion_detalle($itemDocumento);
+									$dataex['error_especial']='DD';
+									if ($rptadt->salida=='1'){
+
+										$n_items_guardados++;
+										if (($gestion_cod == "01.01") || ($gestion_cod == "01.02")|| ($gestion_cod == "01.03")) {
+											$esta_matriculando="SI";
+										}
+									}
+									
+								}
+
+								$nuevo_id=$rpta->nid;
+								if ($tipodoc_cod=="BL") {
+									
+									
+									
+					
+									// if (($esta_matriculando == "SI")) {
+									// 	$this->load->model('minscrito');
+									// 	$this->load->model('malumno');
+									// 	$dinscript = $this->minscrito->m_get_inscrito_por_carne(array($pagante_cod));
+									// 	$matriculas_h = $this->malumno->m_matriculas_x_inscripcion(array($dinscript->idinscripcion));
+										
+									// }
+									
+									//SI ES BOLETA INSERTA EN LA DOC_SUNAT EL ENVIO PERO SIN RESPUESTA
+									$dcps_aceptado="NO";
+									$dcps_snt_cadenaqr="";
+									
+									$dcps_snt_hash="";
+									$dcps_snt_enlace="";
+									$dcps_snt_enlace_cdr="";
+									$dcps_snt_enlace_pdf="";
+									$dcps_snt_enlace_xml="";
+									$dcps_numero="";
+									
+									$dcps_serie="";
+									$dcps_snt_descripcion="";
+									$dcps_snt_note="";
+									$dcps_snt_responsecode="";
+									$dcps_snt_soap_error="";
+									$dcps_tipodoc_nube="";
+									$dcps_snt_codigobarras="";
+									$dcps_error_cod="";
+									$dcps_error_desc="";
+									$dataex['error_especial']=' JSON ENVIADO';
+									$dataex['msg'] ='Docuemnto Guardado';
+									
+									// $this->mfacturacion->m_insert_facturacion_rpsunat(array($nuevo_id, $dcps_tipodoc_nube, $dcps_serie, $dcps_numero, $dcps_snt_enlace, $dcps_aceptado, $dcps_snt_descripcion, $dcps_snt_note, $dcps_snt_responsecode, $dcps_snt_soap_error, $dcps_snt_cadenaqr, $dcps_snt_hash, $dcps_snt_codigobarras, $dcps_snt_enlace_pdf, $dcps_snt_enlace_xml, $dcps_snt_enlace_cdr,$dcps_error_cod,$dcps_error_desc));
+								}
+								else{
+									$dataex['error_especial']='DESIGUAL ENTRE ITEMS RECIBIDOS Y GUARDADOS';
+									// if ($n_items_guardados==$n_items_recibidos){
+									// 	$dataex['error_especial']='ERROR AL ENVIAR JSON';
+									// 	$leer_respuesta=$this->fn_enviar_json($nuevo_id);
+									// 	if (isset($leer_respuesta['errors'])) {
+									// 		//Mostramos los errores si los hay
+									//     	$dataex['error_sunat']=$leer_respuesta['errors'];
+									//     	//$dataex['respuesta']=$leer_respuesta;
+									//     	$dcps_error_cod=$leer_respuesta['codigo'];
+									// 		$dcps_error_desc=$leer_respuesta['errors'];
+									// 		$dataex['error_especial']=' JSON ENVIADO';
+									// 		$dataex['msg'] ='Docuemnto Guardado';
+											
+									// 		$this->mfacturacion->m_insert_facturacion_rpsunat_error(array($nuevo_id, $dcps_error_cod,$dcps_error_desc));
+									// 	} 
+									// 	else {
+									// 		$dataex['respuesta2']=$leer_respuesta;
+									// 		$dcps_aceptado=($leer_respuesta['aceptada_por_sunat']==true)?"SI":"NO";
+									// 		$dcps_snt_cadenaqr=$leer_respuesta['cadena_para_codigo_qr'];
+											
+									// 		$dcps_snt_hash=$leer_respuesta['codigo_hash'];
+									// 		$dcps_snt_enlace=$leer_respuesta['enlace'];
+									// 		$dcps_snt_enlace_cdr=$leer_respuesta['enlace_del_cdr'];
+									// 		$dcps_snt_enlace_pdf=$leer_respuesta['enlace_del_pdf'];
+									// 		$dcps_snt_enlace_xml=$leer_respuesta['enlace_del_xml'];
+									// 		$dcps_numero=$leer_respuesta['numero'];
+											
+									// 		$dcps_serie=$leer_respuesta['serie'];
+									// 		$dcps_snt_descripcion=$leer_respuesta['sunat_description'];
+									// 		$dcps_snt_note=$leer_respuesta['sunat_note'];
+									// 		$dcps_snt_responsecode=$leer_respuesta['sunat_responsecode'];
+									// 		$dcps_snt_soap_error=$leer_respuesta['sunat_soap_error'];
+									// 		$dcps_tipodoc_nube=$leer_respuesta['tipo_de_comprobante'];
+									// 		$dcps_snt_codigobarras="";
+									// 		$dcps_error_cod="";
+									// 		$dcps_error_desc="";
+									// 		$dataex['error_especial']=' JSON ENVIADO';
+									// 		$dataex['msg'] ='Docuemnto Guardado';
+											
+									// 		$this->mfacturacion->m_insert_facturacion_rpsunat(array($nuevo_id, $dcps_tipodoc_nube, $dcps_serie, $dcps_numero, $dcps_snt_enlace, $dcps_aceptado, $dcps_snt_descripcion, $dcps_snt_note, $dcps_snt_responsecode, $dcps_snt_soap_error, $dcps_snt_cadenaqr, $dcps_snt_hash, $dcps_snt_codigobarras, $dcps_snt_enlace_pdf, $dcps_snt_enlace_xml, $dcps_snt_enlace_cdr,$dcps_error_cod,$dcps_error_desc));
+																			
+									
+									// 	} 	
+									// }
+								}
+								
+								
+								
+								$accion = "INSERTAR";
+			        			$contenido = $usuario->usuario." - ".$usuario->paterno." ".$usuario->materno." ".$usuario->nombres.", está actualizando un documento en la tabla TB_DOCPAGO COD.".$nuevo_id;
+			        			$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario->idusuario, $accion, $contenido, $sede));
+			        			$dataex['status'] =TRUE;
+			        			$new64=base64url_encode($nuevo_id);
+		                		$dataex['numero']=$dcp_serie."-".str_pad($rpta->nrodoc, 8, "0", STR_PAD_LEFT);
+		                		$dataex['tickect']=base_url()."tesoreria/facturacion/generar/rpgrafica/".$new64;
+		                		$dataex['pdf']=base_url()."tesoreria/facturacion/generar/pdf/".$new64;
+		                		$dataex['coddocpago'] = $new64;
+		                		$dataex['montodocpago'] = $dcp_total;
+		                		$dataex['hmatriculas']=$matriculas_h ;
+							}
+							else{
+								$dataex['status'] =FALSE;
+	                			$dataex['msg']="El Nro de Documento ya fue registrado";
+							}
+						}
+					}
+					else{
+						$dataex['status'] =FALSE;
+	                	$dataex['msg']="Debes registrar 1 item como mínimo";
+					}
+				}
+			}
+			else{
+				$dataex['msg']    = 'No autorizado';
+			}
+		}
+		header('Content-Type: application/x-json; charset=utf-8');
+		echo json_encode($dataex);
 	}
 
 
