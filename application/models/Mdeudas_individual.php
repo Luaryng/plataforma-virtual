@@ -39,14 +39,27 @@ class Mdeudas_individual extends CI_Model
     return   $res->row();
   }
 
+  public function m_actualizar_deuda($data){
+        
+    $this->db->query("CALL `sp_tb_deuda_individual_update`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid)",$data);
+    $res = $this->db->query('select @s as salida,@nid as newcod');
+    //$this->db->close(); 
+    return   $res->row();
+  }
+
   public function m_get_historial_pagante($data)
   {
-    $sqltext_array=array();
+      $sqltext_array=array();
 
       $data_array=array();
+      
       if (isset($data['codperiodo']) and ($data['codperiodo']!="%")) {
         $sqltext_array[]="tb_matricula.codigoperiodo = ?";
         $data_array[]=$data['codperiodo'];
+      } 
+      if (isset($data['codsede']) and ($data['codsede']!="%")) {
+        $sqltext_array[]="tb_matricula.codigosede = ?";
+        $data_array[]=$data['codsede'];
       } 
       if (isset($data['codcarrera']) and ($data['codcarrera']!="%")) {
         $sqltext_array[]="tb_matricula.codigocarrera = ?";
@@ -68,6 +81,15 @@ class Mdeudas_individual extends CI_Model
         $sqltext_array[]="concat(tb_inscripcion.ins_carnet,' ',tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) like ?";
         $data_array[]=$data['buscar'];
       }
+      if (isset($data['codbeneficio']) and ($data['codbeneficio']!="%")) {
+        $sqltext_array[]="tb_matricula.codigobeneficio = ?";
+        $data_array[]=$data['codbeneficio'];
+      } 
+
+      if (isset($data['codestado']) and ($data['codestado']!="%")) {
+        $sqltext_array[]="tb_matricula.codigoestado = ?";
+        $data_array[]=$data['codestado'];
+      } 
       if (isset($data['carnet']) and ($data['carnet']!="%")) {
         $sqltext_array[]="tb_inscripcion.ins_carnet=?";
         $data_array[]=$data['carnet'];
@@ -92,8 +114,11 @@ class Mdeudas_individual extends CI_Model
                 tb_deuda_individual.di_estado AS estado,
                 tb_carrera.car_nombre AS carrera,
                 tb_ciclo.cic_nombre AS ciclo,
+                tb_matricula.codigoseccion as codseccion,
                 tb_deuda_individual.cod_gestion as codgestion,
                 tb_gestion.gt_nombre as gestion,
+                tb_matricula.codigosede as codsede,
+                tb_sede.sed_abreviatura AS sede_abrevia,
                 tb_matricula.codigoperiodo as codperiodo,
                 tb_carrera.car_sigla as sigla
               FROM
@@ -104,11 +129,12 @@ class Mdeudas_individual extends CI_Model
                 INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
                 INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
                 INNER JOIN tb_gestion ON (tb_deuda_individual.cod_gestion = tb_gestion.gt_codigo)
+                INNER JOIN tb_sede ON (tb_matricula.codigosede = tb_sede.id_sede)
               $sqltext
               ORDER BY tb_persona.per_apel_paterno,tb_persona.per_apel_materno,tb_persona.per_nombres,tb_deuda_individual.di_fecha_vencimiento DESC",$data_array);
         return $result->result();
   
-    }
+  }
 
     public function m_get_deuda_activa_xpagante($data)
     {
@@ -166,6 +192,37 @@ class Mdeudas_individual extends CI_Model
         return $result->result();
     }*/
 
+    public function m_deuda_codigo($data)
+    {
+      $result = $this->db->query("SELECT 
+              tb_deuda_individual.di_codigo AS codigo,
+              tb_persona.per_dni AS dni,
+              tb_deuda_individual.pagante_cod AS pagante,
+              tb_deuda_individual.matricula_cod AS matricula,
+              tb_deuda_individual.cod_gestion as codgestion,
+              tb_deuda_individual.di_monto AS monto,
+              tb_deuda_individual.di_fecha_creacion AS fecha,
+              tb_deuda_individual.di_fecha_vencimiento AS fvence,
+              tb_deuda_individual.voucher_cod AS voucher,
+              tb_deuda_individual.di_mora AS mora,
+              tb_deuda_individual.di_fecha_prorroga AS fprorroga,
+              tb_deuda_individual.repite_en_ciclo AS repciclo,
+              tb_deuda_individual.di_observacion AS observacion,
+              tb_deuda_individual.di_saldo AS saldo,
+              tb_deuda_individual.cal_fecha_item_cod AS fitem,
+              tb_inscripcion.ins_carnet as carnet,
+              tb_persona.per_apel_paterno as paterno,
+              tb_persona.per_apel_materno as materno,
+              tb_persona.per_nombres AS nombres
+            FROM
+              tb_matricula
+              INNER JOIN tb_deuda_individual ON (tb_matricula.mtr_id = tb_deuda_individual.matricula_cod)
+              INNER JOIN tb_inscripcion ON (tb_inscripcion.ins_identificador = tb_matricula.codigoinscripcion)
+              INNER JOIN tb_persona ON (tb_persona.per_codigo = tb_inscripcion.cod_persona)
+            WHERE tb_deuda_individual.di_codigo = ?
+            ORDER BY tb_persona.per_apel_paterno,tb_persona.per_apel_materno,tb_persona.per_nombres,tb_deuda_individual.di_fecha_vencimiento DESC LIMIT 1",$data);
+        return $result->row();
+    }
 
 
     public function m_cambiar_estado_deuda($data)

@@ -289,8 +289,6 @@
 												</div>
 											</div>-->
 											<div class="row">
-												
-												
 												<div class="form-group has-float-label col-12  col-sm-4">
 													<input autocomplete='off' data-currentvalue='' class="form-control form-control-sm text-uppercase" id="fitxtapelpaterno" name="fitxtapelpaterno" type="text" placeholder="Ap. Paterno"  required />
 													<label for="fitxtapelpaterno">Ap. Paterno</label>
@@ -364,19 +362,18 @@
 													<label for="fitxtlugartrab">Empresa /Institución donde labora</label>
 												</div>
 												<div class="form-group has-float-label col-12 col-sm-3">
-	                        <select data-currentvalue='' class="form-control form-control-sm" id="ficblenguas" name="ficblenguas" required="">
-	                          <option value="0">Selecciona</option>
-	                          <?php foreach ($dlenguas as $lg) {
-	                          ?>
-	                          <option value="<?php echo $lg->codigo ?>"><?php echo $lg->nombre ?></option>
-	                          <?php } ?>
-	                        </select>
-	                        <label for="ficblenguas"> Lengua Originaria</label>
-	                      </div>
-	                      <div class="form-group has-float-label col-12 col-sm-7">
-	                        <input type="text" name="ficbotrlenguas" id="ficbotrlenguas" placeholder="Otras lenguas" class="form-control form-control-sm">
-	                        <label for="ficbotrlenguas"> Otras Lenguas</label>
-	                      </div>
+							                        <select data-currentvalue='' class="form-control form-control-sm" id="ficblenguas" name="ficblenguas" required="">
+							                          	<option value="0">Selecciona</option>
+							                          	<?php foreach ($dlenguas as $lg) { ?>
+							                          	<option value="<?php echo $lg->codigo ?>"><?php echo $lg->nombre ?></option>
+							                          	<?php } ?>
+							                        </select>
+							                        <label for="ficblenguas"> Lengua Originaria</label>
+							                    </div>
+							                    <div class="form-group has-float-label col-12 col-sm-7">
+							                        <input type="text" name="ficbotrlenguas" id="ficbotrlenguas" placeholder="Otras lenguas" class="form-control form-control-sm">
+							                        <label for="ficbotrlenguas"> Otras Lenguas</label>
+							                    </div>
 											</div>
 
 											<b class="pt-2 pb-4 text-danger d-block"><i class="fas fa-user-circle"></i> DATOS PADRES</b>
@@ -442,6 +439,36 @@
 													<label for="fitxtdomiciliootro"> Otro domicilio</label>
 												</div>
 											</div>
+
+											<b class="pt-2 pb-3 text-danger d-block"><i class="fas fa-user-circle	"></i> DATOS DE CONTACTO</b>
+											<div id="divdata_contacto">
+												<div id="vw_fcb_rowitem0" class="row rowcolors vw_fcb_class_rowitem" data-arraypos="0">
+													<input type="hidden" name="fictxtcodigo" value="0">
+													<div class="form-group has-float-label col-12 col-sm-3">
+														<select class="form-control form-control-sm" name="fictxttiporela">
+															<option value="Tio">Tio</option>
+															<option value="Mama">Mamá</option>
+														</select>
+														<label for="fictxttiporela"> Tipo relación</label>
+													</div>
+													<div class="form-group has-float-label col-12 col-sm-4">
+														<input type="text" name="fictxtapenomcontac" placeholder="Apellidos y nombres" class="form-control form-control-sm">
+														<label for="fictxtapenomcontac"> Apellidos y nombres</label>
+													</div>
+													<div class="form-group has-float-label col-12 col-sm-3">
+														<input type="text" name="fictxtnumerocontac" placeholder="Apellidos y nombres" class="form-control form-control-sm">
+														<label for="fictxtnumerocontac"> N° contacto</label>
+													</div>
+													<div class="col-12 col-sm-2">
+														<button type="button" class="btn btn-sm btn-outline-primary btn_additem" onclick="fn_agrega_contacto($(this));return false;">
+															<i class="fas fa-plus"></i>
+														</button>
+														<button type="button" class="btn btn-sm btn-outline-danger btn_deleteitem" onclick="fn_delete_values($(this));return false;">
+															<i class="fas fa-trash-alt"></i>
+														</button>
+													</div>
+												</div>
+											</div>
 											
 										</form>
 
@@ -500,6 +527,29 @@
 			<!-- /.card-body -->
 		</div>
 	</section>
+</div>
+<div id="vw_fcb_rowitem" class="row rowcolors vw_fcb_class_rowitem" data-arraypos="-1">
+	<input type="hidden" name="fictxtcodigo" value="0">
+	<div class="form-group has-float-label col-12 col-sm-3">
+		<select class="form-control form-control-sm" name="fictxttiporela">
+			<option value="Tio">Tio</option>
+			<option value="Mama">Mamá</option>
+		</select>
+		<label for="fictxttiporela"> Tipo relación</label>
+	</div>
+	<div class="form-group has-float-label col-12 col-sm-4">
+		<input type="text" name="fictxtapenomcontac" placeholder="Apellidos y nombres" class="form-control form-control-sm">
+		<label for="fictxtapenomcontac"> Apellidos y nombres</label>
+	</div>
+	<div class="form-group has-float-label col-12 col-sm-3">
+		<input type="text" name="fictxtnumerocontac" placeholder="Apellidos y nombres" class="form-control form-control-sm">
+		<label for="fictxtnumerocontac"> N° contacto</label>
+	</div>
+	<div class="col-12 col-sm-2">
+		<button type="button" class="btn btn-sm btn-outline-danger btn_deleteitem" onclick="fn_delete_contacto($(this));return false;">
+			<i class="fas fa-trash-alt"></i>
+		</button>
+	</div>
 </div>
 <!--content-wrapper -->
 <script src="<?php echo $vbaseurl ?>resources/plugins/form-multi-steps/form-ms.js"></script>
@@ -864,6 +914,35 @@
         });
         return false;
 	});
+
+	var itemsDocumento = {};
+	var itemsNro = 1;
+
+	$(document).ready(function() {
+		$("#vw_fcb_rowitem").hide();
+	})
+
+	function fn_agrega_contacto(btn) {
+		var row = $("#vw_fcb_rowitem").clone();
+		row.attr('id', 'vw_fcb_rowitem' + itemsNro);
+	    row.data('arraypos', itemsNro);
+	    itemsNro++;
+	    
+	    row.show();
+
+	    $('#divdata_contacto').append(row);
+	}
+
+	function fn_delete_contacto(btn) {
+		var fila = btn.closest('.rowcolors');
+    	var pos = fila.data('arraypos');
+    	fila.remove();
+	}
+
+	function fn_delete_values(btn) {
+		var fila = btn.closest('.rowcolors');
+		fila.find('input,select').val("");
+	}
 
 </script>
 <script src="<?php echo $vbaseurl ?>resources/dist/js/pages/ficha-personal_1008.js"></script>

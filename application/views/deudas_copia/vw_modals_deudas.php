@@ -11,27 +11,24 @@
                 <div id="divcardform_adddeuda">
                     <form id="frm_addpagante" action="<?php echo $vbaseurl ?>deudas_individual/fn_insert_deuda_individual" method="post" accept-charset="utf-8">
                         <div class="row">
-                            <input type="hidden" name="ficcod_deuda" id="ficcod_deuda" value="0">
                             <div class="form-group has-float-label col-lg-2 col-md-6 col-sm-6">
                                 <input autocomplete="off" class="form-control form-control-sm" type="text" placeholder="Cod. Pagante" name="ficcodpagante" id="ficcodpagante">
                                 <label for="ficcodpagante">Cod. Pagante</label>
                             </div>
                             <div class="form-group has-float-label col-lg-2 col-md-6 col-sm-6">
-                                <select class="form-control form-control-sm" id="ficcodmatricula" name="ficcodmatricula" >
-                                    <option value="">Sin Asignar</option>
-                                </select>
-                                <label for="ficcodmatricula">Matricula</label>
+                                <input autocomplete="off" class="form-control form-control-sm" type="text" placeholder="Cod. Matricula" name="ficcodmatricula" id="ficcodmatricula">
+                                <label for="ficcodmatricula">Cod. Matricula</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-5 col-md-8 col-sm-8" id="divcard_nompagante">
+                            <div class="form-group has-float-label col-lg-5 col-md-8 col-sm-8">
                                 <input autocomplete="off" class="form-control form-control-sm" type="text" placeholder="Apellidos y Nombres" name="ficapenomde" id="ficapenomde">
                                 <label for="ficapenomde">Apellidos y Nombres</label>
                             </div>
-                            <div class="form-group col-sm-4 col-md-4 col-lg-3" id="divcard_button">
+                            <div class="form-group col-sm-4 col-md-4 col-lg-3">
                                 <button type="button" class="btn btn-primary btn-sm" id="btn_show_frm_search">
-                                    <i class="fas fa-search"></i> Buscar Pagante
+                                <i class="fas fa-search"></i> Buscar Pagante
                                 </button>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
                                 <select class="form-control form-control-sm" id="ficbgestion" name="ficbgestion" >
                                     <option value="">Seleccione item</option>
                                     <?php
@@ -42,42 +39,38 @@
                                 </select>
                                 <label for="ficbgestion"> Gestión</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
                                 <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Monto" name="ficmonto" id="ficmonto" value="">
                                 <label for="ficmonto">Monto</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Mora" name="ficmora" id="ficmora" value="0.00">
-                                <label for="ficmora">Mora</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
                                 <input autocomplete="off" class="form-control form-control-sm" type="date" name="ficfechcreacion" id="ficfechcreacion" value="<?php echo $f_hoy ?>">
                                 <label for="ficfechcreacion">Fecha</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
                                 <input class="form-control form-control-sm" type="date" name="ficfechvence" id="ficfechvence">
                                 <label for="ficfechvence">Fecha vencimiento</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input class="form-control form-control-sm" type="date" name="ficfechprorrog" id="ficfechprorrog">
-                                <label for="ficfechprorrog">Fecha Prorroga</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
                                 <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Cod.Voucher" name="ficvouchcodigo" id="ficvouchcodigo">
                                 <label for="ficvouchcodigo">Cod.Voucher</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Cod.Fec.Item" name="ficcodigofecitem" id="ficcodigofecitem">
-                                <label for="ficcodigofecitem">Cod.Fec.Item</label>
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
+                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Mora" name="ficmora" id="ficmora" value="0.00">
+                                <label for="ficmora">Mora</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-3">
+                            <div class="form-group has-float-label col-lg-4 col-sm-6">
+                                <input class="form-control form-control-sm" type="date" name="ficfechprorrog" id="ficfechprorrog">
+                                <label for="ficfechprorrog">Fecha Prorroga</label>
+                            </div>
+                            <div class="form-group has-float-label col-lg-4 col-sm-3">
                                 <select name="ficrepitecic" id="ficrepitecic" class="form-control form-control-sm">
                                     <option value="SI">SI</option>
                                     <option value="NO">NO</option>
                                 </select>
                                 <label for="ficrepitecic">Repite ciclo</label>
                             </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-3">
+                            <div class="form-group has-float-label col-lg-4 col-sm-3">
                                 <input autocomplete="off" class="form-control form-control-sm" type="number" name="ficsaldo" id="ficsaldo" placeholder="Saldo" value="0.00">
                                 <label for="ficsaldo">Saldo</label>
                             </div>

@@ -32,6 +32,8 @@ class Deudas_individual extends CI_Controller {
 			$arraydts['sedes'] = $this->msede->m_get_sedes_activos();
 			$this->load->model('mbeneficio');
 			$arraydts['beneficios'] = $this->mbeneficio->m_get_beneficios();
+			$this->load->model('mmatricula');
+			$arraydts['estados'] = $this->mmatricula->m_filtrar_estadoalumno();
 			/////////////////////////
 			//$arraydts = $arraydts + $this->mperiodo->m_periodos();
 
@@ -55,15 +57,18 @@ class Deudas_individual extends CI_Controller {
 		{
 			$dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
 			$busqueda = $this->input->post('txtapenombres');
+
 			$carrera = $this->input->post('cboprograma');
 			$periodo = $this->input->post('cboperiodo');
-
+			$sede = $this->input->post('cbosede');
 			$turno = $this->input->post('cboturno');
 			$ciclo = $this->input->post('cbociclo');
 			$seccion = $this->input->post('cboseccion');
-
+			$estado = $this->input->post('cboestado');
+			$beneficio = $this->input->post('cbobeneficio');
+			$busqueda=str_replace(" ", "%", $busqueda);
 			
-			$databuscar=array($periodo, $carrera, $turno, $ciclo, $seccion, '%'.$busqueda.'%' );
+			$databuscar=array("codsede"=>$sede, "codperiodo"=>$periodo, "codcarrera"=>$carrera, "codturno"=>$turno, "codciclo"=>$ciclo, "codseccion"=>$seccion, "carnet"=>'%',"codbeneficio"=>$beneficio, "codestado"=>$estado, "buscar"=>'%'.$busqueda.'%');
 		
 			$dtdeudas = $this->mdeudas_individual->m_get_historial_pagante( $databuscar );
 			date_default_timezone_set ('America/Lima');
@@ -71,6 +76,8 @@ class Deudas_individual extends CI_Controller {
 			foreach ($dtdeudas as $key => $fila) {
 				//$fila->codigose=$fila->codigo;
 				$fila->codigo64=base64url_encode($fila->codigo);
+				$fevence = new DateTime($fila->fvence);
+				$fila->fecvence = $fevence->format('d/m/Y');
 				if ($hoy <= $fila->fvence) {
 					$fila->vencida="NO";
 				}
@@ -91,7 +98,7 @@ class Deudas_individual extends CI_Controller {
 
 	
 
-	/*public function fn_filtrar_pagantes()
+	public function fn_filtrar_pagantes()
 	{
 		$this->form_validation->set_message('required', '%s Requerido');
 		$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
@@ -137,9 +144,55 @@ class Deudas_individual extends CI_Controller {
 		
 		header('Content-Type: application/x-json; charset=utf-8');
 		echo(json_encode($dataex));
-	}*/
+	}
 
+	public function fn_get_deuda_codigo()
+	{
+		$this->form_validation->set_message('required', '%s Requerido');
+		$dataex['status'] =FALSE;
+		$dataex['msg']    = '¿Que Intentas?.';
+		$rsoptions="<option value='0'>Sin Asignar</option>";
+		if ($this->input->is_ajax_request())
+		{
+			$dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+			$this->form_validation->set_rules('vw_fcb_txtcodigo','Codigo','trim|required');
+			if ($this->form_validation->run() == FALSE)
+			{
+				$dataex['msg']="Existen errores en los campos";
+				$errors = array();
+		        foreach ($this->input->post() as $key => $value){
+		            $errors[$key] = form_error($key);
+		        }
+		        $dataex['errors'] = array_filter($errors);
+			}
+			else
+			{
+				$vw_fcb_txtcodigo = base64url_decode($this->input->post('vw_fcb_txtcodigo'));
 
+				$deuda = $this->mdeudas_individual->m_deuda_codigo(array($vw_fcb_txtcodigo));
+				$deuda->coddeuda64 = base64url_encode($deuda->codigo);
+				$deuda->codmat64 = base64url_encode($deuda->matricula);
+				$this->load->model('minscrito');
+				$this->load->model('malumno');
+				$inscrito = $this->minscrito->m_get_inscrito_por_carne(array($deuda->pagante));
+				if (@count($inscrito) > 0) {
+					$mismatriculas = $this->malumno->m_matriculasxcarne(array($inscrito->idinscripcion));
+					if (count($mismatriculas) > 0) $rsoptions="<option value=''>Sin Asignar</option>";
+					foreach ($mismatriculas as $mat) {
+						$codmat64 = base64url_encode($mat->codigo);
+						$rsoptions=$rsoptions."<option value='$codmat64'>$mat->periodo - $mat->ciclo</option>";
+					}
+				}
+				
+				$dataex['rscountmatricula']=count($mismatriculas);
+				$dataex['vmatriculas']=$rsoptions;
+				$dataex['vdata'] = $deuda;
+				$dataex['status'] =TRUE;
+			}
+		}
+		header('Content-Type: application/x-json; charset=utf-8');
+		echo(json_encode($dataex));
+	}
 
 	public function fn_insert_deuda_individual()
 	{
@@ -173,12 +226,15 @@ class Deudas_individual extends CI_Controller {
 			{
 				$dataex['status'] =FALSE;
 				
+				$coddeuda = $this->input->post('ficcod_deuda');
 				$pagante = $this->input->post('ficcodpagante');
-				$matricula = $this->input->post('ficcodmatricula');
+				$nompagante = $this->input->post('ficapenomde');
+				$matricula = base64url_decode($this->input->post('ficcodmatricula'));
 				$gestion = $this->input->post('ficbgestion');
 				$monto = $this->input->post('ficmonto');
 				$fcreacion = $this->input->post('ficfechcreacion');
 				$vouchercod = $this->input->post('ficvouchcodigo');
+				$fechaitem = $this->input->post('ficcodigofecitem');
 				$mora = $this->input->post('ficmora');
 				$repite = $this->input->post('ficrepitecic');
 				$saldo = $this->input->post('ficsaldo');
@@ -196,19 +252,31 @@ class Deudas_individual extends CI_Controller {
 				}
 
 				$usuario = $_SESSION['userActivo']->idusuario;
+				$textusuario = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres;
 				$sede = $_SESSION['userActivo']->idsede;
-				$fictxtaccion = "INSERTAR";
 
+				if ($coddeuda == "0") {
+					$fictxtaccion = "INSERTAR";
+					$rpta2=$this->mdeudas_individual->m_guardar_deuda(array($pagante, $matricula, $gestion, $monto, $fcreacion, $fvence, $vouchercod, $mora, $fprorroga, $repite, $observacion, $saldo, $fechaitem));
 
-					$rpta2=$this->mdeudas_individual->m_guardar_deuda(array($pagante, $matricula, $gestion, $monto, $fcreacion, $fvence, $vouchercod, $mora, $fprorroga, $repite, $observacion, $saldo));
+					$contenido = $textusuario.", está insertando una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rpta2->newcod." PAGANTE: ".$nompagante;
+				}
+				else
+				{
+					$fictxtaccion = "EDITAR";
+					$rpta2=$this->mdeudas_individual->m_actualizar_deuda(array(base64url_decode($coddeuda), $pagante, $matricula, $gestion, $monto, $fcreacion, $fvence, $vouchercod, $mora, $fprorroga, $repite, $observacion, $saldo, $fechaitem));
 
-					if ($rpta2->salida == '1'){
-						$contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está insertando una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rpta2->newcod;
-						$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $fictxtaccion, $contenido, $sede));
-						$dataex['status'] =TRUE;
-						$dataex['msg'] ="Datos guardados correctamente";
-						
-					}
+					$contenido = $textusuario.", está actualizando una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rpta2->newcod." PAGANTE: ".$nompagante;
+				}
+				
+				if ($rpta2->salida == '1'){
+					
+					$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $fictxtaccion, $contenido, $sede));
+					$dataex['status'] =TRUE;
+					$dataex['estado'] = $fictxtaccion;
+					$dataex['msg'] ="Datos guardados correctamente";
+					
+				}
 				
 			}
 		}
@@ -488,6 +556,52 @@ class Deudas_individual extends CI_Controller {
 		header('Content-Type: application/x-json; charset=utf-8');
 		echo(json_encode($dataex));
 	}
+
+	public function fn_get_matriculas_pagante()
+	{
+		$this->form_validation->set_message('required', '%s Requerido');
+		$dataex['status'] =FALSE;
+		$dataex['msg']    = '¿Que Intentas?.';
+		$rsoptions="<option value='0'>Sin Asignar</option>";
+		if ($this->input->is_ajax_request())
+		{
+			$dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+			$this->form_validation->set_rules('vw_fcb_txtcodpagante','N° Carné','trim|required');
+			if ($this->form_validation->run() == FALSE)
+			{
+				$dataex['msg']="Existen errores en los campos";
+				$errors = array();
+		        foreach ($this->input->post() as $key => $value){
+		            $errors[$key] = form_error($key);
+		        }
+		        $dataex['errors'] = array_filter($errors);
+			}
+			else
+			{
+				$vw_fcb_txtcodpagante=$this->input->post('vw_fcb_txtcodpagante');
+
+				$this->load->model('minscrito');
+				$this->load->model('malumno');
+				$inscrito = $this->minscrito->m_get_inscrito_por_carne(array($vw_fcb_txtcodpagante));
+				if (@count($inscrito) > 0) {
+					$mismatriculas = $this->malumno->m_matriculasxcarne(array($inscrito->idinscripcion));
+					if (count($mismatriculas) > 0) $rsoptions="<option value=''>Sin Asignar</option>";
+					foreach ($mismatriculas as $mat) {
+						$codmat64 = base64url_encode($mat->codigo);
+						$rsoptions=$rsoptions."<option value='$codmat64'>$mat->periodo - $mat->ciclo</option>";
+					}
+				}
+				
+				$dataex['rscountmatricula']=count($mismatriculas);
+				$dataex['vmatriculas']=$rsoptions;
+				$dataex['status'] =TRUE;
+			}
+		}
+		header('Content-Type: application/x-json; charset=utf-8');
+		echo(json_encode($dataex));
+	}
+
+
 
 
 }

@@ -58,9 +58,6 @@ function get_datos_dni(e){
     $('#div-inscripcion .next').hide();
     $('#btn-sugerecia-edit').show();
 
-    $('.btn_additem').attr('disabled', true);
-    $('.btn_deleteitem').attr('disabled', true);
-
         
     if ($('#frmins-personales #ficbstatrab').val() =='SI') {
         $('#divcard_lugartrab').removeClass('d-none');
@@ -68,34 +65,7 @@ function get_datos_dni(e){
         $('#divcard_lugartrab').addClass('d-none');
     }
     
-    $.each(e.vcontacto, function(index, v) {
-        var itemd = {};
-        itemd['fictxtcodigo'] = v['codigo'];
-        itemd['fictxttiporela'] = v['tiporela'];
-        itemd['fictxtapenomcontac'] = v['nombresc'];
-        itemd['fictxtnumerocontac'] = v['numeroc'];
-        
-        if (index == 0) {
-            $('#vw_fcb_rowitem0 input[name=fictxtcodigo]').val(itemd['fictxtcodigo']);
-            $('#vw_fcb_rowitem0 select[name=fictxttiporela]').val(itemd['fictxttiporela']);
-            $('#vw_fcb_rowitem0 input[name=fictxtapenomcontac]').val(itemd['fictxtapenomcontac']);
-            $('#vw_fcb_rowitem0 input[name=fictxtnumerocontac]').val(itemd['fictxtnumerocontac']);
-        }
 
-        if (index > 0) {
-            var row = $("#vw_fcb_rowitem").clone();
-            row.attr('id', 'vw_fcb_rowitem' + index);
-            row.data('arraypos', index);
-            row.find('input,select').each(function(index, el) {
-                $(this).attr('disabled', true);
-                $(this).val(itemd[$(this).attr('name')]);
-            })
-            row.show();
-            $('#divdata_contacto').append(row);
-        }
-
-        
-    })
 
 }
 
@@ -168,7 +138,6 @@ $("#btn-agregar-prog").click(function(event) {
     location.href = base_url + 'admision/inscripciones/' + $('#frmins-personales #fitxtdni').val();
     $("#frmins-personales #fitxtdni").attr('disabled', true);
 });
-
 $('#frmins-personales #fibtnvalida-dni').on('click', function() {
     var dni = $('#frmins-personales #fitxtdni').val();
     $('#divboxhistorial').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
@@ -270,7 +239,6 @@ $('#frm-filtro-historial input[type=radio][name=rbgbusqueda]').change(function()
     rd.parent().parent().find('input[type=text]').attr('disabled', false);
     rd.parent().parent().find('input[type=text]').focus();
 });
-
 $('#frm-filtro-historial .radiobusqueda').click(function(event) {
     $(this).find('input').change();
     $(this).find('input').prop('checked', true)
@@ -335,7 +303,6 @@ $('#frmins-personales input,select').change(function() {
     }
     return false;
 });
-
 $('#frmins-contactos input,select').change(function() {
     // Do something interesting here
     //alert($(this).data('currentvalue'));
@@ -352,12 +319,10 @@ $('#frmins-contactos input,select').change(function() {
     }
     return false;
 });
-
 $('#frm-filtro-historial .radiobusqueda').click(function(event) {
     $(this).find('input').change();
     $(this).find('input').prop('checked', true)
 });
-
 $("#div-inscripcion").loadsteps();
 $('#div-inscripcion .next').click(function(event) {
     var btn = $(this);
@@ -379,7 +344,6 @@ $('#div-inscripcion .next').click(function(event) {
 
     }*/
 });
-
 $("#frmins-personales").submit(function(event) {
     /* Act on the event */
     $('#frmins-personales input,select').removeClass('is-invalid');
@@ -413,7 +377,7 @@ $("#frmins-personales").submit(function(event) {
         url: urlpersonales,
         type: 'post',
         dataType: 'json',
-        data: fdata,
+        data: fdata,//$(this).serialize(),
         success: function(e) {
 
             $('#divboxhistorial #divoverlay').remove();
@@ -510,9 +474,6 @@ $('#btn-sugerecia-edit').click(function(event) {
     $("#btn-sugerecia-cancel").show();
     $('#div-inscripcion .next').show();
     $('#btn-sugerecia-edit').hide();
-
-    $('.btn_additem').attr('disabled', false);
-    $('.btn_deleteitem').attr('disabled', false);
 });
 
 $('#btn-sugerecia-cancel').click(function(event) {
@@ -532,14 +493,6 @@ $('#btn-sugerecia-cancel').click(function(event) {
 
     $('.btn_additem').attr('disabled', true);
     $('.btn_deleteitem').attr('disabled', true);
-
-    $('#divdata_contacto .vw_fcb_class_rowitem').each(function(index, el) {
-        var pos = $(this).data('arraypos');
-        var fila = $(this);
-        if (pos !== 0) {
-            fila.remove();
-        }
-    })
     
 });
 

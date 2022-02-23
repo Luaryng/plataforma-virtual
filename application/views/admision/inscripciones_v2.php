@@ -336,7 +336,7 @@
               <label for="checkficha">Ficha inscripción</label>
             </div>
           </div>
-          <div class="col-12" id="vw_md_em_aviso"></div>
+          
         </div>
       </div>
       <div class="modal-footer">
@@ -345,45 +345,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<div class="modal fade" id="vw_md_historial_mat" tabindex="-1" role="dialog" aria-labelledby="vw_md_historial_mat" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content" id="vw_dp_mc_matriculas">
-            <div class="modal-header">
-                <h5 class="modal-title" id="divcard_title">Historial de Matricula</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body" id="vw_dp_divHistorial_inscripciones">
-              <div class="col-12" id="tabdivres-matriculas">
-                  <table id="tbmt_dtmatriculas" class="tbdatatable table table-sm table-hover table-bordered table-condensed" style="width:100%">
-                    <thead>
-                      <tr class="bg-lightgray">
-                        <th>N°</th>
-                        <th>Filial</th>
-                        <th>Carné</th>
-                        <th>Estudiante / Edad</th>
-                        <th>Fec.Mat.</th>
-                        <th>Cuota</th>
-                        <th>Plan</th>
-                        <th>Grupo</th>
-                        <th>Est</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                                  
-                    </tbody>
-                  </table>
-              </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <a id="vw_dp_mc_btn_nuevamatricula" href="#" class="btn btn-primary">Nueva Matricula</a>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="content-wrapper">
@@ -739,9 +700,6 @@
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.11.3/b-2.1.1/sl-1.3.4/datatables.min.js"></script>
 
 <script>
-  var cd1 = '<?php echo base64url_encode("1") ?>';
-  var cd2 = '<?php echo base64url_encode("2") ?>';
-  var cd7 = '<?php echo base64url_encode("7") ?>';
 
   $('.tbdatatable tbody').on('click', 'tr', function() {
     tabla = $(this).closest("table").DataTable();
@@ -764,15 +722,12 @@
     else{
       var jscarnet=getUrlParameter("fcarnet","");
       $("#fbus-txtbuscar").val(jscarnet);
-
-      setTimeout(function(){
-          $("#frm-filtro-inscritos").submit();
-      }, 1000);
+      $("#frm-filtro-inscritos").submit();
       
     }
 
     $('#divres-historial').hide();
-    var table = $('#tbmt_dtinscritos, #tbmt_dtmatriculas').DataTable({
+    var table = $('#tbmt_dtinscritos').DataTable({
         "autoWidth": false,
         "pageLength": 50,
         "lengthChange": false,
@@ -1056,6 +1011,7 @@
     $('#frm-filtro-inscritos input,select').removeClass('is-invalid');
     $('#frm-filtro-inscritos .invalid-feedback').remove();
     $('#divboxhistorial').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    
     var llenos=0;
     var tb_head_ins = "";
     if ($("#fbus-txtbuscar").val()!=="") llenos=llenos + 2;
@@ -1178,7 +1134,7 @@
                                   "<i class='fas fa-print'></i> "+
                                 "</a>";
 
-                    btnmatric = "<a onclick='cargar_historial_matriculas($(this));return false;' data-carnet='"+v['carnet']+"' data-estado='"+v['estado']+"' class='bg-secondary py-1 px-2 rounded ml-1 histo_mat' target='_blank' href='#' title='Matricular'>"+
+                    btnmatric = "<a class='bg-secondary py-1 px-2 rounded ml-1' target='_blank' href='#' title='Matricular'>"+
                                   "<i class='fas fa-graduation-cap'></i> "+
                                 "</a>";
 
@@ -1186,7 +1142,7 @@
 
                     vcarnet = "<div class='cell-carne' title='"+v['codinscripcion']+"'>"+v['carnet']+"</div>";
 
-                    nombres = "<div class='cell-estudiante d-inline-block'>"+v['paterno']+' '+v['materno']+' '+v['nombres']+"</div>";
+                    nombres = v['paterno']+' '+v['materno']+' '+v['nombres'];
 
                     grupo = "<div title='"+v['carrera']+"'>" + v['carsigla']+' / '+v['codturno']+' - '+v['ciclo']+' - '+v['codseccion'] +btnupdgrupo+ "</div>";
 
@@ -1205,7 +1161,7 @@
                   })
 
                   tbinscritos.draw();
-
+                
               }
           },
           error: function(jqXHR, exception) {
@@ -1603,7 +1559,7 @@
               } else {
                   $('#modactiva').modal('hide');
                   $("#frm-filtro-inscritos").submit();
-
+                  
                   
                   Swal.fire({
                       type: 'success',
@@ -1665,7 +1621,7 @@
   })
 
   $('#lbtn_send').click(function(e) {
-    $("#vw_md_em_aviso").html("");
+    
     checksaludo = ($("#checksaludo").prop('checked') == true ? "SI" : "NO");
     checkcreden = ($("#checkcredenciales").prop('checked') == true ? "SI" : "NO");
     checkmanuales = ($("#checkmanuales").prop('checked') == true ? "SI" : "NO");
@@ -1675,7 +1631,6 @@
     carnet = $('#fictxtcarnet').val();
     codigo = $('#fictxtcodigo').val();
     $('#divmodalsend').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    $("#lbtn_send").hide();
     $.ajax({
       url: base_url + "inscrito/fn_send_mensaje",
       type: 'post',
@@ -1693,16 +1648,20 @@
       success: function(e) {
           $('#divmodalsend #divoverlay').remove();
           if (e.status == false) {
-            $("#vw_md_em_aviso").html("<h4 class='text-danger'>Error al enviar</h4>" + e.msg);
-            $("#lbtn_send").show();
+            Swal.fire({
+                title: "Advertencia",
+                text: "No se envio el mensaje",
+                type: 'error',
+                icon: 'error',
+            })
           } else {
-            if (e.mail_status==true){
-              $("#vw_md_em_aviso").html("<h4 class='text-success'>Enviado correctamente</h4>" + e.mail_msg);
-            }
-            else{
-               $("#vw_md_em_aviso").html("<h4 class='text-danger'>Error al enviar</h4>" + e.mail_msg);
-               $("#lbtn_send").show();
-            }
+            $('#modal-sendemail').modal('hide');
+            Swal.fire({
+                title: "Éxito",
+                text: "Se envio el mensaje correctamente",
+                type: 'success',
+                icon: 'success',
+            })
           }
       },
       error: function(jqXHR, exception) {
@@ -1721,14 +1680,13 @@
   });
 
   function fn_cambiarestado(btn) {
-    var fila = btn.parents(".cfila");
-    var im = fila.data('ci');
-    var cp = fila.data('cp');
+    var im = btn.parents(".cfila").data('ci');
+    var cp = btn.parents(".cfila").data('cp');
     var ie = btn.data('ie');
     var color = btn.data('color');
+
     var btdt = btn.parents(".btn-group").find('.dropdown-toggle');
     var texto = btn.html();
-    var btnmat = fila.find('.histo_mat');
     //alert(btdt.html());
     $('#divboxhistorial').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
     $.ajax({
@@ -1770,8 +1728,6 @@
 
                 btdt.addClass(color);
                 btdt.html(texto);
-
-                btnmat.data('estado', texto.toUpperCase());
             }
         },
         error: function(jqXHR, exception) {
@@ -1958,218 +1914,6 @@
     $('#modactiva').modal('show');
   }
 
-  function cargar_historial_matriculas(btn) {
-    var fila = btn.closest('.cfila');
-    var carnet = btn.data('carnet');
-    var insestado = btn.data('estado');
-    var vestudiante = fila.find('.cell-estudiante').html();
-    $('#vw_dp_mc_matriculas').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    $('#msghistorial_estudiante').html("");
-    $('#vw_md_historial_mat').modal();
-    tblhistorial = "";
-    $.ajax({
-        url: base_url + 'matricula/fn_historial_matricula',
-        type: 'post',
-        dataType: 'json',
-        data: {
-            'ce-carne': carnet
-        },
-        success: function(e) {
-            $('#vw_dp_mc_matriculas #divoverlay').remove();
-            if (e.status == false) {
-                Swal.fire({
-                    type: 'error',
-                    icon: 'error',
-                    title: 'Error!',
-                    text: e.msg,
-                    backdrop: false,
-                })
-                
-            } 
-            else {
-                var estado = "";
-                codciclo = "";
-                nro = 0;
-                conteo = e.vdata.length;
-                
-                if (conteo > 0){
-                  tbmatriculados = $('#tbmt_dtmatriculas').DataTable();
-                  tbmatriculados.clear();
-                  $.each(e.vdata, function(index, v) {
-                    nro++;
-                    var vcm = v['codmatricula64'];
-                    var btnscolor = "";
-                    var textobs = (v['observacion']!= "") ? v['observacion'] : "Ninguna";
-                    var observacion = "<br><b>Observación:</b><br>"+textobs;
-                    if (v['estado'] != "RES") {
-                      estado = v['estado'];
-                    }
-                    
-                    codciclo = v['codciclo'];
-                    switch (v['estado']) {
-                        case "ACT":
-                            btnscolor = "btn-success";
-                            break;
-                        case "CUL":
-                            btnscolor = "btn-secondary";
-                            break;
-                        case "DES":
-                            btnscolor = "btn-danger";
-                            break;
-                        case "RET":
-                            btnscolor = "btn-danger";
-                            break;
-                        default:
-                            btnscolor = "btn-warning";
-                    }
-
-                    dropdown_estado = '<div class="btn-group">' +
-                        '<button class="btn ' + btnscolor + ' btn-sm text-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="estado'+vcm+'">' +
-                        v['estado'] +
-                        '</button>' +
-                        '<div class="dropdown-menu">' +
-                        '<a href="#" onclick="fn_cambiarestado_mat($(this))" class="dropdown-item" data-campo="tabla" data-ie="' + cd1 + '">Activo</a>' +
-                        '<a href="#" onclick="fn_cambiarestado_mat($(this))" class="dropdown-item" data-campo="tabla" data-ie="' + cd2 + '">Retirado</a>' +
-                        '<a href="#" onclick="fn_cambiarestado_mat($(this))" class="dropdown-item" data-campo="tabla" data-ie="' + cd7 + '">Desaprobado</a>' +
-                        '<div class="dropdown-divider"></div>' +
-                        '<a href="#" onclick="fn_eliminar_matricula($(this))" class="btn-ematricula dropdown-item text-danger text-bold"><i class="fas fa-trash-alt"></i> Eliminar</a>' +
-                        '</div>' +
-                        '</div>';
-                    sexo = (v['codsexo'] == "FEMENINO") ? "<i class='fas fa-female text-danger mr-1'></i>" : "<i class='fas fa-male text-primary mr-1'></i>";
-                    estudiante = sexo + v['paterno'] + " " + v['materno'] + " " + v['nombres'] + " " + v['edad'];
-                    fecharegistro = v['registro'] + " <a href='#' class='view_user_reg' tabindex='0' role='button' data-toggle='popover' data-trigger='hover' title='Matriculado por: ' data-content='"+v['usuario']+observacion+"'><i class='fas fa-info-circle fa-lg'></i></a>";
-                    vcuota = v['vpension'] + " ("+v['beneficio']+")";
-                    grupo = v['periodo'] + " " + v['sigla'] + " " + v['codturno'] + " " + v['ciclo'] + " " + v['codseccion'];
-
-                    var fila = tbmatriculados.row.add([index + 1, v['sede_abrevia'], v['carne'], estudiante, fecharegistro, vcuota, v['plan'], grupo, dropdown_estado]).node();
-                    $(fila).attr('data-codmatricula64', v['codmatricula64']);
-                    $(fila).attr('data-estudiante', v['paterno'] + " " + v['materno'] + " " + v['nombres']);
-                      
-                  })
-                  
-                  // $('#msghistorial_estudiante').html(tblhistorial);
-                  tbmatriculados.draw();
-                  // $('#vw_dp_mc_matriculas #divoverlay').remove();
-                  $('.view_user_reg').popover({
-                    trigger: 'hover',
-                    html: true
-                  })
-                  $("#vw_dp_mc_btn_nuevamatricula").attr('href', base_url + "gestion/academico/matriculas?sb=academico&fcarnet=" + carnet);
-                } else {
-                  if (insestado == "ACTIVO") {
-                    $('#vw_dp_mc_matriculas').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-                    window.location.href =base_url + "gestion/academico/matriculas?sb=academico&fcarnet=" + carnet;
-                  } else {
-                    
-                    Swal.fire({
-                        type: 'warning',
-                        icon: 'warning',
-                        title: 'Aviso!',
-                        text: "El estado del estudiante no esta activo",
-                        backdrop: false,
-                    }).then(function(result){
-                        if(result.value){
-                           $('#vw_md_historial_mat').modal('hide');
-                        }
-                    })
-                    
-                  }
-                  
-                }
-            }
-        },
-        error: function(jqXHR, exception) {
-            var msgf = errorAjax(jqXHR, exception, 'text');
-            $('#vw_dp_mc_matriculas #divoverlay').remove();
-            Swal.fire({
-                type: 'error',
-                icon: 'error',
-                title: 'Error',
-                text: msgf,
-                backdrop: false,
-            })
-        }
-    });
-  }
-
-  $('#vw_md_historial_mat').on('hidden.bs.modal', function (e) {
-    $('#vw_md_historial_mat .tbdatatable tbody').html("");
-  })
-
-  function fn_cambiarestado_mat(btn) {
-    tbmatriculados = $('#tbmt_dtmatriculas').DataTable();
-    fila = tbmatriculados.$('tr.selected');
-    im = fila.data('codmatricula64');
-    var ie = btn.data('ie');
-    var btdt = btn.parents(".btn-group").find('.dropdown-toggle');
-    var texto = btn.html();
-    var contenedor = btn.data('campo');
-    $('#vw_dp_mc_matriculas').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    
-    $.ajax({
-        url: base_url + 'matricula/fn_cambiarestado',
-        type: 'post',
-        dataType: 'json',
-        data: {
-            'ce-idmat': im,
-            'ce-nestado': ie
-        },
-        success: function(e) {
-            $('#vw_dp_mc_matriculas #divoverlay').remove();
-            if (e.status == false) {
-                Swal.fire({
-                    type: 'error',
-                    icon: 'error',
-                    title: 'Error!',
-                    text: e.msg,
-                    backdrop: false,
-                })
-            } else {
-                /*$("#fm-txtidmatricula").html(e.newcod);*/
-                Swal.fire({
-                    type: 'success',
-                    icon: 'success',
-                    title: 'Felicitaciones, estado actualizado',
-                    text: 'Se ha actualizado el estado',
-                    backdrop: false,
-                })
-                btdt.removeClass('btn-danger');
-                btdt.removeClass('btn-success');
-                btdt.removeClass('btn-warning');
-                btdt.removeClass('btn-secondary');
-                
-                switch (texto) {
-                    case "Activo":
-                        btdt.addClass('btn-success');
-                        btdt.html("ACT");
-                        break;
-                    case "Retirado":
-                        btdt.addClass('btn-danger');
-                        btdt.html("RET");
-                        break;
-                    case "Desaprobado":
-                        btdt.addClass('btn-danger');
-                        btdt.html("DES");
-                        break;
-                    default:
-                        btdt.addClass("btn-warning");
-                }
-                
-            }
-        },
-        error: function(jqXHR, exception) {
-            var msgf = errorAjax(jqXHR, exception, 'text');
-            $('#vw_dp_mc_matriculas #divoverlay').remove();
-            Swal.fire({
-                type: 'error',
-                icon: 'error',
-                title: 'Error',
-                text: msgf,
-                backdrop: false,
-            })
-        }
-    });
-    return false;
-  }
+  
 
 </script>

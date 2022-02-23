@@ -251,7 +251,7 @@ class Inscrito extends Sendmail {
 			$this->form_validation->set_rules('ficbseccion','Sección','trim|required|alpha');
 
 			$discapacidad = $this->input->post('cbodispacacidad');
-
+			
 			if ($discapacidad == "SI") {
 				$this->form_validation->set_rules('ficbdiscapacidad','Discapacidad','trim|required|is_natural_no_zero');
 			}
@@ -307,6 +307,44 @@ class Inscrito extends Sendmail {
 				//}
 
 				if ($newcod->salida == 1){
+					$enviar_mail = false;
+					$this->load->model('mpersona');
+					$dataper = $this->mpersona->get_datos_personales(array($fimcid));
+					$correoper = $dataper->epersonal;
+					if ($correoper != "") {
+						$enviar_mail = true;
+					}
+
+					if ($enviar_mail == true) {
+						$this->load->model('miestp');
+			            $iestp=$this->miestp->m_get_datos();
+						$d_destino=array();
+			            $d_enviador=array('notificaciones@'.getDominio(),$iestp->nombre);
+						if ($correoper != "") {
+							if (filter_var($correoper, FILTER_VALIDATE_EMAIL)) {
+	                            $d_destino[]=$correoper;
+	                        }
+						}
+
+						$files_mail=array();
+	                    $r_respondera=$d_enviador;
+
+	                    if (count($d_destino) > 0){
+	                    	// $d_mensaje="<p>Se le ha enviado su constancia de preinscripción con Éxito</p>";
+	                    	$d_mensaje = $this->load->view("emails/vw_notificacion_admision", array('ies' => $iestp,'emailus'=>$fitxtcarnet.'@'.getDominio(),'password'=>$fitxtcarnet,'emailper'=>$correoper ),true);
+	                        $d_asunto = "Felicitaciones tu Inscripción ha sido aprobada";
+	                        
+	                        $rsp_email=$this->f_sendmail_adjuntos($d_enviador,$d_destino,$d_asunto,$d_mensaje,$files_mail,$r_respondera);
+	                        $dataex['statusmail'] = $rsp_email['estado'];
+
+	                        $this->load->model('mcorreos');
+	                        $d_copia = array();
+	                        $d_oculto = array();
+	                        $contenidobs = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", ha aprobado una inscripción en la tabla TB_INSCRIPCION COD:".$newcod->nid." carnet: ".$fitxtcarnet;
+	                        $this->mcorreos->mInsert_correo_notificaciones(array($newcod->nid,json_encode($d_enviador),json_encode($d_destino),$d_asunto,$d_mensaje,"","",json_encode($r_respondera),$contenidobs,"INSCRIPCION",json_encode($d_copia),json_encode($d_oculto)));
+	                    }
+					}
+					
 					//PROYECTAR MATRICULA
 					/*$this->load->model('mplancurricular');
 					$plan_defecto=$this->mplancurricular->m_get_plan_x_defecto_inscipcion_carrera(array($ficbcarrera));;
@@ -573,7 +611,7 @@ class Inscrito extends Sendmail {
 					$ins->codper64 = base64url_encode($ins->codperiodo);
 
 				}
-
+				
 				$dataex['cd1']=base64url_encode("ACTIVO");
 			    $dataex['cd2']=base64url_encode("RETIRADO");
 			    $dataex['cd3']=base64url_encode("EGRESADO");
@@ -595,7 +633,7 @@ class Inscrito extends Sendmail {
 				// }
 				$dataex['status'] =TRUE;
 				$dataex['conteo'] =$conteo;
-				
+
 			}
 		}
 		$dataex['vdata'] =$rscuentas;
@@ -938,7 +976,7 @@ class Inscrito extends Sendmail {
         echo json_encode($dataex);
 	}
 
-	 public function fn_send_mensaje()
+	public function fn_send_mensaje()
 	{
 		$this->form_validation->set_message('required', '%s Requerido o digite %%%%%%%%');
 		$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres o digite %%%%%%%%.');
@@ -973,16 +1011,15 @@ class Inscrito extends Sendmail {
 
 				$enviar_mail = false;
 				$correoper = $email;
-
 				if ($correoper != "") {
 					$enviar_mail = true;
 				}
-				$dataex['msg']    = "El correo $correoper no es correcto";
+
 				if ($enviar_mail == true) {
 					$this->load->model('miestp');
 		            $iestp=$this->miestp->m_get_datos();
 					$d_destino=array();
-		            $d_enviador=array('soporte@'.getDominio(),$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres);
+		            $d_enviador=array('notificaciones@'.getDominio(),$iestp->nombre);
 					if ($correoper != "") {
 						if (filter_var($correoper, FILTER_VALIDATE_EMAIL)) {
                             $d_destino[]=$correoper;
@@ -991,13 +1028,14 @@ class Inscrito extends Sendmail {
 
 					$files_mail=array();
                     $r_respondera=$d_enviador;
+                    // $vbaseurl = base_url();
                     $vbaseurl = "https://erp.iesap.edu.pe/";
                     $dominioerp = getDominio();
                     $msjsaludo = "";
                     $msjcredenciales = "";
                     $msjmanuales = "";
                     $msjficha = "";
-                    $dataex['msg']    = "El correo $correoper no es válido";
+
                     if (count($d_destino) > 0){
                     	if ($checksaludo == "SI") {
                     		$msjsaludo = "<tr width='100%'>
@@ -1014,12 +1052,12 @@ class Inscrito extends Sendmail {
 							</tr>
 							<tr width='100%'>
 								<td colspan='2'>
-									<img src='{$vbaseurl}resources/img/icons/icon_email.png' alt='email' style='height: 16px;'> Correo: $carnet@$dominioerp
+									<img src='{$vbaseurl}resources/img/icons/icon_email.png' alt='email' style='width: 28px;'> <b>Correo: $carnet@$dominioerp</b>
 								</td>
 							</tr>
 							<tr width='100%'>
 								<td colspan='2'>
-									<img src='{$vbaseurl}resources/img/icons/lock_icon.png' alt='password' style='height: 16px;'> Clave: $carnet
+									<img src='{$vbaseurl}resources/img/icons/lock_icon.png' alt='password' style='width: 30px;'> <b>Contraseña: $carnet</b>
 								</td>
 							</tr>
 							<tr width='100%'>
@@ -1061,7 +1099,7 @@ class Inscrito extends Sendmail {
 								<table width='100%' border='0'>
 									<tr>
 										<td width='50%' style='padding: 10px;'>
-											<img src='{$vbaseurl}resources/img/logo_h80.{$dominioerp}.png' alt='LOGO' height='50px'>
+											<img src='{$vbaseurl}resources/img/logo_h80.{$dominioerp}.png' alt='LOGO' style='width: 100%;'>
 										</td>
 										<td width='50%'>
 											<h2 style='margin: 0px;'><?php echo $iestp->nombre ?></h2>Plataforma Virtual
@@ -1084,22 +1122,28 @@ class Inscrito extends Sendmail {
 								Usted está recibiendo este mensaje para informar cambios en tu cuenta <br></small>
 							</div>";
 
-                        $d_asunto = "Credenciales de Acceso Plataforma Virtual IESAP";
+                        $d_asunto = "Felicitaciones tu Inscripción ha sido aprobada";
 
-                       /*if ($checkficha == "SI") {
+                        if ($checkficha == "SI") {
                         	$fichapdf = $this->pdf_ficha_inscripcion_email(base64url_encode($periodo),$txtcodigo);
                         	$files_mail[]=array($fichapdf, 'attachment',"FICHA INSCRIPCIÓN $carnet.pdf","application/pdf");
-                        }*/
+                        }
                         
-                        $rsp_email=$this->f_sendmail_directo($d_enviador,$d_destino,array(),array(),$d_asunto,$d_mensaje,$files_mail,$r_respondera);
-                        $dataex['mail_status'] = $rsp_email['estado'];
-                        $dataex['mail_msg'] = $rsp_email['mensaje'];
-                        $dataex['msg']    = "";
-                        $dataex['status'] =TRUE;
-                       
+                        
+                        $rsp_email=$this->f_sendmail_adjuntos($d_enviador,$d_destino,$d_asunto,$d_mensaje,$files_mail,$r_respondera);
+                        $dataex['statusmail'] = $rsp_email['estado'];
+
+                        // $this->load->model('mcorreos');
+                        // $d_copia = array();
+                        // $d_oculto = array();
+                        // $contenidobs = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", ha aprobado una inscripción en la tabla TB_INSCRIPCION COD:".$rptains->nid." carnet: ".$fitxtcarnet;
+                        // $this->mcorreos->mInsert_correo_notificaciones(array($rptains->nid,json_encode($d_enviador),json_encode($d_destino),$d_asunto,$d_mensaje,"","",json_encode($r_respondera),$contenidobs,"INSCRIPCION",json_encode($d_copia),json_encode($d_oculto)));
                     }
 				}
+            	
+				$dataex['status'] =TRUE;
 				// $dataex['status'] = $rsp_email['estado'];
+
 			}
 		}
 		header('Content-Type: application/x-json; charset=utf-8');
@@ -1136,7 +1180,6 @@ class Inscrito extends Sendmail {
             //$mpdf->WriteHTML($html2);
             return $mpdf->Output($pdfFilePath, "S");
     }
-
 
     public function fn_datos_deudas()
     {
@@ -1187,6 +1230,5 @@ class Inscrito extends Sendmail {
         header('Content-Type: application/x-json; charset=utf-8');
         echo(json_encode($dataex));
     }
-    
 
 }

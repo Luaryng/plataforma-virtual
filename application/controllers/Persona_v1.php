@@ -243,7 +243,6 @@ class Persona extends CI_Controller {
 				$fila=$this->mpersona->get_datos_personales(array($decofidpid));
 				if (isset($fila)) {
 					$dataex['status'] =TRUE;
-					$contactos = $this->mpersona->get_datos_contacto_codigo(array($decofidpid));
 					$fila->idpersona=$fidpid;
 
 
@@ -268,7 +267,6 @@ class Persona extends CI_Controller {
 				$dataex['vdata']=$fila;
 				$dataex['provincias']=$rsprov;
 				$dataex['distritos']=$rsdistri;
-				$dataex['vcontacto']=$contactos;
 				
 			}
 
@@ -479,21 +477,6 @@ class Persona extends CI_Controller {
 
 				// $newcod=$this->mpersona->update_datos_personales(array($fidpid,$fitxtcodinstitucional,$ficbtipodoc,$fitxtdni,$fitxtapelpaterno,$fitxtapelmaterno,$fitxtnombres,$ficbsexo,$fitxtfechanac,$fitxtcelular,$fitxttelefono,$fitxtemailpersonal,$fitxtdomicilio,$ficbdistrito,$fitxtdomiciliootro));
 				if ($newcod==1){
-
-					if (isset($_POST['items'])) {
-						$items = json_decode($_POST['items'],true);
-						$rsfila=$this->mpersona->m_delete_data_cotacto($fidpid);
-						foreach ($items as $key => $item) {
-							$tiporela = $item['fictxttiporela'];
-							$nombresc = $item['fictxtapenomcontac'];
-							$numeroc = $item['fictxtnumerocontac'];
-
-							$itemcontac = array($fidpid, $tiporela, $nombresc, $numeroc);
-							$rsfila=$this->mpersona->insert_persona_contacto($itemcontac);
-						}
-						
-					}
-
 					$dataex['status'] =TRUE;
 					$dataex['msg'] ="Ficha de datos personales, actualizada correctamente";
 				}
@@ -502,6 +485,10 @@ class Persona extends CI_Controller {
 		header('Content-Type: application/x-json; charset=utf-8');
 		echo json_encode($dataex);
 	}
+
+
+
+
 
 
 	public function fn_update_dinamico(){
@@ -596,7 +583,7 @@ class Persona extends CI_Controller {
         echo (json_encode($dataex));
     }
 
-	public function fn_update_mis_contactos()
+		public function fn_update_mis_contactos()
 	{
 		$this->form_validation->set_message('required', '%s Requerido');
 		$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
@@ -773,9 +760,7 @@ class Persona extends CI_Controller {
 				$fila=$this->mpersona->get_datos_alumno_xdni(array($fidpid));
 				if ($fila) {
 					$dataex['status'] =TRUE;
-					$contactos = $this->mpersona->get_datos_contacto_codigo(array($fila->idpersona));
 					$fila->idpersona=base64url_encode($fila->idpersona);
-
 					//BUSCAR UBIGEO
 					$this->load->model('mubigeo');
 					$rsprov="<option value='0'>Sin opciones</option>";
@@ -797,7 +782,6 @@ class Persona extends CI_Controller {
 				$dataex['vdata']=$fila;
 				$dataex['provincias']=$rsprov;
 				$dataex['distritos']=$rsdistri;
-				$dataex['vcontacto']=$contactos;
 				
 			}
 

@@ -1568,7 +1568,13 @@ $("#modupmat").on('shown.bs.modal', function(e) {
         $('#fm-cbperiodoup').attr('disabled', false);
         $('#divalert_mat').show();
         // $('#lbtn_condic_refresh').show();
-        $('#modfiltroins').modal('show');
+        var carne = getUrlParameter("fcarnet","");
+        if (carne!=="") {
+
+        } else {
+          $('#modfiltroins').modal('show');
+        }
+        
     }
 });
 
@@ -1719,6 +1725,7 @@ $("#frm-getinscritonew").submit(function(event) {
                 var tabla = '';
                 var tbody = '';
                 var estado = '';
+                // var viewmat = matricula;
                 var btnselect = '';
                 tabla = '<div class="col-12 py-1">' +
                     '<div class="btable">' +
@@ -1757,7 +1764,7 @@ $("#frm-getinscritonew").submit(function(event) {
                     nro++;
                     if (val['estado'] == "ACTIVO") {
                         estado = "<span class='badge bg-success p-2'> " + val['estado'] + " </span>";
-                        btnselect = "<a href='#' class='btn btn-info btn-sm btn_select' title='seleccionar'><i class='fas fa-share'></i></a>";
+                        btnselect = "<a href='#' onclick='fn_select_inscrito($(this),null);return false;' class='btn btn-info btn-sm btn_select' title='seleccionar'><i class='fas fa-share'></i></a>";
                     } else if (val['estado'] == "POSTULA") {
                         estado = "<span class='badge bg-warning p-2'> " + val['estado'] + " </span>";
                         btnselect = '';
@@ -1800,135 +1807,135 @@ $("#frm-getinscritonew").submit(function(event) {
                 })
                 $('#divcard_result').html(tabla);
                 $('#divcard_data_alumnos').html(tbody);
-                $('.btn_select').click(function(e) {
-                    e.preventDefault();
-                    var boton = $(this);
-                    var fila = boton.closest('.cfilains');
-                    var carne = fila.data('carnet');
-                    var alumno = fila.data('alumno');
+                // $('.btn_select').click(function(e) {
+                //     e.preventDefault();
+                //     var boton = $(this);
+                //     var fila = boton.closest('.cfilains');
+                //     var carne = fila.data('carnet');
+                //     var alumno = fila.data('alumno');
 
-                    $('#divmodalsearch').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-                    $.ajax({
-                        url: base_url + "matricula/fn_get_datos_hmatricula_carne",
-                        type: 'post',
-                        dataType: 'json',
-                        data: {
-                            'fgi-txtcarne': carne,
-                        },
-                        success: function(e) {
-                            $('#divmodalsearch #divoverlay').remove();
-                            if (e.status == false) {
-                                $.each(e.errors, function(key, val) {
-                                    $('#' + key).addClass('is-invalid');
-                                    $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
-                                });
-                                Swal.fire({
-                                    type: 'warning',
-                                    icon: 'warning',
-                                    title: 'ADVERTENCIA',
-                                    text: e.msg,
-                                    backdrop: false,
-                                })
-                            } else {
-                                $('#modfiltroins').modal('hide');
-                                $('#fm-txtidup').val(e.vdata['idinscripcion']);
-                                $('#fm-txtidmatriculaup').val('0');
-                                $("#frm_updmatri")[0].reset();
-                                $('#frm_updmatri input,select').removeClass('is-invalid');
-                                $('#frm_updmatri .invalid-feedback').remove();
-                                if (e.vdata['idinscripcion'] == '0') {
-                                    $('#fm-txtcarreraup').val("");
-                                    $('#fm-carreraup').val("PROGRAMA ACADÉMICO");
-                                    $('#fm-cbplanup').html("<option value='0'>Plán curricular NO DISPONIBLE</option>");
+                //     $('#divmodalsearch').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+                //     $.ajax({
+                //         url: base_url + "matricula/fn_get_datos_hmatricula_carne",
+                //         type: 'post',
+                //         dataType: 'json',
+                //         data: {
+                //             'fgi-txtcarne': carne,
+                //         },
+                //         success: function(e) {
+                //             $('#divmodalsearch #divoverlay').remove();
+                //             if (e.status == false) {
+                //                 $.each(e.errors, function(key, val) {
+                //                     $('#' + key).addClass('is-invalid');
+                //                     $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+                //                 });
+                //                 Swal.fire({
+                //                     type: 'warning',
+                //                     icon: 'warning',
+                //                     title: 'ADVERTENCIA',
+                //                     text: e.msg,
+                //                     backdrop: false,
+                //                 })
+                //             } else {
+                //                 $('#modfiltroins').modal('hide');
+                //                 $('#fm-txtidup').val(e.vdata['idinscripcion']);
+                //                 $('#fm-txtidmatriculaup').val('0');
+                //                 $("#frm_updmatri")[0].reset();
+                //                 $('#frm_updmatri input,select').removeClass('is-invalid');
+                //                 $('#frm_updmatri .invalid-feedback').remove();
+                //                 if (e.vdata['idinscripcion'] == '0') {
+                //                     $('#fm-txtcarreraup').val("");
+                //                     $('#fm-carreraup').val("PROGRAMA ACADÉMICO");
+                //                     $('#fm-cbplanup').html("<option value='0'>Plán curricular NO DISPONIBLE</option>");
 
-                                } else {
-                                    $('#divalert_mat').hide();
-                                    $('#titlemodal').html("<span class='text-danger'>"+carne+"</span> / "+alumno);
-                                    $('#fm-txtcarreraup').val(e.vdata['codcarrera']);
-                                    $('#fm-carreraup').html(e.vdata['carrera']);
-                                    $('#fm-cbplanup').html(e.vplanes);
-                                    $('#fm-cbplanup').val(e.vdata['codplan']);
-                                    $('#fm-txtplanup').val(e.vdata['codplan']);
-                                    $('#fm-txtmapepatup').val(e.vdata['paterno']);
-                                    $('#fm-txtmapematup').val(e.vdata['materno']);
-                                    $('#fm-txtmnombresup').val(e.vdata['nombres']);
-                                    $('#fm-txtmsexoup').val(e.vdata['sexo']);
+                //                 } else {
+                //                     $('#divalert_mat').hide();
+                //                     $('#titlemodal').html("<span class='text-danger'>"+carne+"</span> / "+alumno);
+                //                     $('#fm-txtcarreraup').val(e.vdata['codcarrera']);
+                //                     $('#fm-carreraup').html(e.vdata['carrera']);
+                //                     $('#fm-cbplanup').html(e.vplanes);
+                //                     $('#fm-cbplanup').val(e.vdata['codplan']);
+                //                     $('#fm-txtplanup').val(e.vdata['codplan']);
+                //                     $('#fm-txtmapepatup').val(e.vdata['paterno']);
+                //                     $('#fm-txtmapematup').val(e.vdata['materno']);
+                //                     $('#fm-txtmnombresup').val(e.vdata['nombres']);
+                //                     $('#fm-txtmsexoup').val(e.vdata['sexo']);
 
-                                    fn_data_academico(carne);
-                                    fn_data_deudas(carne);
-                                    fn_historias_matriculas(carne,e.vcreditosmat);
+                //                     fn_data_academico(carne);
+                //                     fn_data_deudas(carne);
+                //                     fn_historias_matriculas(carne,e.vcreditosmat);
                                     
-                                    if (e.vestadomat == "DES" && (e.vcreditosmat >= 6 || e.vdeudasmat > 0)) {
-                                      $('#lbtn_editamat').attr('disabled', true);
-                                      //$('#msgcursos_deudas').show();
-                                      $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
-                                          '<i class="icon fas fa-ban mr-1"></i>'+
-                                          'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
-                                        '</div>');
-                                    } else if (e.vcreditosmat >= 6 || e.vdeudasmat > 0){
-                                      $('#lbtn_editamat').attr('disabled', true);
-                                      //$('#msgcursos_deudas').show();
-                                      $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
-                                          '<i class="icon fas fa-ban mr-1"></i>'+
-                                          'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
-                                        '</div>');
-                                    }
-                                    else {
-                                      $('#lbtn_editamat').attr('disabled', false);
-                                      $('#msgcursos_deudas').html('');
-                                    }
+                //                     if (e.vestadomat == "DES" && (e.vcreditosmat >= 6 || e.vdeudasmat > 0)) {
+                //                       $('#lbtn_editamat').attr('disabled', true);
+                //                       //$('#msgcursos_deudas').show();
+                //                       $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
+                //                           '<i class="icon fas fa-ban mr-1"></i>'+
+                //                           'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
+                //                         '</div>');
+                //                     } else if (e.vcreditosmat >= 6 || e.vdeudasmat > 0){
+                //                       $('#lbtn_editamat').attr('disabled', true);
+                //                       //$('#msgcursos_deudas').show();
+                //                       $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
+                //                           '<i class="icon fas fa-ban mr-1"></i>'+
+                //                           'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
+                //                         '</div>');
+                //                     }
+                //                     else {
+                //                       $('#lbtn_editamat').attr('disabled', false);
+                //                       $('#msgcursos_deudas').html('');
+                //                     }
 
-                                    if ((e.vestadomat == "DES" || e.vcondicionalmat == "NO")) {
-                                      $('#lbtn_condic_refresh').show();
-                                      $('#lbtn_condic_refresh').show();
-                                      $('#lbtn_condic_refresh').data('carne', carne);
-                                      $('#lbtn_editamat').attr('disabled', true);
-                                    } else if (e.vestadomat == "DES" || e.vcondicionalmat == "SI"){
-                                      $('#lbtn_condic_refresh').hide();
-                                      $('#lbtn_editamat').attr('disabled', false);
-                                      $('#msgcursos_deudas').html('');
-                                    } else {
-                                      $('#lbtn_condic_refresh').hide();
-                                    }
+                //                     if ((e.vestadomat == "DES" || e.vcondicionalmat == "NO")) {
+                //                       $('#lbtn_condic_refresh').show();
+                //                       $('#lbtn_condic_refresh').show();
+                //                       $('#lbtn_condic_refresh').data('carne', carne);
+                //                       $('#lbtn_editamat').attr('disabled', true);
+                //                     } else if (e.vestadomat == "DES" || e.vcondicionalmat == "SI"){
+                //                       $('#lbtn_condic_refresh').hide();
+                //                       $('#lbtn_editamat').attr('disabled', false);
+                //                       $('#msgcursos_deudas').html('');
+                //                     } else {
+                //                       $('#lbtn_condic_refresh').hide();
+                //                     }
 
-                                    if (e.vnromat > 1) {
-                                      $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
-                                        if ($(this).data('nromat') == '0') {
+                //                     if (e.vnromat > 1) {
+                //                       $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+                //                         if ($(this).data('nromat') == '0') {
                             
-                                        } else if ($(this).data('nromat') == "2") {
-                                            $(this).removeClass('ocultar');
-                                        } else {
-                                            if (!$(this).hasClass("ocultar")){
-                                             $(this).addClass('ocultar');
-                                             $(this).data('autorizado', 'NO');
-                                            }
-                                        }
+                //                         } else if ($(this).data('nromat') == "2") {
+                //                             $(this).removeClass('ocultar');
+                //                         } else {
+                //                             if (!$(this).hasClass("ocultar")){
+                //                              $(this).addClass('ocultar');
+                //                              $(this).data('autorizado', 'NO');
+                //                             }
+                //                         }
 
-                                      });
-                                    } else {
-                                      $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
-                                        if ($(this).data('nromat') == "1") {
-                                            $(this).removeClass('ocultar');
-                                        } else {
-                                            if (!$(this).hasClass("ocultar")){
-                                             $(this).addClass('ocultar');
-                                             $(this).data('autorizado', 'NO');
-                                            }
-                                        }
+                //                       });
+                //                     } else {
+                //                       $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+                //                         if ($(this).data('nromat') == "1") {
+                //                             $(this).removeClass('ocultar');
+                //                         } else {
+                //                             if (!$(this).hasClass("ocultar")){
+                //                              $(this).addClass('ocultar');
+                //                              $(this).data('autorizado', 'NO');
+                //                             }
+                //                         }
 
-                                      });
-                                    }
-                                }
-                            }
-                        },
-                        error: function(jqXHR, exception) {
-                            var msgf = errorAjax(jqXHR, exception, 'text');
-                            $('#divmodalsearch #divoverlay').remove();
-                            $('#divError').show();
-                            $('#msgError').html(msgf);
-                        }
-                    })
-                });
+                //                       });
+                //                     }
+                //                 }
+                //             }
+                //         },
+                //         error: function(jqXHR, exception) {
+                //             var msgf = errorAjax(jqXHR, exception, 'text');
+                //             $('#divmodalsearch #divoverlay').remove();
+                //             $('#divError').show();
+                //             $('#msgError').html(msgf);
+                //         }
+                //     })
+                // });
 
             }
         },
@@ -1941,6 +1948,142 @@ $("#frm-getinscritonew").submit(function(event) {
     });
     return false;
 });
+
+function fn_select_inscrito(btn,view) {
+  // var boton = $(this);
+  if (view == null) {
+    var fila = btn.closest('.cfilains');
+    var carne = fila.data('carnet');
+    var alumno = fila.data('alumno');
+  } else {
+    var carne = getUrlParameter("fcarnet","");
+    // var alumno = getUrlParameter("festudent","");
+  }
+  
+
+  $('#divmodalsearch').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+  $.ajax({
+      url: base_url + "matricula/fn_get_datos_hmatricula_carne",
+      type: 'post',
+      dataType: 'json',
+      data: {
+          'fgi-txtcarne': carne,
+      },
+      success: function(e) {
+          $('#divmodalsearch #divoverlay').remove();
+          if (e.status == false) {
+              $.each(e.errors, function(key, val) {
+                  $('#' + key).addClass('is-invalid');
+                  $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+              });
+              Swal.fire({
+                  type: 'warning',
+                  icon: 'warning',
+                  title: 'ADVERTENCIA',
+                  text: e.msg,
+                  backdrop: false,
+              })
+          } else {
+              $('#modfiltroins').modal('hide');
+              $('#fm-txtidup').val(e.vdata['idinscripcion']);
+              $('#fm-txtidmatriculaup').val('0');
+              $("#frm_updmatri")[0].reset();
+              $('#frm_updmatri input,select').removeClass('is-invalid');
+              $('#frm_updmatri .invalid-feedback').remove();
+              if (e.vdata['idinscripcion'] == '0') {
+                  $('#fm-txtcarreraup').val("");
+                  $('#fm-carreraup').val("PROGRAMA ACADÉMICO");
+                  $('#fm-cbplanup').html("<option value='0'>Plán curricular NO DISPONIBLE</option>");
+
+              } else {
+                  $('#divalert_mat').hide();
+                  var estudiante = e.vdata['paterno'] + " " + e.vdata['materno'] + " " + e.vdata['nombres'];
+                  $('#titlemodal').html("<span class='text-danger'>"+carne+"</span> / "+estudiante);
+                  $('#fm-txtcarreraup').val(e.vdata['codcarrera']);
+                  $('#fm-carreraup').html(e.vdata['carrera']);
+                  $('#fm-cbplanup').html(e.vplanes);
+                  $('#fm-cbplanup').val(e.vdata['codplan']);
+                  $('#fm-txtplanup').val(e.vdata['codplan']);
+                  $('#fm-txtmapepatup').val(e.vdata['paterno']);
+                  $('#fm-txtmapematup').val(e.vdata['materno']);
+                  $('#fm-txtmnombresup').val(e.vdata['nombres']);
+                  $('#fm-txtmsexoup').val(e.vdata['sexo']);
+
+                  fn_data_academico(carne);
+                  fn_data_deudas(carne);
+                  fn_historias_matriculas(carne,e.vcreditosmat);
+                  
+                  if (e.vestadomat == "DES" && (e.vcreditosmat >= 6 || e.vdeudasmat > 0)) {
+                    $('#lbtn_editamat').attr('disabled', true);
+                    //$('#msgcursos_deudas').show();
+                    $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
+                        '<i class="icon fas fa-ban mr-1"></i>'+
+                        'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
+                      '</div>');
+                  } else if (e.vcreditosmat >= 6 || e.vdeudasmat > 0){
+                    $('#lbtn_editamat').attr('disabled', true);
+                    //$('#msgcursos_deudas').show();
+                    $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
+                        '<i class="icon fas fa-ban mr-1"></i>'+
+                        'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
+                      '</div>');
+                  }
+                  else {
+                    $('#lbtn_editamat').attr('disabled', false);
+                    $('#msgcursos_deudas').html('');
+                  }
+
+                  if ((e.vestadomat == "DES" || e.vcondicionalmat == "NO")) {
+                    $('#lbtn_condic_refresh').show();
+                    $('#lbtn_condic_refresh').show();
+                    $('#lbtn_condic_refresh').data('carne', carne);
+                    $('#lbtn_editamat').attr('disabled', true);
+                  } else if (e.vestadomat == "DES" || e.vcondicionalmat == "SI"){
+                    $('#lbtn_condic_refresh').hide();
+                    $('#lbtn_editamat').attr('disabled', false);
+                    $('#msgcursos_deudas').html('');
+                  } else {
+                    $('#lbtn_condic_refresh').hide();
+                  }
+
+                  if (e.vnromat > 1) {
+                    $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+                      if ($(this).data('nromat') == '0') {
+          
+                      } else if ($(this).data('nromat') == "2") {
+                          $(this).removeClass('ocultar');
+                      } else {
+                          if (!$(this).hasClass("ocultar")){
+                           $(this).addClass('ocultar');
+                           $(this).data('autorizado', 'NO');
+                          }
+                      }
+
+                    });
+                  } else {
+                    $("#frm_updmatri #fm-cbtipoup option").each(function(i) {
+                      if ($(this).data('nromat') == "1") {
+                          $(this).removeClass('ocultar');
+                      } else {
+                          if (!$(this).hasClass("ocultar")){
+                           $(this).addClass('ocultar');
+                           $(this).data('autorizado', 'NO');
+                          }
+                      }
+
+                    });
+                  }
+              }
+          }
+      },
+      error: function(jqXHR, exception) {
+          var msgf = errorAjax(jqXHR, exception, 'text');
+          $('#divmodalsearch #divoverlay').remove();
+          $('#divError').show();
+          $('#msgError').html(msgf);
+      }
+  })
+}
 
 $('#btn_agregarnew').click(function() {
     $('#divcard_datamat').addClass('d-none');
@@ -2088,6 +2231,15 @@ $(document).ready(function() {
     $("#fmt-cbseccion").val(getUrlParameter("cs", '%'));
     $("#fmt-cbplan").val(getUrlParameter("cpl", '%'));
     if (getUrlParameter("at", 0) == 1) $("#frmfiltro-matriculas").submit();
+
+    var carne = getUrlParameter("fcarnet","");
+    // var alumno = getUrlParameter("festudent","");
+    // if (carne !=="" && alumno!== "") {}
+    if (carne !=="") {
+      $("#modupmat").modal();
+      $('#modfiltroins').modal('hide');
+      fn_select_inscrito(null,"inscrito");
+    }
 
 });
 //$("#fmt-conteo").html(nro + ' matriculas encontradas');

@@ -1143,6 +1143,7 @@ class Matricula extends CI_Controller {
 
                 $registro = new DateTime($matricula->fecregistro);
                 $matriculas[$key]->registro = $registro->format("d/m/Y");
+                $matriculas[$key]->vpension = number_format($matricula->pension, 2);
                 if ($matricula->estado != "RES") {
                     $rpestado = $matricula->estado;
                     $rpcondic = $matricula->condicional;

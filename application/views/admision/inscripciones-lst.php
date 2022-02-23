@@ -132,19 +132,19 @@
                 <div class="dropdown-menu">
                   <?php if ($usuario->estado != "RETIRADO"): ?>
                     <?php if (getPermitido("142")=='SI') { ?>
-                    <a href="#" class="btn-cestado dropdown-item" data-color='btn-success' data-ie="<?php echo $cd1 ?>">Activo</a> 
-                    <a href="#" class="dropdown-item" data-color='btn-danger' data-ie="<?php echo $cd2 ?>" data-toggle="modal" data-target="#modretirainsc" id="btnretira_inscrip<?php echo $idins ?>">Retirado</a> 
-                    <a href="#" class="btn-cestado dropdown-item" data-color='btn-secondary' data-ie="<?php echo $cd3 ?>">Egresado</a> 
-                    <a href="#" class="btn-cestado dropdown-item" data-color='btn-info' data-ie="<?php echo $cd4 ?>">Titulado</a> 
-                    <a href="#" class="btn-cestado dropdown-item" data-color='btn-warning' data-ie="<?php echo $cd5 ?>">Postula</a> 
-                    <div class="dropdown-divider"></div> 
+                      <a href="#" class="btn-cestado dropdown-item" data-color='btn-success' data-ie="<?php echo $cd1 ?>">Activo</a> 
+                      <a href="#" class="dropdown-item" data-color='btn-danger' data-ie="<?php echo $cd2 ?>" data-toggle="modal" data-target="#modretirainsc" id="btnretira_inscrip<?php echo $idins ?>">Retirado</a> 
+                      <a href="#" class="btn-cestado dropdown-item" data-color='btn-secondary' data-ie="<?php echo $cd3 ?>">Egresado</a> 
+                      <a href="#" class="btn-cestado dropdown-item" data-color='btn-info' data-ie="<?php echo $cd4 ?>">Titulado</a> 
+                      <a href="#" class="btn-cestado dropdown-item" data-color='btn-warning' data-ie="<?php echo $cd5 ?>">Postula</a> 
+                      <div class="dropdown-divider"></div> 
                     <?php } ?>
-                    <?php else: ?>
+                  <?php else: ?>
                     <?php if (getPermitido("150")=='SI') { ?>
                     <a href="#" class="btn_actestado dropdown-item" data-color='btn-success' data-ie="<?php echo $cd1 ?>" id="btnactiva_ins_<?php echo $idins ?>">Activo</a> 
                     <?php } ?>
-                     <?php endif ?>
-                    <?php echo $btndelete ?>
+                  <?php endif ?>
+                  <?php echo $btndelete ?>
                 </div> 
               </div>
             </div>

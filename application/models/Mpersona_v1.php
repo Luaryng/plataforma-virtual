@@ -184,8 +184,7 @@ class Mpersona extends CI_Model {
 		}
 	}
 
-	public function update_dni($data)
-	{
+	public function update_dni($data){
 
 		$this->db->query("CALL `sp_tb_persona_dni_update`(?,?,?,@s)",$data);
 		$res = $this->db->query('select @s as out_param');
@@ -194,8 +193,7 @@ class Mpersona extends CI_Model {
 	}
 
 
-	public function update_mis_contactos($data)
-	{
+	public function update_mis_contactos($data){
 
 		$this->db->query("CALL `sp_tb_persona_contactos_update`(?,?,?,?,?,?,?,?,?,@s)",$data);
 		$res = $this->db->query('select @s as out_param');
@@ -204,12 +202,12 @@ class Mpersona extends CI_Model {
 	}
 
 	public function m_cambiar_foto($data)
-  {
-  	//user,$clave,$correo,$iduser
-  	
-  	$this->db->query("UPDATE `tb_persona`  SET `per_foto` = ? WHERE `per_codigo` = ? ;", $data);
-      return $this->db->affected_rows();
-  }
+    {
+    	//user,$clave,$correo,$iduser
+    	
+    	$this->db->query("UPDATE `tb_persona`  SET `per_foto` = ? WHERE `per_codigo` = ? ;", $data);
+        return $this->db->affected_rows();
+    }
 
   public function insert_persona_contacto($data)
   {
@@ -224,20 +222,6 @@ class Mpersona extends CI_Model {
 	{
 		$result = $this->db->query("DELETE FROM `tb_persona_contacto` WHERE per_codigo = ?", $data);
 		return 1;
-	}
-
-	public function get_datos_contacto_codigo($data){
-	    $result=$this->db->query("SELECT 
-	        tb_persona_contacto.prc_id AS codigo,
-	        tb_persona_contacto.per_codigo AS codpersona,
-	        tb_persona_contacto.prc_tipo_relacion AS tiporela,
-	        tb_persona_contacto.prc_nombres AS nombresc,
-	        tb_persona_contacto.prc_numero AS numeroc
-	      FROM
-	        tb_persona_contacto
-	      WHERE
-	        tb_persona_contacto.per_codigo = ?;",$data);
-	    return   $result->result();  
 	}
 
 }

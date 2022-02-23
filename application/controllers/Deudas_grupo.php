@@ -275,7 +275,13 @@ class Deudas_grupo extends CI_Controller {
                 $pensiones=array('02.01','02.02','02.03','02.04','02.05');
                 $pensiones_contado="02.06";
 
+                $databuscar=array("codperiodo"=>$vw_dc_periodo, "codcarrera"=>$vw_dc_carrera, "codturno"=>$vw_dc_turno, "codciclo"=>$vw_dc_ciclo, "codseccion"=>$vw_dc_seccion,"codgestion"=>$pensiones_contado);
+
                 $matriculados=$this->mmatricula->m_filtrar_xgrupo(array($vw_dc_periodo,$vw_dc_carrera,$vw_dc_ciclo,$vw_dc_turno,$vw_dc_seccion));
+
+                $this->load->model('mfacturacion');
+                $pagos_x_matriculas=$this->mfacturacion->m_pagos_detalle_x_grupo_matricula($databuscar);
+
                 $deudas_generadas=$this->mdeudas_calendario_grupo->m_deuda_xgrupo_calendario(array($vw_dc_periodo,$vw_dc_carrera,$vw_dc_ciclo,$vw_dc_turno,$vw_dc_seccion,$txtcalfecha));
 
                 $this->load->model('mdeudas_calendario_fecha_item');
@@ -284,9 +290,16 @@ class Deudas_grupo extends CI_Controller {
                 $coddeuda_negativo=0;
                 foreach ($matriculados as $key => $matricula) {
                 	$matricula->codigo64=base64url_encode($matricula->codigo);
+                	$matricula->contado="";
                 	$matricula->items=array();
                 	$items=array();
                 	$monto=1;
+                	foreach ($pagos_x_matriculas as $keypago => $pago) {
+						if ($matricula->codigo==$pago->codmatricula){
+							$matricula->contado="PC";
+							unset($pagos_x_matriculas[$keypago]);
+						}
+					}
                 	foreach ($itemsCobro as $keyitem => $item) {
                 		$deuda= new stdClass();
                 		$coddeuda_negativo--;
@@ -305,6 +318,9 @@ class Deudas_grupo extends CI_Controller {
                 		}
                 		if ($es_pension==true){
 							$monto=$matricula->cuota;
+							if ($matricula->contado=="PC"){
+								$monto=0;
+							}
                 		}
                 		$items[$item->codigo]['monto']=round($monto,2);
                 		$deuda->saldo=round($monto,2);
@@ -383,6 +399,7 @@ class Deudas_grupo extends CI_Controller {
                 foreach ($deudas as $deuda) {
                 	$pagante = $deuda[1];
 					$matricula = base64url_decode($deuda[2]);
+
 					$gestion = $deuda[3];
 					$monto =$deuda[4];
 					$fcreacion = date("Y-m-d H:i:s");     
@@ -402,14 +419,19 @@ class Deudas_grupo extends CI_Controller {
 					$fprorroga = null;
                 
                     if ($deuda[0] < 0) {
-                        $rp_save_deuda=$this->mdeudas_individual->m_guardar_deuda(array($pagante, $matricula, $gestion, $monto, $fcreacion, $fvence, $txtcalfecha, $mora, $fprorroga, $repite, $observacion, $saldo,$fechaitem));
-                        $fictxtaccion = "INSERTAR";
-                        if ($rp_save_deuda->salida =='1'){
-                        	$dataex['status'] =TRUE;
-                        	$idnuevos[$deuda[0]]=base64url_encode($rp_save_deuda->newcod);
-							$contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está insertando una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rp_save_deuda->newcod;
-							$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $fictxtaccion, $contenido, $sede));
+                    	if ($monto>0){
+	                        $rp_save_deuda=$this->mdeudas_individual->m_guardar_deuda(array($pagante, $matricula, $gestion, $monto, $fcreacion, $fvence, $txtcalfecha, $mora, $fprorroga, $repite, $observacion, $saldo,$fechaitem));
+	                        $fictxtaccion = "INSERTAR";
+	                        if ($rp_save_deuda->salida =='1'){
+	                        	$dataex['status'] =TRUE;
+	                        	$idnuevos[$deuda[0]]=base64url_encode($rp_save_deuda->newcod);
+								$contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", generó una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rp_save_deuda->newcod;
+								$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $fictxtaccion, $contenido, $sede));
 
+							}
+						}
+						else{
+							$dataex['status'] =TRUE;
 						}
                     }
                     else {
