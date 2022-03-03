@@ -192,7 +192,7 @@ class Musuario extends CI_Model
 						  LEFT OUTER JOIN tb_matricula ON (tb_deuda_individual.matricula_cod = tb_matricula.mtr_id)
 						  INNER JOIN tb_periodo ON (tb_matricula.codigoperiodo = tb_periodo.ped_codigo)
 						  INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
-						WHERE tb_deuda_individual.pagante_cod=? AND tb_deuda_individual.di_saldo > 0 AND tb_deuda_individual.di_fecha_vencimiento < now()",array($rslogin->usuario));
+						WHERE tb_deuda_individual.pagante_cod=? AND tb_deuda_individual.di_saldo > 0 AND tb_deuda_individual.di_fecha_vencimiento < now() AND tb_deuda_individual.di_estado = 'ACTIVO' ",array($rslogin->usuario));
 	        		$rsdeudas=$resultdoce->result();
 	        	}
         		

@@ -1085,10 +1085,12 @@ class Matricula extends CI_Controller {
                         $funcionhelp="getNotas_alumnoboleta_$dominio";
                         $fila->final = $funcionhelp($fila->metodo,array('promedio' => $fila->nota, 'recupera'=>$fila->recuperacion));
 
-                        if (($fila->estado == "DES")||($fila->estado == "DPI")||($fila->estado == "NSP")) {
-                            $nrodesaprobados ++;
-                            $sumcredesap = $fila->cp + $fila->ct;
-                            $totcredesap = $totcredesap + $sumcredesap;
+                        if ($fila->nomestado == "DESAPROBADO") {
+                            if (($fila->estado == "DES")||($fila->estado == "DPI")||($fila->estado == "NSP")) {
+                                $nrodesaprobados ++;
+                                $sumcredesap = $fila->cp + $fila->ct;
+                                $totcredesap = $totcredesap + $sumcredesap;
+                            }
                         }
                     }
 
@@ -1251,10 +1253,12 @@ class Matricula extends CI_Controller {
                         // OBTENER EL TOTAL DE CREDITOS SI ES QUE ESTA DESAPROBADO
                         $cursos = $this->mmatricula->m_filtrar_record_academico(array($rsfila->carnet));
                         foreach ($cursos as $key => $cfila) {
-                            if (($cfila->estado == "DES")||($cfila->estado == "DPI")||($cfila->estado == "NSP")) {
-                                $nrodesaprobados ++;
-                                $sumcredesap = $cfila->cp + $cfila->ct;
-                                $totcredesap = $totcredesap + $sumcredesap;
+                            if ($cfila->nomestado == "DESAPROBADO") {
+                                if (($cfila->estado == "DES")||($cfila->estado == "DPI")||($cfila->estado == "NSP")) {
+                                    $nrodesaprobados ++;
+                                    $sumcredesap = $cfila->cp + $cfila->ct;
+                                    $totcredesap = $totcredesap + $sumcredesap;
+                                }
                             }
                         }
                         $dataex['vcreditosmat'] =$totcredesap;

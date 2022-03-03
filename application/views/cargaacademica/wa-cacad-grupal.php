@@ -1,42 +1,7 @@
 <?php $vbaseurl=base_url() ?>
 <link href="<?php echo $vbaseurl ?>resources/plugins/bootstrap4-toggle/bootstrap4-toggle.min.css" rel="stylesheet">
 <div class="content-wrapper">
-	<div class="modal fade" id="md_docentes" tabindex="-1" role="dialog" aria-labelledby="md_docentes" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-		<div class="modal-dialog modal-lg" role="document">
-			<div class="modal-content" id="divcontent_docentes">
-				<div class="modal-header">
-					<h5 class="modal-title">Docentes Activos</h5>
-					
-				</div>
-				<div class="modal-body">
-					<!--<div class="col-12" id="divcard_docentes">-->
-					<input type="hidden" name="vw_md_doc_txtcarga" id="vw_md_doc_txtcarga">
-					<input type="hidden" name="vw_md_doc_txtdivision" id="vw_md_doc_txtdivision">
-					<div class="col-12 border bg-lightgray p-1 mb-3" >
-						<h5 id="vw_md_doc_div_unidad"></h5>
-					</div>
-					<div class="form-group has-float-label col-12">
-						<select class="form-control form-control-sm" id="vw_md_doc_docentes" name="vw_md_doc_docentes" placeholder="Periodo">
-							<?php foreach ($docentes as $coddoc => $dc) {?>
-							<option value="<?php echo $coddoc ?>"><?php echo "$dc"  ?></option>
-							<?php } ?>
-						</select>
-						<label for="vw_md_doc_docentes"> Docente</label>
-					</div>
-					<!--</div>-->
-				</div>
-				<div class="modal-footer">
-					
-					<button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Cerrar</button>
-					
-					<button type="button" id="vw_md_doc_guardar" data-codigo='' class="btn btn-primary float-right">
-					<i class="fas fa-save mr-1"></i>Guardar
-					</button>
-				</div>
-				
-			</div>
-		</div>
-	</div>
+
 	<div class="modal fade" id="md-plan" tabindex="-1" role="dialog" aria-labelledby="md-plan" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-scrollable" role="document">
 			<div class="modal-content">
@@ -259,7 +224,7 @@
 <script src="<?php echo $vbaseurl ?>resources/plugins/bootstrap4-toggle/bootstrap4-toggle.min.js"></script>
 <script src="<?php echo $vbaseurl ?>resources/dist/js/pages/grupo_carga_academica.js"></script>
 <script>
-	var btn_editdocente=null;
+var btn_editdocente=null;
 var vdocentes = <?php echo json_encode($docentes, JSON_HEX_QUOT | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS) ?>;
 var vpermiso128= '<?php echo getPermitido("128"); ?>';
 const Toast = Swal.mixin({

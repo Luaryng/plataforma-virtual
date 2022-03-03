@@ -446,8 +446,15 @@
 													<input type="hidden" name="fictxtcodigo" value="0">
 													<div class="form-group has-float-label col-12 col-sm-3">
 														<select class="form-control form-control-sm" name="fictxttiporela">
-															<option value="Tio">Tio</option>
-															<option value="Mama">Mamá</option>
+															<option value="TIO(A)">TIO(A)</option>
+															<option value="CONYUGE">CONYUGE</option>
+															<option value="PAPÁ">PAPÁ</option>
+															<option value="MAMÁ">MAMÁ</option>
+															<option value="PRIMO(A)">PRIMO(A)</option>
+															<option value="SOBRINO(A)">SOBRINO(A)</option>
+															<option value="CUÑADO(A)">CUÑADO(A)</option>
+															<option value="APODERADO(A)">APODERADO(A)</option>
+															<option value="ABUELO(A)">ABUELO(A)</option>
 														</select>
 														<label for="fictxttiporela"> Tipo relación</label>
 													</div>
@@ -532,8 +539,15 @@
 	<input type="hidden" name="fictxtcodigo" value="0">
 	<div class="form-group has-float-label col-12 col-sm-3">
 		<select class="form-control form-control-sm" name="fictxttiporela">
-			<option value="Tio">Tio</option>
-			<option value="Mama">Mamá</option>
+			<option value="TIO(A)">TIO(A)</option>
+			<option value="CONYUGE">CONYUGE</option>
+			<option value="PAPÁ">PAPÁ</option>
+			<option value="MAMÁ">MAMÁ</option>
+			<option value="PRIMO(A)">PRIMO(A)</option>
+			<option value="SOBRINO(A)">SOBRINO(A)</option>
+			<option value="CUÑADO(A)">CUÑADO(A)</option>
+			<option value="APODERADO(A)">APODERADO(A)</option>
+			<option value="ABUELO(A)">ABUELO(A)</option>
 		</select>
 		<label for="fictxttiporela"> Tipo relación</label>
 	</div>
@@ -929,7 +943,6 @@
 	    itemsNro++;
 	    
 	    row.show();
-
 	    $('#divdata_contacto').append(row);
 	}
 

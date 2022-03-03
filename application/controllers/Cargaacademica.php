@@ -115,11 +115,17 @@ class Cargaacademica extends CI_Controller {
 				$idsede = $_SESSION['userActivo']->idsede;
 
 				//(( @vcodigoperiodo, @vcodigocarrera, @vcodigociclo, @vcodigoturno, @vcodigoseccion, @vcodigouindidadd
-				$newcod=$this->mcargaacademica->m_insert(array($fcacbperiodo,$fcacbcarrera,$fcacbciclo,$fcacbturno,$fcacbseccion,$fcatxtunidad,$idsede));
-				if ($newcod>0){
+				$rp=$this->mcargaacademica->m_insert(array($fcacbperiodo,$fcacbcarrera,$fcacbciclo,$fcacbturno,$fcacbseccion,$fcatxtunidad,$idsede));
+				if ($rp->salida=='1'){
+					
+					/*if ($newcod>0){
+						$dataex['status'] =TRUE;
+						$dataex['msg'] ="División correctamente";
+						
+					}*/
 					$dataex['status'] =TRUE;
 					$dataex['msg'] ="Carga registrada correctamente";
-					$dataex['newcod'] =$newcod;
+					$dataex['newcod'] =$rp->nid;
 				}
 			}
 

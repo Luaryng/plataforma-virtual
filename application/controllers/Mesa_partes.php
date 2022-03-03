@@ -128,9 +128,6 @@ class Mesa_partes  extends Sendmail
                 $dataex['codseguim'] = $solicitud->codseg;
                 $dataex['solicitante'] = $solicitante;
 
-                $dataex['vdata'] = $arraytip['rutas'];
-                $dataex['vdata2'] = $arraytip;
-
                 //$dataex['asunto'] = $solicitud->asunto;
                 /*$datereg =  new DateTime($solicitud->fecha);
                 $dataex['fecha'] = $datereg->format('d/m/Y h:i a');*/
@@ -242,6 +239,7 @@ class Mesa_partes  extends Sendmail
                 $d_mensajefoot = "Para verificar el estado del mismo puede visitar nuestra página.<br>
                         <a href='".base_url()."tramites/consultar/expediente'>Consultar Estado</a>.";
 
+                $pruebas_email=array();
                 if ($acto=="RECIBIDO"){
                     $rpta=$this->mmesa_partes->m_ruta_recibir(array($_SESSION['userActivo']->idusuario,$seg,$rut,date('Y-m-d H:i:s'),$descp));
                     
@@ -257,6 +255,7 @@ class Mesa_partes  extends Sendmail
                     if ($correo!=""){
                         if (filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                             $d_destino[]=$correo;
+                            //$r_respondera=array($correo,$nombres);
                         }
                     }
                     $correo=trim($solicitud->corporativo_email);
@@ -264,7 +263,7 @@ class Mesa_partes  extends Sendmail
                         if (filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                             $d_destino[]=$correo;
                         }
-                    }
+                    } 
                         
                 }
                 elseif ($acto=="RECHAZADO") {
@@ -290,13 +289,13 @@ class Mesa_partes  extends Sendmail
                             $d_destino[]=$correo;
                             //$r_respondera=array($correo,$nombres);
                         }
-                    }
+                    } 
                     $correo=trim($solicitud->corporativo_email);
                     if ($correo!=""){
                         if (filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                             $d_destino[]=$correo;
                         }
-                    } 
+                    }   
                     $d_cuerpo = $solicitud->solicitante."<br>El documento N° $idceros fue RECHAZADO por ".$_SESSION['userActivo']->nombres." ".$_SESSION['userActivo']->paterno;
                     $d_mensaje = "<b>Mensaje: </b>".$descp;
 
@@ -373,13 +372,13 @@ class Mesa_partes  extends Sendmail
                             $d_destino[]=$correo;
                             //$r_respondera=array($correo,$nombres);
                         }
-                    }
+                    } 
                     $correo=trim($solicitud->corporativo_email);
                     if ($correo!=""){
                         if (filter_var($correo, FILTER_VALIDATE_EMAIL)) {
                             $d_destino[]=$correo;
                         }
-                    }
+                    }  
 
                     $mpremail = "";
                     if (isset($_POST['vw_mpc_email_cc'])) {
@@ -413,7 +412,11 @@ class Mesa_partes  extends Sendmail
                             if ($rptafil=="1"){
                                 
                                 $link=$fl[0];
+                                $namefile = $fl[1];
+                                $typefile = $fl[3];
                                 $copied = copy($pathtodir."/upload/tramites/tmp/".$link  , $pathtodir."/upload/tramites/".$link);
+
+                                $pruebas_email[] = array($pathtodir."/upload/tramites/".$link, $namefile, $typefile);
                                 
                                 if ((!$copied)) 
                                 { 
@@ -425,7 +428,16 @@ class Mesa_partes  extends Sendmail
 
                         $e_mensaje=$this->load->view('emails/vw_notificar_tramite', array('ies'=> $iestp,'cuerpo'=>$d_cuerpo,'mensaje'=>$d_mensaje,'footmsg' => $d_mensajefoot ),true);
 
-                        $this->mcorreos->mInsert_correo_notificaciones(array($ruta_tramite,json_encode($d_enviador),json_encode($d_destino),$d_asunto,$e_mensaje,$acto,"",json_encode($d_responder),$contenidobs,"MESA",json_encode($d_copia),json_encode($d_oculto)));
+                        if (isset($_SESSION['access_token']) && $_SESSION['access_token']) {
+                            $rsp_email=$this->f_sendmail_directo($d_enviador,$d_destino,array(),array(),$d_asunto,$e_mensaje,$pruebas_email,$d_responder);
+                            if ($rsp_email['estado'] == false) {
+                                $this->mcorreos->mInsert_correo_notificaciones(array($ruta_tramite,json_encode($d_enviador),json_encode($d_destino),$d_asunto,$e_mensaje,$acto,"",json_encode($d_responder),$contenidobs,"MESA",json_encode($d_copia),json_encode($d_oculto)));
+                            }
+                        } else {
+                            $this->mcorreos->mInsert_correo_notificaciones(array($ruta_tramite,json_encode($d_enviador),json_encode($d_destino),$d_asunto,$e_mensaje,$acto,"",json_encode($d_responder),$contenidobs,"MESA",json_encode($d_copia),json_encode($d_oculto)));
+                        }
+
+                        
                     }
                     if ($allfiles==true){
                         $dataex['status'] = true;
@@ -471,7 +483,7 @@ class Mesa_partes  extends Sendmail
                 $seg = $this->input->post('vw_mp_txt_codseguim');
                 $anio = $this->input->post('vw_mp_txt_anio');
                 $dataex['status'] = true;
-                $rptamp = $this->mmesa_partes->m_obtenercodigo_mesa(array($seg,$anio));
+                $rptamp = $this->mmesa_partes->m_obtenercodigo_mesa(array($seg, $anio));
                 $dataex['tramite'] = $rptamp;
                 if(@count($rptamp) > 0) {
                     $arraytip = $this->mmesa_partes->m_solicitud_ruta_x_codigoanio(array($rptamp->codsolicitud, $anio));
@@ -1409,7 +1421,7 @@ class Mesa_partes  extends Sendmail
                         $rsdata = $this->mmesa_partes->m_solicitudes_x_area_origen_finalizado($inicio,$limite,array($_SESSION['userActivo']->idarea,$_SESSION['userActivo']->idusuario,$tramite,"%".$busqueda."%","ENVIADO",$sede));
                     }
                     else{
-                        $rsdata = $this->mmesa_partes->m_solicitudes_x_area_destino($inicio,$limite,array($_SESSION['userActivo']->idarea,$_SESSION['userActivo']->idusuario,$tramite,"%".$busqueda."%",$situacion,$sede));
+                        $rsdata = $this->mmesa_partes->m_solicitudes_x_area_destino($inicio,$limite,array($_SESSION['userActivo']->idarea,$_SESSION['userActivo']->idusuario,$tramite,"%".$busqueda."%",$situacion));
                     }
                 }
                 

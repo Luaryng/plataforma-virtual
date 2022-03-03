@@ -23,6 +23,12 @@ class Mcargasubseccion extends CI_Model
       $res = $this->db->query('select @s as out_param');
       return   $res->row()->out_param;  
     }
+    public function m_fusionar($data){   
+      //(( @vcodigoperiodo, @vcodigocarrera, @vcodigociclo, @vcodigoturno, @vcodigoseccion, @vcodigouindidadd, @s);
+      $this->db->query("CALL `sp_tb_cargasubseccion_fusionar_update`(?,?,?,?,@s)",$data);
+      $res = $this->db->query('select @s as out_param');
+      return   $res->row()->out_param;  
+    }
 
     public function m_cambiar_division($data){   
       //(( @vcodigoperiodo, @vcodigocarrera, @vcodigociclo, @vcodigoturno, @vcodigoseccion, @vcodigouindidadd, @s);
@@ -131,7 +137,9 @@ class Mcargasubseccion extends CI_Model
           tb_carga_academica_subseccion.cas_culminado AS culminado,
           tb_carga_academica_subseccion.cas_activo AS activo,
           SUM(case tb_carga_subseccion_miembros.csm_eliminado when 'NO' then 1 else 0 end) AS nalum,
-          tb_modulo_educativo.codigoplan as codplan
+          tb_modulo_educativo.codigoplan AS codplan,
+          tb_carga_academica_subseccion.codigocargaacademica_aula AS codcarga_aula,
+          tb_carga_academica_subseccion.codigosubseccion_aula AS division_aula
         FROM
           tb_carga_academica_subseccion
           INNER JOIN tb_carga_academica ON (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
@@ -154,7 +162,9 @@ class Mcargasubseccion extends CI_Model
           tb_carga_academica_subseccion.cas_nrosesiones,
           tb_carga_academica_subseccion.cas_culminado,
           tb_carga_academica_subseccion.cas_activo,
-          tb_modulo_educativo.codigoplan", $data);
+          tb_modulo_educativo.codigoplan,
+          tb_carga_academica_subseccion.codigocargaacademica_aula,
+          tb_carga_academica_subseccion.codigosubseccion_aula", $data);
         return   $result->result();
     }
 
@@ -255,35 +265,39 @@ class Mcargasubseccion extends CI_Model
     }
     public function m_get_subsecciones_visibles_por_docente($data){
         $result = $this->db->query("SELECT 
-            tb_carga_academica.cac_id AS codcarga,
-            tb_carga_academica.codigoperiodo AS codperiodo,
-            tb_periodo.ped_nombre AS periodo,
-            tb_carga_academica.codigocarrera AS codcarrera,
-            tb_carrera.car_nombre AS carrera,
-            tb_carrera.car_sigla AS sigla,
-            tb_carga_academica.codigociclo AS codciclo,
-            tb_ciclo.cic_nombre AS ciclo,
-            tb_carga_academica.codigoturno AS codturno,
-            tb_carga_academica.codigoseccion AS codseccion,
-            tb_carga_academica_subseccion.codigosubseccion AS division,
-            tb_unidad_didactica.undd_nombre AS unidad,
-            tb_carga_academica.cac_activo AS activo,
-            tb_unidad_didactica.codigomodulo AS codmodulo,
-            tb_modulo_educativo.mod_nombre AS modulo,
-            tb_carga_academica_subseccion.cas_nrosesiones AS sesiones,
-            tb_carga_academica_subseccion.cas_avance_ses AS avance,
-            tb_carga_academica_subseccion.cas_culminado AS culminado,
-            tb_carga_academica_subseccion.cas_activo AS mostrar,
-            tb_sede.sed_nombre as sede
-          FROM
-            tb_carga_academica_subseccion
-            INNER JOIN tb_carga_academica ON (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
-            INNER JOIN tb_carrera ON (tb_carga_academica.codigocarrera = tb_carrera.car_id)
-            INNER JOIN tb_ciclo ON (tb_carga_academica.codigociclo = tb_ciclo.cic_codigo)
-            INNER JOIN tb_unidad_didactica ON (tb_carga_academica.codigouindidadd = tb_unidad_didactica.undd_codigo)
-            INNER JOIN tb_modulo_educativo ON (tb_unidad_didactica.codigomodulo = tb_modulo_educativo.mod_codigo)
-            INNER JOIN tb_periodo ON (tb_carga_academica.codigoperiodo = tb_periodo.ped_codigo)
-            INNER JOIN tb_sede ON (tb_carga_academica.cod_sede  = tb_sede.id_sede )
+          tb_carga_academica.cac_id AS codcarga,
+          tb_carga_academica.codigoperiodo AS codperiodo,
+          tb_periodo.ped_nombre AS periodo,
+          tb_carga_academica.codigocarrera AS codcarrera,
+          tb_carrera.car_nombre AS carrera,
+          tb_carrera.car_sigla AS sigla,
+          tb_carga_academica.codigociclo AS codciclo,
+          tb_ciclo.cic_nombre AS ciclo,
+          tb_carga_academica.codigoturno AS codturno,
+          tb_turno.tur_nombre as turno,
+          tb_carga_academica.codigoseccion AS codseccion,
+          tb_carga_academica_subseccion.codigosubseccion AS division,
+          tb_unidad_didactica.undd_nombre AS unidad,
+          tb_carga_academica.cac_activo AS activo,
+          tb_unidad_didactica.codigomodulo AS codmodulo,
+          tb_modulo_educativo.mod_nombre AS modulo,
+          tb_carga_academica_subseccion.cas_nrosesiones AS sesiones,
+          tb_carga_academica_subseccion.cas_avance_ses AS avance,
+          tb_carga_academica_subseccion.cas_culminado AS culminado,
+          tb_carga_academica_subseccion.cas_activo AS mostrar,
+          tb_sede.sed_nombre AS sede,
+          tb_carga_academica_subseccion.codigocargaacademica_aula AS codcarga_fusion,
+          tb_carga_academica_subseccion.codigosubseccion_aula AS division_fusion
+        FROM
+          tb_carga_academica_subseccion
+          INNER JOIN tb_carga_academica ON (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
+          INNER JOIN tb_carrera ON (tb_carga_academica.codigocarrera = tb_carrera.car_id)
+          INNER JOIN tb_ciclo ON (tb_carga_academica.codigociclo = tb_ciclo.cic_codigo)
+          INNER JOIN tb_unidad_didactica ON (tb_carga_academica.codigouindidadd = tb_unidad_didactica.undd_codigo)
+          INNER JOIN tb_modulo_educativo ON (tb_unidad_didactica.codigomodulo = tb_modulo_educativo.mod_codigo)
+          INNER JOIN tb_periodo ON (tb_carga_academica.codigoperiodo = tb_periodo.ped_codigo)
+          INNER JOIN tb_sede ON (tb_carga_academica.cod_sede = tb_sede.id_sede)
+          INNER JOIN tb_turno ON (tb_carga_academica.codigoturno = tb_turno.tur_codigo)
         WHERE tb_carga_academica_subseccion.codigodocente=? 
         ORDER BY tb_periodo.ped_nombre desc,tb_carga_academica.codigocarrera,tb_carga_academica.codigociclo", $data);
         return   $result->result();
@@ -319,7 +333,9 @@ class Mcargasubseccion extends CI_Model
           tb_persona.per_nombres as docnombres,
           tb_carga_academica_subseccion.codigodocente  as doccodigo,
           tb_docente.doc_emailc as docemail,
-          tb_carga_academica_subseccion.codigo_calculo_evaluacion as metodo
+          tb_carga_academica_subseccion.codigo_calculo_evaluacion as metodo,
+          tb_carga_academica_subseccion.codigocargaacademica_aula as codcarga_fusion,
+          tb_carga_academica_subseccion.codigosubseccion_aula as division_fusion
         FROM
           tb_carga_academica_subseccion
           INNER JOIN tb_carga_academica ON (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
@@ -359,7 +375,9 @@ class Mcargasubseccion extends CI_Model
           tb_persona.per_nombres,
           tb_carga_academica_subseccion.codigodocente,
           tb_docente.doc_emailc,
-          tb_carga_academica_subseccion.codigo_calculo_evaluacion 
+          tb_carga_academica_subseccion.codigo_calculo_evaluacion,
+          tb_carga_academica_subseccion.codigocargaacademica_aula,
+          tb_carga_academica_subseccion.codigosubseccion_aula 
         LIMIT 1", $data);
         return   $result->row();
     }
@@ -491,7 +509,7 @@ class Mcargasubseccion extends CI_Model
         return   $result->result();
     }
 
-    public function m_get_carga_subseccion_filtro_paginacion($data){
+    public function m_get_carga_subseccion_filtro($data){
       //$fcacbsede,$fcacbperiodo,$fcacbcarrera,$fcacbplan,$fcacbciclo,$fcacbturno,$fcacbseccion,$fcatxtbusqueda)
         $sqltext_array=array();
         $data_array=array();
@@ -524,8 +542,12 @@ class Mcargasubseccion extends CI_Model
           $data_array[]=$data[6];
         }
         if ($data[7]!="%%")  {
-          $sqltext_array[]="tb_unidad_didactica.undd_nombre like ?";
+          $sqltext_array[]="concat(CONVERT(tb_carga_academica.cac_id, CHAR(10)),tb_unidad_didactica.undd_nombre) like ?";
           $data_array[]=$data[7];
+        }
+        if ($data[8]!="%")  {
+          $sqltext_array[]="tb_carga_academica_subseccion.codigodocente = ?";
+          $data_array[]=$data[8];
         }
         $sqltext=implode(' AND ', $sqltext_array);
         if ($sqltext!="") $sqltext= " WHERE ".$sqltext;
@@ -565,9 +587,10 @@ class Mcargasubseccion extends CI_Model
             tb_unidad_didactica.undd_horas_ciclo AS horas_ciclo,
             tb_unidad_didactica.undd_horas_sema_teor AS hsem_teo,
             tb_unidad_didactica.undd_horas_sema_pract AS hsem_pra,
-
             tb_sede.sed_nombre as sede,
             tb_sede.sed_abreviatura as sede_abrevia,
+            tb_carga_academica_subseccion.codigocargaacademica_aula as codcarga_fusion,
+            tb_carga_academica_subseccion.codigosubseccion_aula as division_fusion,
             COUNT(tb_carga_subseccion_miembros.csm_id) AS enrolados
           FROM
             tb_carga_academica_subseccion
@@ -617,13 +640,15 @@ class Mcargasubseccion extends CI_Model
             tb_unidad_didactica.undd_horas_sema_teor,
             tb_unidad_didactica.undd_horas_sema_pract,
             tb_sede.sed_nombre,
-            tb_sede.sed_abreviatura 
+            tb_sede.sed_abreviatura,
+            tb_carga_academica_subseccion.codigocargaacademica_aula,
+          tb_carga_academica_subseccion.codigosubseccion_aula 
           ORDER BY
             codperiodo desc,
             codcarrera,
             codciclo,
             codturno,
-            codseccion,
+            codseccion,unidad,
             division",$data_array);
         return   $result->result();
     }

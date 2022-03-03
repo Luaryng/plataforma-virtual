@@ -1086,10 +1086,10 @@ class Inscrito extends Sendmail {
 
                         $d_asunto = "Credenciales de Acceso Plataforma Virtual IESAP";
 
-                       /*if ($checkficha == "SI") {
+                       if ($checkficha == "SI") {
                         	$fichapdf = $this->pdf_ficha_inscripcion_email(base64url_encode($periodo),$txtcodigo);
                         	$files_mail[]=array($fichapdf, 'attachment',"FICHA INSCRIPCIÓN $carnet.pdf","application/pdf");
-                        }*/
+                        }
                         
                         $rsp_email=$this->f_sendmail_directo($d_enviador,$d_destino,array(),array(),$d_asunto,$d_mensaje,$files_mail,$r_respondera);
                         $dataex['mail_status'] = $rsp_email['estado'];

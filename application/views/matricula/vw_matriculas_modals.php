@@ -372,6 +372,11 @@
                         </div>
                       </div>
                     </div>
+                    <div class="form-group col-12 col-sm-2">
+                      <button class="btn btn-sm btn-outline-secondary" title="visualizar pagos" onclick="fn_view_data_pagos($(this));return false;" data-pagante="" data-pagantenb="" id="btn_view_pagos">
+                        <i class="fas fa-money-bill-alt"></i>
+                      </button>
+                    </div>
                     <div class="col-12 form-group">
                       <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="checkdocumen" name="checkdocumen">
@@ -1016,4 +1021,149 @@
       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="modPagos_asignar" tabindex="-1" role="dialog" aria-labelledby="modPagos_asignar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content modPagos_asignar_content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Pagos Realizados</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-12 border rounded p-1 bg-lightgray" >
+                    <h4 id="vw_md_pagos_estudiante"></h4>
+                </div>
+                <hr>
+                <!-- <input type="text" value="0" id="vw_mdp_txtcoddeuda"> -->
+                <div class="col-12 btable">
+                    <div class="col-md-12 thead d-none d-md-block">
+                        <div class="row">
+                            <div class="col-sm-1 col-md-1 td hidden-xs">N°</div>
+                            <div class="col-sm-2 col-md-2 td">TIPO / NRO</div>
+                            <div class="col-sm-2 col-md-2 td">EMISIÓN</div>
+                            <div class="col-sm-2 col-md-4 td">CONCEPTOS</div>
+                            <div class="col-sm-2 col-md-2 td">SALDO</div>
+                            <div class="col-sm-1 col-md-1 td text-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 tbody" id="div_Pagos_Asignar">
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modDeudas_view" tabindex="-1" role="dialog" aria-labelledby="modDeudas_view" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content modDeudas_view_content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="divcard_title_Deuda">Deudas</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="col-12">
+                  <div class="row">
+                    <div class="col-sm-6 col-md-2">
+                        <div class="row">
+                            <span class="col-4">Periodo:</span>
+                            <span id="divdaperiodo" class="col-8 text-bold"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-10">
+                        <div class="row">
+                            <span class="col-3 col-md-2">Programa:</span>
+                            <span id="divdacarrera" class="col-8 col-md-10 text-bold"></span>
+                        </div>
+                    </div>
+                     <div class="col-sm-6 col-md-2">
+                        <div class="row">
+                            <span class="col-4">Plan:</span>
+                            <span id="divdaplan" class="col-8 text-bold"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-2">
+                        <div class="row">
+                            <span class="col-6">Semestre:</span>
+                            <span id="divdaciclo" class="col-6 text-bold"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-2">
+                        <div class="row">
+                            <span class="col-5">Turno:</span>
+                            <span id="divdaturno" class="col-7 col-md-6 text-bold"></span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-md-2">
+                        <div class="row">
+                            <span class="col-4">Sección:</span>
+                            <span id="divdaseccion" class="col-8 text-bold"></span>
+                        </div>
+                    </div>
+                    
+                  </div>
+                </div>
+                <hr>
+                <div class="col-12 btable">
+                    <div class="col-md-12 thead d-none d-md-block">
+                        <div class="row">
+                            <div class="col-sm-1 col-md-1 td hidden-xs">COD</div>
+                            <div class="col-sm-2 col-md-3 td">DEUDOR</div>
+                            <div class="col-sm-2 col-md-3 td">CONCEPTO</div>
+                            <div class="col-sm-2 col-md-2 td">SALDO</div>
+                            <div class="col-sm-2 col-md-2 td">GRUPO</div>
+                            <div class="col-sm-1 col-md-1 td text-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-12 tbody" id="div_Deudas_view">
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modanuladeuda" tabindex="-1" role="dialog" aria-labelledby="modanuladeuda" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="divmodalanulad">
+            <div class="modal-header">
+                <h5 class="modal-title" id="divcard_title">ESTÁ SEGURO DE ANULAR DEUDA?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="form_anuladeuda" action="<?php echo $vbaseurl ?>deudas_individual/fn_anula_deuda_individual" method="post" accept-charset="utf-8">
+                    <div class="row">
+                        <input type="hidden" name="ficdeudacodigo" id="ficdeudacodigo" value="">
+                        <input type="hidden" name="ficdeudaestado" id="ficdeudaestado" value="">
+                        
+                        <div class="form-group has-float-label col-12">
+                            <textarea name="ficmotivanula" id="ficmotivanula" class="form-control form-control-sm" rows="3" placeholder="Motivo Anulación"></textarea>
+                            <label for="ficmotivanula">Motivo Anulación</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="lbtn_anula_deuda" data-coloran="" class="btn btn-primary">Anular</button>
+            </div>
+        </div>
+    </div>
 </div>

@@ -40,10 +40,10 @@
 			if ($carga->activo=='SI'){
 				$nro++;
 				$pcodcarga_enc=base64url_encode($carga->codcarga);
-				$pcodunidad_enc=base64url_encode($carga->codunidad);
-				$pcodsede_enc=base64url_encode($carga->codunidad);
+				$codunidad64=base64url_encode($carga->codunidad);
+				//$pcodsede_enc=base64url_encode($carga->idsede);
 		?>
-		<div class="row fcarga pt-3 bg-lightgray" data-codcarga='<?php echo $pcodcarga_enc ?>' data-codsede='<?php echo $pcodsede_enc ?>' data-codunidad='<?php echo $pcodunidad_enc ?>'>
+		<div class="row fcarga pt-3 bg-lightgray" data-codcarga='<?php echo $pcodcarga_enc ?>' data-codunidad='<?php echo $codunidad64 ?>' data-unidad='<?php echo $carga->unidad ?>'>
 			<div class="col-12 col-md-4 group">
 				<div class="col-2 col-md-1 cell">
 					<span><?php echo $nro ;?></span>
@@ -89,52 +89,53 @@
 				if ($carga->codcarga==$divi->codcarga){
 					$pcoddivision_enc=base64url_encode($divi->division);
 					$pcoddocente_enc=base64url_encode($divi->coddocente);
+
 					?>
-					<div class="row fdivision bg-white" data-coddivision='<?php echo $pcoddivision_enc ?>'  data-coddocente='<?php echo $pcoddocente_enc ?>' data-coddoc='<?php echo $divi->coddocente ?>'>
+					<div class="row fdivision bg-white" data-codcarga64='<?php echo $pcodcarga_enc ?>' data-division64='<?php echo $pcoddivision_enc ?>' data-coddivision='<?php echo $pcoddivision_enc ?>' data-codunidad64='<?php echo $codunidad64 ?>'  data-coddocente='<?php echo $pcoddocente_enc ?>'  data-coddoc='<?php echo $divi->coddocente ?>'>
 						<div class="col-4 col-md-2 cell text-center">
 							<div class="row border-top-0 border-bottom-0">
 								<div class="col-12 col-md-12">
 									<a class="fd-eliminardivision text-danger" href="#" title="Eliminar División" data-grupo="<?php echo $divi->division ;?> " data-carga="<?php echo $divi->codcarga ;?> "><i class="fas fa-minus-square mr-1 "></i></a> 
 								
-									<small class="text-bold" title="Carga Académica">(<?php echo $carga->codcarga."G".$divi->division ?>)</small>
+									<span class="text-bold" title="Carga Académica">(<?php echo $carga->codcarga."G".$divi->division ?>)</span>
 									<span> Grupo </i><?php echo $divi->division ;?> </span>
 									<a class="fd-editvivsion" href="#" title="Cambiar división" data-grupo="<?php echo $divi->division ;?> " data-carga="<?php echo $divi->codcarga ;?> " ><i class="fas fa-pen ml-2"></i></a>
 								</div>
 							</div>
 						</div>
 						
-						<div class="col-8 col-md-4 cell celleditar_docente">
-							<span>
+						<div class="col-8 col-md-4 cell ">
+							<span class="spandocente">
 								<?php echo (is_null($divi->coddocente)) ?"SIN DOCENTE":"$divi->paterno $divi->materno $divi->nombres" ?>
 							</span>
-							<a class="fd-editdocente" data-unidad='<?php echo $carga->unidad ?>' href="#" title="Cambiar docente" data-grupo="<?php echo $divi->division ;?> " data-carga="<?php echo $divi->codcarga ;?> ">
+							<a onclick='vw_abrir_modal_cambiarDocente($(this));return false;' href="#" title="Cambiar docente">
 								<i class="fas fa-pen ml-2"></i>
 							</a> 
 						</div>
 
 						
-						<div class="col-4 col-md-4 cell">
+						<div class="col- col-md-3 cell">
 							<div class="row border-top-0 border-bottom-0">
-								<div class="col-4 col-md-4">
+								<div class="col-3 col-md-3">
 							
-									<span>Alum: </i><?php echo $divi->nalum ;?> </span>
+									<span></i><?php echo $divi->nalum ;?> </span>
 									<a target="_blank"  href="<?php echo base_url().'gestion/academico/carga-academica/miembros/enrolar/'.$pcodcarga_enc.'/'.$pcoddivision_enc ?>" title="Enrolar miembros"><i class="fas fa-user-friends ml-2"></i></a>
 							
 								</div>
-								<div class="col-6 col-md-4 mt-0">
+								<div class="col-6 col-md-5 mt-0">
 									<?php 
 										if ($divi->culminado=='SI'){
 											$cbgcolor="bg-danger";
 											$checked="";
-											$culminotext="NO";
+											$culminotext="Culminado";
 										}
 										else{
 											$cbgcolor="bg-success";
 											$checked="checked";
-											$culminotext="SI";
+											$culminotext="Abierto";
 										}
 										?>
-										<span class="d-inline-block text-bold">Abierto: </span> 
+										<!--<span class="d-inline-block text-bold">Abierto: </span> -->
 										<?php if ($p66=="NO"){
 											echo 
 											"<span title='Abierto' class='d-inline-block text-white tboton $cbgcolor '>$culminotext</span>";
@@ -142,7 +143,7 @@
 										else{
 											echo 
 											"<span class='d-inline-block'>
-												<input $checked  class='checktoggle checkOpen' data-size='xs' type='checkbox' data-toggle='toggle' data-on='SI' data-off='NO' data-onstyle='success' data-offstyle='danger'>
+												<input $checked  class='checktoggle checkOpen' data-size='xs' type='checkbox' data-toggle='toggle' data-on='Abierto' data-off='Culminado' data-onstyle='success' data-offstyle='danger'>
 											</span>";
 										}
 									?>
@@ -160,7 +161,7 @@
 											
 										}
 										?>
-										<span class="d-inline-block text-bold">Mostrar: </span> 
+										<!--<span class="d-inline-block text-bold">Mostrar: </span> -->
 										<?php if ($p67=="NO"){
 											echo 
 											"<span title='Mostrar' class='d-inline-block text-white tboton $cbgcolor '>$divi->activo</span>";
@@ -168,11 +169,12 @@
 										else{
 											echo 
 											"<span class='d-inline-block'>
-												<input $checked  class='checkOcultar' data-size='xs' type='checkbox' data-toggle='toggle' data-on='SI' data-off='NO' data-onstyle='success' data-offstyle='danger' value='$divi->activo'>
+												<input $checked  class='checkOcultar' data-size='xs' type='checkbox' data-toggle='toggle' data-on='Visible' data-off='Oculto' data-onstyle='success' data-offstyle='danger' value='$divi->activo'>
 											</span>";
 										}
 									?>
 								</div>
+
 							</div>
 						</div>
 						<div class="col-4 col-md-2 cell text-center">
@@ -196,6 +198,12 @@
 		                    </div>
 
 							
+							
+						</div>
+						<div class="col-md-1 cell">
+							<a class="btn btn-info btn-sm py-0" href="#" onclick="vw_abrir_modal_fusion($(this));return false">
+								<?php echo $divi->codcarga_aula."G".$divi->division_aula ?>
+							</a>
 							
 						</div>
 					</div>
@@ -391,21 +399,6 @@
 		})()
 	});*/
 	
-	$(".fd-editdocente").click(function(event) {
-		btn_editdocente=$(this);
-		var vgrupo=$(this).data('grupo');
-		var vcarga=$(this).data('carga');
-		var vunidad=$(this).data('unidad');
-		$("#vw_md_doc_txtcarga").val(vcarga);
-		$("#vw_md_doc_txtdivision").val(vgrupo);
-		$("#vw_md_doc_div_unidad").html(vunidad);
-		$("#md_docentes").modal("show");
-		docactual=btn_editdocente.closest(".fdivision").data('coddoc');
-		if (docactual=="") docactual="00000";
-		$("#vw_md_doc_docentes").val(docactual);
-		
-
-	});
 
 	$('#md_docentes').on('shown.bs.modal', function (e) {
   		$("#vw_md_doc_docentes").focus();
@@ -414,52 +407,9 @@
 
 	$('#md_docentes').on('hidden.bs.modal', function (e) {
   		btn_editdocente=null;
-
 	})
 
-	$("#vw_md_doc_guardar").click(function(event) {
-		$('#divcontent_docentes').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-		var docsel=$("#vw_md_doc_docentes").val();
-		vcarga=$("#vw_md_doc_txtcarga").val();
-		vgrupo=$("#vw_md_doc_txtdivision").val();
-		
-		$.ajax({
-            url: base_url + 'cargasubseccion/fn_cambiardocente',
-            type: 'POST',
-            data: {"fca-txtcoddocente": docsel ,"fca-txtsubseccion": vgrupo ,"fca-txtcodcarga": vcarga},
-            dataType: 'json',
-            success: function(e) {
-            	$('#divcontent_docentes #divoverlay').remove();
-            	if (e.status==true){
-            		
-            		if (docsel=='00000'){
-            			btn_editdocente.closest(".celleditar_docente").find('span').html("SIN DOCENTE");
-            		}
-            		else{
-            			btn_editdocente.closest(".celleditar_docente").find('span').html(docsel + " " + vdocentes[docsel]);
-            			/*setInterval(function(){ 
-					        btn.parent().css("border", "0px solid #f37736").animate({'borderWidth': '1px',  'borderColor': 'red'},500);
-					    }, 2000);*/
-            		}
-            		$("#md_docentes").modal("hide");
-            	}
-            	else{
-            		Toast.fire({
-				      type: 'danger',
-				      title: 'Error: ' + e.msg
-				    });
-
-            	}
-            },
-            error: function(jqXHR, exception) {
-            	$(this).bootstrapToggle('off');
-            	$('#divcontent_docentes #divoverlay').remove();
-                var msgf = errorAjax(jqXHR, exception, 'text');
-                $('#fca-plan').html("<option value='0'>" + msgf + "</option>");
-            }
-        })
-
-	});
+	
 
 	$(".fd-editvivsion").click(function(event) {
 		var btn=$(this);
@@ -615,150 +565,6 @@
 		})
 	});
 
-	<?php if ($p66 == "SI"): ?>
-		$('.checkOpen').bootstrapToggle();
-		$(".checkOpen").change(function(event) {
-			btn=$(this);
-		    var fila_carga=btn.closest(".fcarga");
-	  		var fila_division=btn.closest(".fdivision");
-
-	  		var vcarga=fila_carga.data("codcarga");
-	  		var vdivision=fila_division.data("coddivision");
-		    
-		    if ($(this).prop('checked') == false) {
-
-		        $('#divcard_cursos').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-	  			$('#divcard_grupo').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-		        $.ajax({
-		            url: base_url + 'curso/fn_curso_culminar',
-		            type: 'post',
-		            dataType: 'json',
-		            data: {"idcarga": vcarga,"division":vdivision},
-		            success: function(e) {
-		                $('#divcard_cursos #divoverlay').remove();
-		                $('#divcard_grupo #divoverlay').remove();
-		                if (e.status == true) {
-		                    
-		                } else {
-		                    btn.bootstrapToggle('destroy');
-			                btn.prop('checked', true);
-			                btn.bootstrapToggle();
-		                    Toast.fire({
-		                        type: 'danger',
-		                        title: 'Error: ' + e.msg
-		                    });
-		                }
-		            },
-		            error: function(jqXHR, exception) {
-		            	//alert("dd");
-		                btn.bootstrapToggle('destroy');
-		                btn.prop('checked', true);
-		                btn.bootstrapToggle();
-		                $('#divcard_cursos #divoverlay').remove();
-		                $('#divcard_grupo #divoverlay').remove();
-		                var msgf = errorAjax(jqXHR, exception, 'text');
-		                Swal.fire({
-		                    type: 'error',
-		                    title: 'ERROR, NO se pudo culminar',
-		                    text: msgf,
-		                    backdrop:false,
-		                });
-		            }
-		        });
-		    } else {
-		        $('#divcard_cursos').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-	  			$('#divcard_grupo').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-		        $.ajax({
-		            url: base_url + 'curso/fn_curso_reabrir',
-		            type: 'post',
-		            dataType: 'json',
-		            data: {"idcarga": vcarga,"division":vdivision},
-		            success: function(e) {
-		                $('#divcard_cursos #divoverlay').remove();
-		                $('#divcard_grupo #divoverlay').remove();
-		                if (e.status == true) {
-
-		                } else {
-		                    btn.bootstrapToggle('destroy');
-			                btn.prop('checked', false);
-			                btn.bootstrapToggle();
-		                    Toast.fire({
-		                        type: 'danger',
-		                        title: 'Error: ' + e.msg
-		                    });
-		                }
-		            },
-		            error: function(jqXHR, exception) {
-		                 btn.bootstrapToggle('destroy');
-		                btn.prop('checked', false);
-		                btn.bootstrapToggle();
-		                $('#divcard_cursos #divoverlay').remove();
-		                $('#divcard_grupo #divoverlay').remove();
-		                var msgf = errorAjax(jqXHR, exception, 'text');
-		                Swal.fire({
-		                    type: 'error',
-		                    title: 'ERROR, NO se pudo culminar',
-		                    text: msgf,
-		                    backdrop:false,
-		                });
-		            }
-		        });
-		    }
-		});
-	<?php endif ?>
-
-	<?php if ($p67 == "SI"): ?>
-		$('.checkOcultar').bootstrapToggle();
-		$(".checkOcultar").change(function(event) {
-			btn=$(this);
-		    var fila_carga=btn.closest(".fcarga");
-	  		var fila_division=btn.closest(".fdivision");
-
-	  		var vcarga=fila_carga.data("codcarga");
-	  		var vdivision=fila_division.data("coddivision");
-		    var chekear=btn.prop('checked') 
-		    
-
-	        $('#divcard_cursos').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-  			$('#divcard_grupo').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-	        $.ajax({
-	            url: base_url + 'curso/fn_curso_ocultar',
-	            type: 'post',
-	            dataType: 'json',
-	            data: {"idcarga": vcarga,"division":vdivision,"accion":!chekear},
-	            success: function(e) {
-	                $('#divcard_cursos #divoverlay').remove();
-	                $('#divcard_grupo #divoverlay').remove();
-	                if (e.status == true) {
-	                    
-	                } else {
-	                    btn.bootstrapToggle('destroy');
-		                btn.prop('checked', !chekear);
-		                btn.bootstrapToggle();
-	                    Toast.fire({
-	                        type: 'danger',
-	                        title: 'Error: ' + e.msg
-	                    });
-	                }
-	            },
-	            error: function(jqXHR, exception) {
-	            	//alert("dd");
-	                btn.bootstrapToggle('destroy');
-	                btn.prop('checked', !chekear);
-	                btn.bootstrapToggle();
-	                $('#divcard_cursos #divoverlay').remove();
-	                $('#divcard_grupo #divoverlay').remove();
-	                var msgf = errorAjax(jqXHR, exception, 'text');
-	                Swal.fire({
-	                    type: 'error',
-	                    title: 'ERROR, NO se pudo culminar',
-	                    text: msgf,
-	                    backdrop:false,
-	                });
-	            }
-	        });
-		  
-		});
-	<?php endif ?>
+	
 
 </script>

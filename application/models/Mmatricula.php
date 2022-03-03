@@ -1298,6 +1298,8 @@ class Mmatricula extends CI_Model {
 			  tb_matricula.mtr_apel_paterno as paterno,
 			  tb_matricula.mtr_apel_materno as materno,
 			  tb_matricula.mtr_nombres as nombres,
+			  tb_matricula.codigoestado as mtestado,
+			  tb_estadoalumno.esal_nombre as nomestado,
 			  tb_inscripcion.ins_carnet as carnet,
 			  tb_carrera.car_nombre as carrera,
 			  tb_periodo.ped_nombre as periodo,
@@ -1318,6 +1320,7 @@ class Mmatricula extends CI_Model {
 			  INNER JOIN tb_turno ON (tb_matricula_cursos_nota_final.codigoturno = tb_turno.tur_codigo)
 			  INNER JOIN tb_unidad_didactica ON (tb_matricula_cursos_nota_final.cod_unidad_didactica = tb_unidad_didactica.undd_codigo)
 			  INNER JOIN tb_matricula ON (tb_matricula_cursos_nota_final.mtr_id = tb_matricula.mtr_id)
+			  INNER JOIN tb_estadoalumno ON (tb_estadoalumno.esal_id = tb_matricula.codigoestado)
 			  INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
 			WHERE 
 				tb_inscripcion.ins_carnet = ? 

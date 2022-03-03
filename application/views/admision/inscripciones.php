@@ -1942,6 +1942,11 @@
     $('#fictxtcodigo').val(codigo);
   })
 
+  $('#modal-sendemail').on('hidden.bs.modal', function (e) {
+    $("#vw_md_em_aviso").html("");
+    $("#lbtn_send").show();
+  })
+
   function fn_modactiva (btn) {
     var div = btn.parents('.cfila');
     var codigo = div.data('ci');

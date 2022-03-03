@@ -33,7 +33,6 @@ class Usuario extends CI_Controller {
 	}
 
 
-
 	//data: {iduser: vidusua,user: vusua, clave: vclave, correo: vcorreo},
 
 	public function fn_cambiar_acceso(){
@@ -217,66 +216,66 @@ class Usuario extends CI_Controller {
 
 
 
-	public function fn_asignar_permisos(){
-		$resultado['status']=false;
-		$resultado['msg']="<strong>Acción Denegada</strong><br>No tienes los privilegios para ejecutar esta acción";
-		if (getPermitido("113")=='SI'){
-			$resultado['msg']="<strong>Houston, tenemos un problema!</strong><br>Intente nuevamente o comuniquese con un administrador. (M3_CCH)";
-			$this->form_validation->set_message('required', '%s Requerido');
+		public function fn_asignar_permisos(){
+			$resultado['status']=false;
+			$resultado['msg']="<strong>Acción Denegada</strong><br>No tienes los privilegios para ejecutar esta acción";
+			if (getPermitido("113")=='SI'){
+				$resultado['msg']="<strong>Houston, tenemos un problema!</strong><br>Intente nuevamente o comuniquese con un administrador. (M3_CCH)";
+				$this->form_validation->set_message('required', '%s Requerido');
 
-			$this->form_validation->set_message('numeric', '* Requiere un número');
-			$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
-			$this->form_validation->set_message('is_unique', '{field} ya está Registrado.');
-			
-			//CALL `sp_prm_insert_update`( @vid, @vid_usuarioentidad, @id_accion, @vid_componente, @vestado, @vpermitido, @s);
-			$this->form_validation->set_rules('txtcoduser','Usuario','trim|required');
-			$this->form_validation->set_rules('txtcodsede','Usuario','trim|required');
-			$resultado['msg']="Ocurrio Un Error";
-			if ($this->form_validation->run() == FALSE){
-				$errors = array();
-		        foreach ($this->input->post() as $key => $value){
-		            $errors[$key] = form_error($key);
-		        }
-		        $resultado['errors'] = array_filter($errors);
-		        $resultado['msg']=validation_errors();
-			}
-			else{
-				$acciones=array();
-				$idSede=$this->input->post('txtcodsede');
-				$idUser=base64url_decode($this->input->post('txtcoduser'));
-				$acciones=json_decode($this->input->post('acciones'),true);	
-				if ($acciones==null) $acciones=array();
-				$arrayItems=array();
-				foreach ($acciones as $value) {
-					$permitido="NO";
-					if ($value['permitido']==true) $permitido="SI";
-					$arrayItem=array($value['id'],$idUser,$idSede,$value['idAccion'],"1","1",$permitido);
-					$arrayItems[]=$arrayItem;
-				}			
+				$this->form_validation->set_message('numeric', '* Requiere un número');
+				$this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
+				$this->form_validation->set_message('is_unique', '{field} ya está Registrado.');
 				
-				$this->load->model('macciones');
-				if (count($arrayItems)>0) $this->macciones->mUpdateInsertPermisoUser($arrayItems);
-				
-				$acuncheck=array();
-				$acuncheck=json_decode($this->input->post('uncheck'),true);	
-				if ($acuncheck==null) $acuncheck=array();
-				/*/$arrayItems=array();
-				foreach ($acuncheck as $value) {
-					if ($value['permitido']==true) $permitido="SI";
-					$arrayItem=array($value['id'],$idUser,$value['idAccion'],"1","1",$permitido);
-					$arrayItems[]=$arrayItem;
-				}*/		
-				if (count($acuncheck)>0) $rp=$this->macciones->mDeletePermisoUser($acuncheck);
-				/*if ($rp==-1){
-					$resultado['status']=false;
-					$resultado['msg'] = "<strong>Houston, tenemos un problema!</strong><br>Intente nuevamente o comuniquese con un administrador. (D1_M4)";
+				//CALL `sp_prm_insert_update`( @vid, @vid_usuarioentidad, @id_accion, @vid_componente, @vestado, @vpermitido, @s);
+				$this->form_validation->set_rules('txtcoduser','Usuario','trim|required');
+				$this->form_validation->set_rules('txtcodsede','Usuario','trim|required');
+				$resultado['msg']="Ocurrio Un Error";
+				if ($this->form_validation->run() == FALSE){
+					$errors = array();
+			        foreach ($this->input->post() as $key => $value){
+			            $errors[$key] = form_error($key);
+			        }
+			        $resultado['errors'] = array_filter($errors);
+			        $resultado['msg']=validation_errors();
 				}
-				else{*/
-					$resultado['status']=true;
-					$resultado['msg'] = "<strong>Proceso completado!</strong> Permisos actualizados.";
-				//}
+				else{
+					$acciones=array();
+					$idSede=$this->input->post('txtcodsede');
+					$idUser=base64url_decode($this->input->post('txtcoduser'));
+					$acciones=json_decode($this->input->post('acciones'),true);	
+					if ($acciones==null) $acciones=array();
+					$arrayItems=array();
+					foreach ($acciones as $value) {
+						$permitido="NO";
+						if ($value['permitido']==true) $permitido="SI";
+						$arrayItem=array($value['id'],$idUser,$idSede,$value['idAccion'],"1","1",$permitido);
+						$arrayItems[]=$arrayItem;
+					}			
+					
+					$this->load->model('macciones');
+					if (count($arrayItems)>0) $this->macciones->mUpdateInsertPermisoUser($arrayItems);
+					
+					$acuncheck=array();
+					$acuncheck=json_decode($this->input->post('uncheck'),true);	
+					if ($acuncheck==null) $acuncheck=array();
+					/*/$arrayItems=array();
+					foreach ($acuncheck as $value) {
+						if ($value['permitido']==true) $permitido="SI";
+						$arrayItem=array($value['id'],$idUser,$value['idAccion'],"1","1",$permitido);
+						$arrayItems[]=$arrayItem;
+					}*/		
+					if (count($acuncheck)>0) $rp=$this->macciones->mDeletePermisoUser($acuncheck);
+					/*if ($rp==-1){
+						$resultado['status']=false;
+						$resultado['msg'] = "<strong>Houston, tenemos un problema!</strong><br>Intente nuevamente o comuniquese con un administrador. (D1_M4)";
+					}
+					else{*/
+						$resultado['status']=true;
+						$resultado['msg'] = "<strong>Proceso completado!</strong> Permisos actualizados.";
+					//}
+				}
 			}
-		}
 		header('Content-Type: application/x-json; charset=utf-8');
 		exit(json_encode($resultado));
 	}
@@ -305,11 +304,12 @@ class Usuario extends CI_Controller {
 		$dataex['status'] =FALSE;
 		$urlRef=base_url();
 		$dataex['msg']    = '¿Que Intentas?.';
-		$rscuentas="";
+		$rscuentas=array();
 		if ($this->input->is_ajax_request())
 		{
+			$rscuentas['usuarios']=array();
 			$dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
-			$this->form_validation->set_rules('txtadmin','Búsqueda','trim|required|min_length[3]');
+			$this->form_validation->set_rules('txtadmin','Búsqueda','trim');
 			$this->form_validation->set_rules('fictxtsede','sede','trim|required');
 			if ($this->form_validation->run() == FALSE)
 			{
@@ -325,15 +325,17 @@ class Usuario extends CI_Controller {
 				$busqueda=$this->input->post('txtadmin');
 				$sede = $this->input->post('fictxtsede');
 				$activo = $this->input->post('fictxtactivous');
-				$checkemail = "NO";
+				$checkemail = $this->input->post('actcheckemail');
+				/*actcheckemail
+				$ = "NO";*/
 
-				if ($this->input->post('actcheckemail')!==null){
+				/*if ($this->input->post('actcheckemail')!==null){
                     $checkemail = $this->input->post('actcheckemail');
                 }
 
                 if ($checkemail=="on"){
                 	$checkemail = "SI";
-                }
+                }*/
 				
 				$tipo=$this->input->post('txttipo');
 				switch ($tipo) {
@@ -341,7 +343,7 @@ class Usuario extends CI_Controller {
 						$cuentas=$this->musuario->m_filtrar_cuentas_adm_doc(array("%".$busqueda.'%', $sede, $activo, $checkemail));
 						break;
 					case 'ALU':
-						$cuentas=$this->musuario->m_filtrar_cuentas_alum(array("%".$busqueda.'%',"AL", $sede, $activo, $checkemail));
+						$cuentas=$this->musuario->m_filtrar_cuentas_alum(array("%".$busqueda.'%', $sede, $activo, $checkemail));
 						break;
 					case 'DOC':
 						$cuentas=$this->musuario->m_filtrar_cuentas_adm_doc(array("%".$busqueda.'%', $sede, $activo, $checkemail));
@@ -591,10 +593,9 @@ class Usuario extends CI_Controller {
 						}
 					}
 					$_SESSION['userActivo']=$rpta;
-					/*if ($rpta->codnivel==10)
-					{$_SESSION['userActivo']->ecorporativo
+					if ($rpta->tipo=='AL'){
 						$_SESSION['userDeudas']=$arriniciar['deudas'];
-					}*/
+					}
 					$vpermisos=array();
 					foreach ($arriniciar['permisos'] as $ps) {
 						if ($ps->permitido='SI') $vpermisos[$ps->codaccion]= $ps->permitido;
@@ -653,8 +654,8 @@ class Usuario extends CI_Controller {
         $client->setClientId($client_id);
         $client->setClientSecret($client_secret);
         //
-        /*$client->setAccessType("offline");
-		$client->setApprovalPrompt("force"); */
+        $client->setAccessType("offline");
+		$client->setApprovalPrompt("force"); 
 		//
 		$client->setPrompt('consent');
         $client->setRedirectUri($redirect_uri);
@@ -666,6 +667,8 @@ class Usuario extends CI_Controller {
         $client->addScope("https://www.googleapis.com/auth/userinfo.profile");
         $client->addScope("https://www.googleapis.com/auth/calendar");
         $client->addScope("https://www.googleapis.com/auth/calendar.events");
+        $client->addScope("https://www.googleapis.com/auth/gmail.send");
+        
 
         // Send Client Request
         $objOAuthService = new Google_Service_Oauth2($client);
@@ -716,10 +719,11 @@ class Usuario extends CI_Controller {
 						}
 					}
 					$_SESSION['userActivo']=$rpta;
-					/*if ($rpta->codnivel==10)
+					
+					if ($rpta->tipo=='AL')
 					{
 						$_SESSION['userDeudas']=$arriniciar['deudas'];
-					}*/
+					}
 					$vpermisos=array();
 					foreach ($arriniciar['permisos'] as $ps) {
 						if ($ps->permitido='SI') $vpermisos[$ps->codaccion]= $ps->permitido;
@@ -842,6 +846,9 @@ class Usuario extends CI_Controller {
         //redirect(base_url(),'refresh');
 
     }
+
+
+   
 
 }
 

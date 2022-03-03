@@ -346,8 +346,11 @@ class Sendmail extends CI_Controller{
 		return $rps;
 	}
 
-	public function f_sendmail_directo()
-	{
+	public function f_sendmail_directo($array_enviador,$destinos,$destinos_copia,$destinos_oculto,$asunto,$mensaje,$array_adjuntos,$array_responder_a=array()){
+
+		$rps['estado']=false; // no se envio
+		$rps['mensaje']="No se envio correctamente";
+		$msjrs="No se inicio el proceso";
 		$result = $this->db->query("SELECT  `ies_nombre` as nombre, `ies_gsuite_cid` as cid, `ies_gsuite_akey` as akey, `ies_gsuite_csc` as csc FROM `tb_institucion` LIMIT 1" );
         $gsuite=$result->row();
 
@@ -380,46 +383,30 @@ class Sendmail extends CI_Controller{
         $client->addScope("https://www.googleapis.com/auth/gmail.send");
 
 
-
-
-        // Nombre pa mandar el tema
-		$nombremenda='Menda D. Enviador';
-
-		// Gmail del nota que manda
-		$dequien='soporte@iesap.edu.pe';
-
-		// A quién queremos mandarle
-		$paquien='janiorjimenezh@gmail.com';
+        $enviador_nombre=$gsuite->nombre;
+        $enviador_correo=$array_enviador[0];
+		if (isset($array_enviador[1])){
+			$enviador_nombre=$array_enviador[1];
+		}
+		$destinos_correos=implode(",",$destinos);
+		
 
 		// Clave OAuth 2.0
 		$codigo=$_SESSION['refresh_token'];
 
-		// Asunto del mensaje
-		$asuntazo='Plato de queso fresco';
-
-		// Contenido del mensaje en HTML
-		$contenido='Te regalo un <b>queso</b> francés.';
-
-		// Creamos una conexión con la clase Google_Client
-		/*$client = new Google_Client();
-
-		// Nos identificamos, con los datos guardados en el JSON de clavesitas
-		$client->setAuthConfigFile('clavesitas.json');*/
-
-		// Dale caña
 		$client->refreshToken($codigo);
 
 		// Iniciamos un GMAIL service
 		$service = new Google_Service_Gmail($client);
-		echo '<h2>Envío mail a '.$paquien.'</h2>';
-		echo '<h3>Desde cuenta '.$dequien.'</h3>';
+		//$msjrs= '<h2>Envío mail a '.$destinos_correos.'</h2>';
+		//$msjrs=$msjrs.'<h3>Desde cuenta '.$enviador_correo.'</h3>';
 
 		// Limpiamos los caracteres graciosos primero
-		$subject = mb_encode_mimeheader($asuntazo, 'UTF-8');
-		$nombremendaguay = mb_encode_mimeheader($nombremenda, 'UTF-8');
-		$msg = "To: $paquien\n";
-		$msg .= "From: $nombremendaguay <$dequien>\n";
-		$msg .= "Subject: $subject\n";
+		$asunto_utf8 = mb_encode_mimeheader($asunto, 'UTF-8');
+		$enviador_nombre_utf8 = mb_encode_mimeheader($enviador_nombre, 'UTF-8');
+		$msg = "To: $destinos_correos\n";
+		$msg .= "From: $enviador_nombre_utf8 <$enviador_correo>\n";
+		$msg .= "Subject: $asunto_utf8\n";
 		$msg .= "MIME-Version: 1.0\n";
 		$msg .= "Content-Type: multipart/mixed;\n";
 		$boundary = uniqid("_Part_".time(), true); 
@@ -436,7 +423,7 @@ class Sendmail extends CI_Controller{
 		$msg .= "Content-Type: text/plain; charset=utf-8\n";
 		$msg .= "Content-Transfer-Encoding: 7bit\n";
 		$msg .= "\n";
-		$msg .= strip_tags($contenido); //remove any HTML tags
+		$msg .= strip_tags($mensaje); //remove any HTML tags
 		$msg .= "\n";
 
 		// Parte HTML
@@ -444,42 +431,74 @@ class Sendmail extends CI_Controller{
 		$msg .= "Content-Type: text/html; charset=utf-8\n";
 		$msg .= "Content-Transfer-Encoding: 7bit\n";
 		$msg .= "\n";
-		$msg .= $contenido;
+		$msg .= $mensaje;
 		$msg .= "\n";
 		$msg .= "--$boundary2--\n";
 
 		// Parte de archivo adjunto
-		$msg .= "\n";
+		foreach ($array_adjuntos as $key => $adj) {
+			if (count($adj)==4) {
+				$typefile = $adj[3];
+				$namefile = $adj[2];
+				$fileadj = $adj[0];
+				$msg .= "\n";
+				$msg .= "--$boundary\n";
+				$msg .= "Content-Transfer-Encoding: base64\n";
+				$msg .= "Content-Type: {$typefile}; name=$namefile;\n";
+				$msg .= "Content-Disposition: attachment; filename=$namefile;\n";
+				$msg .= "\n";
+				$msg .= base64_encode("$fileadj");
+				$msg .= "\n--$boundary";
+
+			}
+			else{
+				$typefile = $adj[2];
+				$namefile = $adj[1];
+				$fileadj = $adj[0];
+				$msg .= "\n";
+				$msg .= "--$boundary\n";
+				$msg .= "Content-Transfer-Encoding: base64\n";
+				$msg .= "Content-Type: {$typefile}; name=$namefile;\n";
+				$msg .= "Content-Disposition: attachment; filename=$namefile;\n";
+				$msg .= "\n";
+				$msg .= base64_encode(file_get_contents("$fileadj"));
+				$msg .= "\n--$boundary";
+			}
+
+		}
+		/*$msg .= "\n";
 		$msg .= "--$boundary\n";
 		$msg .= "Content-Transfer-Encoding: base64\n";
 		$msg .= "Content-Type: {image/jpg}; name=una-imagen-adjunta.jpg;\n";
 		$msg .= "Content-Disposition: attachment; filename=una-imagen-adjunta.jpg;\n";
 		$msg .= "\n";
 		$msg .= base64_encode(file_get_contents('https://www.salamarkesa.com/wp-content/uploads/2017/03/superman-1367737_1280-min.jpg'));
-		$msg .= "\n--$boundary";
+		$msg .= "\n--$boundary";*/
 
 		// Cerrar mensaje
 		$msg .= "--\n";
-		echo '<pre>'.htmlentities($msg).'</pre>';
+		//echo '<pre>'.htmlentities($msg).'</pre>';
 
 		// Intentamos mandar el tema
 		try 
 		{
 
-		// Codificamos el mensaje en base64 url safe
-		$mime = rtrim(strtr(base64_encode($msg), '+/', '-_'), '=');
-		$msg = new Google_Service_Gmail_Message();
-		$msg->setRaw($mime);
-		$objSentMsg = $service->users_messages->send("me", $msg);
-		echo '<h4>Resultado:</h4>';
-		echo '<pre>';
-		var_dump($objSentMsg);
-		echo '</pre>';
+			// Codificamos el mensaje en base64 url safe
+			$mime = rtrim(strtr(base64_encode($msg), '+/', '-_'), '=');
+			$msg = new Google_Service_Gmail_Message();
+			$msg->setRaw($mime);
+			$objSentMsg = $service->users_messages->send("me", $msg);
+			//$msjrs='<h4>Envio Correcto:</h4>'.$msjrs;
+			$rps['estado']=true; // SI se envio
+			$rps['mensaje']="Su mensaje fue enviado Correctamente";
+			
 		} 
 		catch (Exception $e) {
-		echo '<h4>Fallo gordo:</h4>';
-		print($e->getMessage());
+			$rps['estado']=false; // no se envio
+			$rps['mensaje']=$e->getMessage();
+
 		}
+		return $rps;
 	}
 
 }
