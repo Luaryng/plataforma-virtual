@@ -59,7 +59,10 @@ class Deudas_calendario_fechas extends CI_Controller {
 				$vw_cmda_txtcalendario=base64url_decode($this->input->post('vw_cmda_txtcalendario'));
 				if ($vw_dci_codigo=="0"){
 					$rpta=$this->mdeudas_calendario_fecha->m_guardar(array($vw_dci_nombre, $vw_dci_inicia, $vw_cmda_txtcalendario));
+				} else {
+					$rpta=$this->mdeudas_calendario_fecha->m_update_fecha(array(base64url_decode($vw_dci_codigo),$vw_dci_nombre, $vw_dci_inicia, $vw_cmda_txtcalendario));
 				}
+
 				if ($rpta->salida=="1"){
 					$fechas=$this->mdeudas_calendario_fecha->m_get_fechas_xcalendario(array($vw_cmda_txtcalendario));
 					foreach ($fechas as $key => $fila) {
@@ -67,7 +70,7 @@ class Deudas_calendario_fechas extends CI_Controller {
 					}
 					$dataex['status'] =TRUE;
 					$dataex['fechas'] =$fechas;
-					$dataex['msg'] ="Calendario registrado correctamente";
+					$dataex['msg'] ="Calendario guardado correctamente";
 				}
 				
 			}

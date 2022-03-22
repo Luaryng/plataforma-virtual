@@ -3,30 +3,10 @@ $vbaseurl=base_url();
 date_default_timezone_set('America/Lima');
 $vuser=$_SESSION['userActivo'];
 $fechahoy = date('Y-m-d');
-
 ?>
 <!--<link rel="stylesheet" href="<?php echo $vbaseurl ?>resources/plugins/bootstrap-select-1.13.9/css/bootstrap-select.min.css">-->
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/dt-1.11.3/b-2.1.1/sl-1.3.4/datatables.min.css"/>
-<style>
-  .btn_search_bol {
-    border-top-right-radius: 0.25rem!important;
-    border-bottom-right-radius: 0.25rem!important;
-  }
-
-  table.dataTable tbody tr.selected a:not(.bg-danger,.bg-primary,.bg-info,.bg-success,.bg-warning,.bg-secondary, a.dropdown-item) {
-    color: #007bff !important;
-  }
-
-  .dropdown-item:not(.text-danger,.text-primary,.text-info,.text-success,.text-warning) {
-    color: #212529!important;
-  }
-
-  .bg-selection {
-    background-color: #F9F4BC;
-  }
-</style>
 <div class="content-wrapper">
-  <?php include("vw_matriculas_modals_matricular.php") ?>
   <?php include("vw_matriculas_modals.php") ?>
   <section id="s-cargado" class="content pt-1">
     <nav>
@@ -173,9 +153,7 @@ $fechahoy = date('Y-m-d');
                           <th>Filial</th>
                           <th>Carné</th>
                           
-                          <th>Estudiante / Edad</th>
-                          <th>Fec.Mat.</th>
-                          <th>Cuota</th>
+                          <th>Estudiante</th>
                           <th>Plan</th>
                           <th>Grupo</th>
                           <th>Est.</th>
@@ -315,13 +293,9 @@ $fechahoy = date('Y-m-d');
 <!--<script src="<?php echo $vbaseurl ?>resources/plugins/bootstrap-select-1.13.9/js/bootstrap-select.min.js"></script>-->
 <script>
 var vpermiso151 = '<?php echo getPermitido("151") ?>';
-var vpermiso172 = '<?php echo getPermitido("172") ?>';
-var vpermiso173 = '<?php echo getPermitido("173") ?>';
 var cd1 = '<?php echo base64url_encode("1") ?>';
 var cd2 = '<?php echo base64url_encode("2") ?>';
-var cd7 = '<?php echo base64url_encode("7") ?>';
 
-var cd2de = "<?php echo base64url_encode("ANULADO") ?>";
 
 $('.tbdatatable tbody').on('click', 'tr', function() {
     tabla = $(this).closest("table").DataTable();
@@ -358,17 +332,31 @@ $('#frmfiltro-matriculas #fmt-cbcarrera').change(function(event) {
         });
     }
 });
-
 $(".btn-excel").click(function(e) {
     e.preventDefault();
     /*$('#frm-filtro-inscritos input,select').removeClass('is-invalid');
     $('#frm-filtro-inscritos .invalid-feedback').remove();*/
     var url = base_url + 'academico/matriculas/excel?cp=' + $("#fmt-cbperiodo").val() + '&cc=' + $("#fmt-cbcarrera").val() + '&ccc=' + $("#fmt-cbciclo").val() + '&ct=' + $("#fmt-cbturno").val() + '&cs=' + $("#fmt-cbseccion").val() + '&cpl=' + $("#fmt-cbplan").val() + '&ap=' + $("#fmt-alumno").val() + '&es=' + $("#fmt-cbestado").val() + '&sed=' + $("#fmt-cbsede").val() + '&benf=' + $("#fmt-cbbeneficio").val();
     var ejecuta = true;
-    
+    /*if ($.trim($("#fbus-txtbuscar").val())=='%%%%'){
+    if (($("#fbus-periodo").val()!="%") || ($("#fbus-carrera").val()!="%")){
+    ejecuta=true;
+    }
+    else{
+    $('#fbus-carrera').addClass('is-invalid');
+    $('#fbus-carrera').parent().append("<div class='invalid-feedback'> Seleccionar</div>");
+    $('#fbus-periodo').addClass('is-invalid');
+    $('#fbus-periodo').parent().append("<div class='invalid-feedback'> Seleccionar</div>");
+    }
+    }else if($.trim($("#fbus-txtbuscar").val()).length>3){
+    ejecuta=true;
+    }
+    else{
+    $('#fbus-txtbuscar').addClass('is-invalid');
+    $('#fbus-txtbuscar').parent().append("<div class='invalid-feedback'> Ingrese mínimo 4 caracteres o %%%%</div>");
+    }*/
     if (ejecuta == true) window.open(url, '_blank');
 });
-
 $("#frmfiltro-matriculas").submit(function(event) {
     filtrar = 0;
     if ($("#fmt-cbsede").val() != "%") filtrar++;
@@ -407,9 +395,6 @@ $("#frmfiltro-matriculas").submit(function(event) {
                         var url = base_url + "academico/matricula/imprimir/" + vcm;
                         var rowcolor = (nro % 2 == 0) ? 'bg-lightgray' : '';
                         var btnscolor = "";
-                        var btnactcondi = "";
-                        var textobs = (v['observacion']!= "") ? v['observacion'] : "Ninguna";
-                        var observacion = "<br><b>Observación:</b><br>"+textobs;
                         switch (v['estado']) {
                             case "ACT":
                                 btnscolor = "btn-success";
@@ -417,45 +402,32 @@ $("#frmfiltro-matriculas").submit(function(event) {
                             case "CUL":
                                 btnscolor = "btn-secondary";
                                 break;
-                            case "DES":
-                                btnscolor = "btn-danger";
-                                break;
                             case "RET":
                                 btnscolor = "btn-danger";
                                 break;
                             default:
                                 btnscolor = "btn-warning";
                         }
-
-                        if (vpermiso172 == "SI" && v['estado'] == "DES" && v['condicional'] == "NO") {
-                          var btnactcondi = '<a href="#" target="_blank" class="dropdown-item" onclick="fn_activa_matcondicional($(this));return false;" data-codigo="'+vcm+'" data-estado="SI"><i class="fas fa-check-circle mr-2"></i>Activa Condicional</a>';
-                        }
-                        
-                        sexo = (v['codsexo'] == "FEMENINO") ? "<i class='fas fa-female text-danger mr-1'></i>" : "<i class='fas fa-male text-primary mr-1'></i>";
-                        nomestudiante = v['paterno'] + " " + v['materno'] + " " + v['nombres'];
-                        estudiante = sexo + nomestudiante + " " + v['edad'];
-                        fecharegistro = v['registro'] + " <a href='#' class='view_user_reg' tabindex='0' role='button' data-toggle='popover' data-trigger='hover' title='Matriculado por: ' data-content='"+v['usuario']+observacion+"'><i class='fas fa-info-circle fa-lg'></i></a>";
-                        vcuota = v['vpension'] + " ("+v['beneficio']+")";
-                        grupo = v['periodo'] + " " + v['sigla'] + " " + v['codturno'] + " " + v['ciclo'] + " " + v['codseccion'];
-                        boleta = '<a class="bg-success text-white py-1 px-2 mr-1 rounded btncall-boleta" data-cm=' + vcm + ' data-prog=' + v['codcarrera'] + ' data-periodo=' + v['codperiodo'] + ' data-ciclo=' + v['codciclo'] + ' data-turno=' + v['codturno'] + ' data-seccion=' + v['codseccion'] + ' href="#" title="Carga académica" data-toggle="modal" data-target="#modmatriculacurso">' +
-                            '<i class="fas fa-book"></i> Bol.' +
-                            '</a>';
                         dropdown_estado = '<div class="btn-group">' +
-                            '<button class="btn ' + btnscolor + ' btn-sm text-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="estado'+vcm+'">' +
+                            '<button class="btn ' + btnscolor + ' btn-sm text-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
                             v['estado'] +
                             '</button>' +
                             '<div class="dropdown-menu">' +
-                            '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item" data-campo="tabla" data-ie="' + cd1 + '">Activo</a>' +
-                            '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item" data-campo="tabla" data-ie="' + cd2 + '" data-pagante="'+v['carne']+'" data-pagantenb="'+nomestudiante+'" data-programa="'+ v['carrera'] +'" data-periodo="' + v['periodo'] + '" data-ciclo="' + v['ciclo'] + '" data-turno="' + v['codturno'] + '" data-seccion="' + v['codseccion'] + '" data-plan="' + v['plan'] + '">Retirado</a>' +
-                            '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item" data-campo="tabla" data-ie="' + cd7 + '">Desaprobado</a>' +
+                            '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item" data-ie="' + cd1 + '">Activo</a>' +
+                            '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item"  data-ie="' + cd2 + '">Retirado</a>' +
                             '<div class="dropdown-divider"></div>' +
                             '<a href="#" onclick="fn_eliminar_matricula($(this))" class="btn-ematricula dropdown-item text-danger text-bold"><i class="fas fa-trash-alt"></i> Eliminar</a>' +
                             '</div>' +
                             '</div>';
-
+                        sexo = (v['sexo'] == "FEMENINO") ? "<i class='fas fa-female text-danger mr-1'></i>" : "<i class='fas fa-male text-primary mr-1'></i>";
+                        estudiante = v['paterno'] + " " + v['materno'] + " " + v['nombres'] + " " + v['edad'];
+                        grupo = v['periodo'] + " " + v['sigla'] + " " + v['codturno'] + " " + v['ciclo'] + " " + v['codseccion'];
+                        boleta = '<a class="bg-success text-white py-1 px-2 mt-2 rounded btncall-boleta" data-cm=' + vcm + ' data-prog=' + v['codcarrera'] + ' data-periodo=' + v['codperiodo'] + ' data-ciclo=' + v['codciclo'] + ' data-turno=' + v['codturno'] + ' data-seccion=' + v['codseccion'] + ' href="#" title="Carga académica" data-toggle="modal" data-target="#modmatriculacurso">' +
+                            '<i class="fas fa-book"></i> Boleta' +
+                            '</a>';
                         dropdown_imprimir = '<div class="btn-group dropleft">' +
                             '<button class="btn btn-info btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                            '<i class="fas fa-print fa-sm"></i>' +
+                            '<i class="fas fa-print"></i>' +
                             '</button>' +
                             '<div class="dropdown-menu">' +
                             '<a target="_blank" href="' + url + '" class="dropdown-item"><i class="far fa-file-pdf text-danger mr-2"></i>PDF</a>' +
@@ -467,14 +439,10 @@ $("#frmfiltro-matriculas").submit(function(event) {
                             '<i class="fas fa-cog"></i>' +
                             '</button>' +
                             '<div class="dropdown-menu">' +
-
-                              '<a class="dropdown-item" data-cm='+ vcm +' data-plan="'+v['plan']+'" data-stdnt="'+ v['carne'] +" / "+ v['paterno'] + " " + v['materno'] + " " + v['nombres'] +'" href="#" title="Carga académica" onclick="fn_carga_mat_estudiante($(this));return false;"><i class="fas fa-book"></i> Carga</a>'+
-
+                              '<a class="btncall-carga dropdown-item" data-cm=' + vcm + '  href="#" title="Carga académica"><i class="fas fa-book"></i> Carga</a>'+
                               '<a href="#" data-cm=' + vcm + ' data-carne=' + v['carne'] + ' data-accion="EDITAR" class="dropdown-item text-success" data-toggle="modal" data-target="#modupmat"><i class="fas fa-edit mr-2"></i>Edita matricula</a>' +
                               '<a href="'+base_url+'academico/matricula/record-academico/excel/'+v['carne']+'" target="_blank" class="dropdown-item"><i class="fas fa-graduation-cap mr-2"></i>Récord académico</a>' +
                               '<a href="'+base_url+'academico/matricula/record-academico/pdf/'+v['carne']+'" target="_blank" class="dropdown-item text-info"><i class="fas fa-graduation-cap mr-2"></i>Récord académico (pdf)</a>' +
-                              btnactcondi +
-                              '<a href="#" onclick="fn_historial_vw_deudas($(this));return false;" class="dropdown-item text-success" data-programa="'+ v['carrera'] +'" data-periodo="' + v['periodo'] + '" data-ciclo="' + v['ciclo'] + '" data-turno="' + v['codturno'] + '" data-seccion="' + v['codseccion'] + '" data-plan="' + v['plan'] + '"><i class="fas fa-money-bill-alt mr-2"></i>Deudas</a>' +
                             '</div>' +
                           '</div>' ;
                         /*dropdown='<div class="btn-group">' + 
@@ -484,33 +452,94 @@ $("#frmfiltro-matriculas").submit(function(event) {
                                    '</div>' +
                                  '</div>';*/
 
-                        var fila = tbmatriculados.row.add([index + 1, v['sede_abrevia'], v['carne'], estudiante, fecharegistro, vcuota, v['plan'], grupo, dropdown_estado, dropdown_imprimir, boleta + dropdown_opciones]).node();
+                        var fila = tbmatriculados.row.add([index + 1, v['sede_abrevia'], v['carne'], estudiante, v['plan'], grupo, dropdown_estado, dropdown_imprimir, boleta + dropdown_opciones]).node();
                         $(fila).attr('data-codmatricula64', v['codmatricula64']);
-                        $(fila).attr('data-estudiante', nomestudiante);
-                        $(fila).attr('data-carnet', v['carne']);
-
-                        //$(fila).attr('data-carnet', v['carne']);
-
-                        $(fila).attr('data-coperiodo', v['codperiodo']);
-                        $(fila).attr('data-cocarrera', v['codcarrera']);
-                        $(fila).attr('data-cociclo', v['codciclo']);
-                        $(fila).attr('data-cturno', v['codturno']);
-                        $(fila).attr('data-cseccion', v['codseccion']);
-                        $(fila).attr('data-cperiodo', v['periodo']);
-                        $(fila).attr('data-ccarrera', v['carrera']);
-                        $(fila).attr('data-cciclo', v['ciclo']);
-                        // $(fila).attr('data-cturno', v['turno']);
-                        // $(fila).attr('data-cseccion', v['seccion']);
-                        $(fila).addClass('cfila_mt');
+                        $(fila).attr('data-estudiante', estudiante);
                     });
 
                     tbmatriculados.draw();
                     $('#divcard-matricular #divoverlay').remove();
 
-                    $('.view_user_reg').popover({
-                      trigger: 'hover',
-                      html: true
-                    })
+
+
+
+                    /*$("#div-filtro").append(
+                        '<div data-idm="' + vcm + '" class="cfila row ' + rowcolor + ' ">' +
+                        '<div class="col-12 col-md-5">' +
+                        '<div class="row">' +
+                        '<div class="col-1 col-md-1 td"  title=' + v['codigo'] + '>' + nro + '</div>' +
+                        '<div class="ccarne col-3 col-md-3 td">' + v['carne'] + '</div>' +
+                        '<div class="ccarne col-3 col-md-2 td">' + v['sede'] + '</div>' +
+                        '<div class="calumno col-8 col-md-6 td">' + v['paterno'] + ' ' + v['materno'] + ' ' + v['nombres'] + '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="col-6 col-md-2">' +
+                        '<div class="row">' +
+                        '<div data-cp="' + v['codperiodo'] + '" class="cperiodo col-4 col-md-4 td">' + v['periodo'] + '</div>' +
+                        '<div class="col-4 col-md-4 td text-center">' + v['codplan'] + '</div>' +
+                        '<div class="ccarrera col-4 col-md-4 td" data-cod="' + v['codcarrera'] + '">' + v['sigla'] + '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="col-6 col-md-1">' +
+                        '<div class="row">' +
+                        '<div class="cciclo td col-4 col-md-4 text-center " data-cod="' + v['codciclo'] + '">' + v['ciclo'] + '</div>' +
+                        '<div class="cturno td col-4 col-md-4 text-center ">' + v['codturno'] + '</div>' +
+                        '<div class="cseccion td col-4 col-md-4 text-center ">' + v['codseccion'] + '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        
+                        '<div class="col-6 col-md-2">' +
+                        '<div class="row">' +
+                        '<div class="td col-6 col-md-5 text-bold">' +
+                        '<div class="btn-group">' +
+                        '<button class="btn ' + btnscolor + ' btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                        v['estado'] +
+                        '</button>' +
+                        '<div class="dropdown-menu">' +
+                        '<a href="#" class="btn-cestado dropdown-item" data-ie="' + cd1 + '">Activo</a>' +
+                        '<a href="#" class="btn-cestado dropdown-item"  data-ie="' + cd2 + '">Retirado</a>' +
+                        '<div class="dropdown-divider"></div>' +
+                        '<a href="#" class="btn-ematricula dropdown-item text-danger text-bold"><i class="fas fa-trash-alt"></i> Eliminar</a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="td col-6 col-md-7 text-bold">' +
+                        '<div class="btn-group dropleft">' +
+                          '<button class="btn btn-info btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                            '<i class="fas fa-file-invoice"></i> Ficha' +
+                          '</button>' +
+                          '<div class="dropdown-menu">' +
+                            <a target="_blank" href="' + url + '" class="dropdown-item"><i class="far fa-file-pdf text-danger mr-2"></i>PDF</a>' +
+                            '<a href="' + base_url + 'academico/matricula/ficha/excel/' + vcm + '" class="dropdown-item" ><i class="far fa-file-excel text-success mr-2"></i>Excel</a>' +
+                          ' </div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="td col-3 col-md-1 p-2 text-center">' +
+                        '<div class="btn-group btn-group-sm p-0 dropleft">' +
+                        '<button class="btn btn-info btn-sm dropdown-toggle py-0 rounded" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
+                        '<i class="fas fa-cog"></i>' +
+                        '</button>' +
+                        '<div class="dropdown-menu">' +
+                        '<a class="btncall-carga dropdown-item" data-cm=' + vcm + '  href="#" title="Carga académica"><i class="fas fa-book"></i> Carga</a>' +
+                        '<a href="#" data-cm=' + vcm + ' data-accion="EDITAR" class="dropdown-item text-success" data-toggle="modal" data-target="#modupmat"><i class="fas fa-edit mr-2"></i>Edita matricula</a>' +
+                        '<a href="' + base_url + 'academico/matricula/record-academico/excel/' + v['carne'] + '" target="_blank" class="dropdown-item"><i class="fas fa-graduation-cap mr-2"></i>Récord académico</a>' +
+                        '<a href="' + base_url + 'academico/matricula/record-academico/pdf/' + v['carne'] + '" target="_blank" class="dropdown-item text-info"><i class="fas fa-graduation-cap mr-2"></i>Récord académico (pdf)</a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '<div class="td col-3 col-md-1 p-2">' +
+                        '<a class="bg-success text-white py-1 px-2 mt-2 rounded btncall-boleta" data-cm=' + vcm + ' data-prog=' + v['codcarrera'] + ' data-periodo=' + v['codperiodo'] + ' data-ciclo=' + v['codciclo'] + ' data-turno=' + v['codturno'] + ' data-seccion=' + v['codseccion'] + ' href="#" title="Carga académica" data-toggle="modal" data-target="#modmatriculacurso">' +
+                        '<i class="fas fa-book"></i> Boleta' +
+                        '</a>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>');*/
+
+                    /*'<div class="td col-2 col-md-1 p-2"><a class="bg-primary text-white py-1 px-2 mt-2 rounded btn-editar" data-cm=' + vcm + '  href="#" title="Carga académica"><i class="fas fa-book"></i> Editar</a></div>' +
+                    '</div>' +*/
+                    //academico/matricula/ficha/excel/
 
                 }
             },
@@ -528,7 +557,6 @@ $("#frmfiltro-matriculas").submit(function(event) {
 
     return false;
 });
-
 //$("#frm-matricular").hide();
 $("#frm-getinscrito").submit(function(event) {
     $('#frm-getinscrito input').removeClass('is-invalid');
@@ -588,11 +616,9 @@ $("#frm-getinscrito").submit(function(event) {
     });
     return false;
 });
-
 $("#btn-cancelar").click(function(event) {
     $("#frm-matricular")[0].reset();
 });
-
 $("#frm-matricular").submit(function(event) {
     /* Act on the event */
     $('#frm-matricular input,select').removeClass('is-invalid');
@@ -643,9 +669,9 @@ $("#frm-matricular").submit(function(event) {
                 $("#divseccion").html("Sección: " + $("#fm-cbseccion").val());
                 $("#fud-cbperiodo").html($("#fm-cbperiodo option:selected").text());
                 $("#fud-cbperiodo").data($("#fm-cbperiodo").val());
-                mostrarCursos("divcard_data_carga", "", e.vdata);
+                mostrarCursos("div-cursosmat", "", e.vdata);
                 var url = base_url + "academico/matricula/imprimir/" + base64url_encode(e.newcod);
-                $("#divcard_data_carga").append(
+                $("#div-cursosmat").append(
                     '<div class="cfilaprint row">' +
                     '<div class="col-12 col-md-12 text-right td"><a class="btn btn-info" target="_blank" href="' + url + '" title="Imprimir matrícula"><i class="fas fa-print mr-1"></i> Imprimir Matrícula</a></div>' +
                     '</div></div>');
@@ -667,11 +693,11 @@ $("#frm-matricular").submit(function(event) {
 });
 
 function comprobarcurso() {
-    $("#divcard_data_carga .cfila").each(function(index) {
+    $("#div-cursosmat .cfila").each(function(index) {
         var cc = $(this).data('cc');
         var cs = $(this).data('ccs');
         //alert(cc + cs);
-        $("#divcard_data_cursos_disponibles .cfila").each(function(index2) {
+        $("#div-cursosdispo .cfila").each(function(index2) {
             var ccd = $(this).data('cc');
             var csd = $(this).data('ccs');
             if ((cc == ccd) && (cs == csd)) {
@@ -697,20 +723,15 @@ function mostrarCursos(div, vcm, vdata, agregar = 'no') {
         nro++;
         var mcidcarga = base64url_encode(v['idcarga']);
         jsbtnagregar = "";
-        jsbtnretirar = "";
-        if (vpermiso173 == "SI") {
-          if (agregar == 'si') {
-              var codcurso = base64url_encode(v['codcurso']);
-              jsbtnagregar = '<button data-ccurso="' + codcurso + '" data-cc="' + mcidcarga + '"  data-cd="' + v['subseccion'] + '" data-cm="' + vcm + '" title="Enrolar" class="btn px-1 py-0 btn-enrolar btn-sm btn-primary"><i class="fas fa-book-medical"></i></button>';
-          }
-          
-          if (agregar == 'no') {
-              var midmiembro = base64url_encode(v['idmiembro']);
-              jsbtnretirar = '<button   data-im="' + midmiembro + '"  title="Eliminar" class="btn px-1 py-0 btn-desenrolar btn-sm btn-danger"><i class="fas fa-minus-square"></i></button>';
-          }
+        if (agregar == 'si') {
+            var codcurso = base64url_encode(v['codcurso']);
+            jsbtnagregar = '<div class="td col-2 col-md-12"><button data-ccurso="' + codcurso + '" data-cc="' + mcidcarga + '"  data-cd="' + v['subseccion'] + '" data-cm="' + vcm + '" title="Enrolar" class="btn btn-enrolar btn-sm btn-primary"><i class="fas fa-book-medical"></i></button></div>';
         }
-
-        
+        jsbtnretirar = "";
+        if (agregar == 'no') {
+            var midmiembro = base64url_encode(v['idmiembro']);
+            jsbtnretirar = '<div class="td col-2 col-md-12"><button   data-im="' + midmiembro + '"  title="Eliminar" class="btn btn-desenrolar btn-sm btn-danger"><i class="fas fa-minus-square"></i></button></div>';
+        }
         if (vplan != v['codplan'] + v['codmodulo']) {
             vplan = v['codplan'] + v['codmodulo'];
             $("#" + div).append(
@@ -725,35 +746,29 @@ function mostrarCursos(div, vcm, vdata, agregar = 'no') {
         if (v['nombres'] == null) v['nombres'] = "";
         var rowcolor = (nro % 2 == 0) ? 'bg-lightgray' : '';
         $("#" + div).append(
-        '<div class="cfila row ' + rowcolor + ' " data-cc="' + mcidcarga + '" data-ccs="' + v['subseccion'] + '">' +
-          '<div class="col-4 col-md-4">' +
+            '<div class="cfila row ' + rowcolor + ' " data-cc="' + mcidcarga + '" data-ccs="' + v['subseccion'] + '">' +
+            '<div class="col-4 col-md-3">' +
             '<div class="row">' +
-              '<div class="tdnro col-3 col-md-1 td">' + nro + '</div>' +
-              '<div class="col-9 col-md-11 td">(' + v['idcarga'] + 'G' + v['subseccion'] + ') ' + v['curso'] + '</div>' +
+            '<div class="tdnro col-3 col-md-2 td">' + nro + '</div>' +
+            '<div class="col-9 col-md-10 td">(' + v['idcarga'] + 'G' + v['subseccion'] + ') ' + v['curso'] + ' <small class="text-primary">(' + v['carga_sede'] + ')</small></div>' +
             '</div>' +
-          '</div>' +
-          '<div class="col-6 col-md-2">' +
+            '</div>' +
+            '<div class="col-6 col-md-3">' +
             '<div class="row">' +
-              '<div class="td col-6 col-md-6 text-center ">' + v['sede_abrevia'] +'</div>' +
-              '<div class="td col-6 col-md-6 text-center ">' + v['sigla'] + ' ' + v['ciclo'] + ' - ' + v['codturno'] +' - ' + v['codseccion'] + v['subseccion'] + '</div>' +
+            '<div class="td col-2 col-md-4 text-center ">' + v['ciclo'] + ' - ' + v['codseccion'] + v['subseccion'] + '</div>' +
+            '<div class="td col-2 col-md-4 text-center ">' + v['codturno'] + '</div>' +
             '</div>' +
-          '</div>' +
-          '<div class="col-6 col-md-2">' +
+            '</div>' +
+            '<div class="col-6 col-md-3">' +
             '<div class="row">' +
-              '<div class="td col-2 col-md-4 text-center ">' + '1' + '</div>' +
-              '<div class="td col-2 col-md-4 text-center ">' + (parseInt(v['hts']) + parseInt(v['hps'])) + '</div>' +
-              '<div class="td col-2 col-md-4 text-center ">' + (parseInt(v['ct']) + parseInt(v['cp'])) + '</div>' +
+            '<div class="td col-2 col-md-4 text-center ">' + '1' + '</div>' +
+            '<div class="td col-2 col-md-4 text-center ">' + (parseInt(v['hts']) + parseInt(v['hps'])) + '</div>' +
+            '<div class="td col-2 col-md-4 text-center ">' + (parseInt(v['ct']) + parseInt(v['cp'])) + '</div>' +
             '</div>' +
-          '</div>' +
-          '<div class="col-8 col-md-3 td">' + v['paterno'] + ' ' + v['materno'] + ' ' + v['nombres'] + '</div>' +
-          '<div class="col-4 col-md-1">' + 
-            '<div class="row">' + 
-              '<div class="td col-2 col-md-12 text-center">' + 
-                jsbtnagregar + jsbtnretirar + 
-              '</div>' + 
-            '</div>' + 
-          '</div>' +
-        '</div>');
+            '</div>' +
+            '<div class="col-6 col-md-2 td">' + v['paterno'] + ' ' + v['materno'] + ' ' + v['nombres'] + '</div>' +
+            '<div class="col-6 col-md-1">' + jsbtnagregar + jsbtnretirar + '</div>' +
+            '</div>');
     });
     //******************************************
     if (agregar == 'si') {
@@ -781,10 +796,10 @@ function mostrarCursos(div, vcm, vdata, agregar = 'no') {
                 success: function(e) {
                     $('#divcard-matricular #divoverlay').remove();
                     if (e.status == true) {
-                        btnenr.parents(".cfila").appendTo('#divcard_data_carga');
-                        $(".cfilaprint").appendTo('#divcard_data_carga');
-                        ordenarnro("divcard_data_carga");
-                        ordenarnro("divcard_data_cursos_disponibles");
+                        btnenr.parents(".cfila").appendTo('#div-cursosmat');
+                        $(".cfilaprint").appendTo('#div-cursosmat');
+                        ordenarnro("div-cursosmat");
+                        ordenarnro("div-cursosdispo");
                         $('#divcard-matricular #divoverlay').remove();
                         Swal.fire({
                             type: 'success',
@@ -834,7 +849,7 @@ function mostrarCursos(div, vcm, vdata, agregar = 'no') {
                             $('#divcard-matricular #divoverlay').remove();
                             if (e.status == true) {
                                 btndes.parents(".cfila").remove();
-                                ordenarnro("divcard_data_carga");
+                                ordenarnro("div-cursosmat");
                                 $('#divcard-matricular #divoverlay').remove();
                                 Swal.fire({
                                     type: 'success',
@@ -870,11 +885,9 @@ function mostrarCursos(div, vcm, vdata, agregar = 'no') {
         });
     }
 }
-
 $("#frmfiltro-unidades").submit(function(event) {
     $("#btn-vercurricula").show();
-    $('#divcard_data_cursos_disponibles').html("");
-    $('#divmodcarga').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    $('#div-cursosdispo').html("");
     //$("#divcard_grupo select").prop('disabled', false);
     var fdata = new Array();
     fdata.push({
@@ -901,17 +914,16 @@ $("#frmfiltro-unidades").submit(function(event) {
         name: 'seccion',
         value: $("#fud-cbseccion").val()
     });
-    var vcm = $("#vwtxtcodmatcrg").val();
+    var vcm = $("#vwtxtcodmat").val();
     $.ajax({
         url: base_url + 'cargasubseccion/fn_filtrar',
         type: 'post',
         dataType: 'json',
         data: fdata,
         success: function(e) {
-            $('#divmodcarga #divoverlay').remove();
-            mostrarCursos('divcard_data_cursos_disponibles', vcm, e.vdata, 'si');
+            mostrarCursos('div-cursosdispo', vcm, e.vdata, 'si');
             comprobarcurso();
-            ordenarnro('divcard_data_cursos_disponibles');
+            ordenarnro('div-cursosdispo');
             //.html(e.vdata);
         },
         error: function(jqXHR, exception) {
@@ -920,13 +932,11 @@ $("#frmfiltro-unidades").submit(function(event) {
                 type: 'warning',
                 title: 'Aviso: ' + msgf
             })
-            $('#divcard_data_cursos_disponibles').html("");
-            $('#divmodcarga #divoverlay').remove();
+            $('#div-cursosdispo').html("");
         }
     });
     return false;
 });
-
 $("#fud-cbcarrera").change(function(event) {
     /* Act on the event */
     if ($(this).val() != "%") {
@@ -952,7 +962,6 @@ $("#fud-cbcarrera").change(function(event) {
         $('#fud-cbplan').html("<option value='%'>Seleciona un carrera<option>");
     }
 });
-
 $('#modmatriculacurso').on('show.bs.modal', function(e) {
     var rel = $(e.relatedTarget);
     var codigo = rel.data('cm');
@@ -972,7 +981,6 @@ $('#modmatriculacurso').on('show.bs.modal', function(e) {
     get_matriculas_cursos(codigo);
     get_unidades('fmt-cbnciclo', 'fmt-cbnplan');
 });
-
 $('#modmatriculacurso').on('hidden.bs.modal', function(e) {
     $('#divcard_datamat').removeClass('d-none');
     $('#divcard_form_new').addClass('d-none');
@@ -1016,39 +1024,9 @@ function get_matriculas_cursos(matricula) {
                 $("#divbnciclo").html(e.vmatricula['ciclo']);
                 $("#divbnturno").html(e.vmatricula['turno']);
                 $("#divbnseccion").html(e.vmatricula['codseccion']);
-                var estudianten = e.vmatricula['paterno'] + " " + e.vmatricula['materno'] + " " + e.vmatricula['nombres'];
-                $("#divmodalnewmatricula #divcard_title").html(estudianten + " / " + e.vmatricula['carne'] );
+                $("#divmodalnewmatricula #divcard_title").html(e.vmatricula['paterno'] + " " + e.vmatricula['materno'] + " " + e.vmatricula['nombres'] + " / " + e.vmatricula['carne'] );
                 $("#divbncorreo").html(e.vmatricula['ecorporativo']);
 
-                // DROPDOWN ESTADOS
-                var btnstcolor = "";
-                switch (e.vmatricula['estado']) {
-                    case "ACTIVO":
-                        btnstcolor = "btn-success";
-                        break;
-                    case "CULMINADO":
-                        btnstcolor = "btn-secondary";
-                        break;
-                    case "DESAPROBADO":
-                        btnstcolor = "btn-danger";
-                        break;
-                    case "RETIRADO":
-                        btnstcolor = "btn-danger";
-                        break;
-                    default:
-                        btnstcolor = "btn-warning";
-                }
-                dropdown_estado = '<div class="btn-group">' +
-                    '<button class="btn ' + btnstcolor + ' text-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">' +
-                    e.vmatricula['estado'] +
-                    '</button>' +
-                    '<div class="dropdown-menu">' +
-                    '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item" data-campo="modal" data-ie="' + cd1 + '">Activo</a>' +
-                    '<a href="#" onclick="fn_cambiarestado($(this))" data-pagante="'+e.vmatricula['carne']+'" data-pagantenb="'+estudianten+'" data-programa="'+ e.vmatricula['carrera'] +'" data-periodo="' + e.vmatricula['periodo'] + '" data-ciclo="' + e.vmatricula['ciclo'] + '" data-turno="' + e.vmatricula['turno'] + '" data-seccion="' + e.vmatricula['codseccion'] + '" data-plan="' + e.vmatricula['plan'] + '" class="dropdown-item" data-campo="modal" data-ie="' + cd2 + '">Retirado</a>' +
-                    '<a href="#" onclick="fn_cambiarestado($(this))" class="dropdown-item" data-campo="modal" data-ie="' + cd7 + '">Desaprobado</a>' +
-                    '</div>' +
-                    '</div>';
-                $('#divcard_drop_estado').html(dropdown_estado);
                 
                 var nro = 0;
                 var tabla = "";
@@ -1091,9 +1069,9 @@ function get_matriculas_cursos(matricula) {
                             val['tipo'].substring(0, 2) +
                             '</button>' +
                             '<div class="dropdown-menu">' +
-                            '<a href="#" onclick="fn_cambiar_origen($(this));return false;" class="btn-cborigen dropdown-item" data-origen="PLATAFORMA">PLATAFORMA</a>' +
-                            '<a href="#" onclick="fn_cambiar_origen($(this));return false;" class="btn-cborigen dropdown-item" data-origen="MANUAL">MANUAL</a>' +
-                            '<a href="#" onclick="fn_cambiar_origen($(this));return false;" class="btn-cborigen dropdown-item" data-origen="CONVALIDA">CONVALIDA</a>' +
+                            '<a href="#" class="btn-cborigen dropdown-item" data-origen="PLATAFORMA">PLATAFORMA</a>' +
+                            '<a href="#" class="btn-cborigen dropdown-item" data-origen="MANUAL">MANUAL</a>' +
+                            '<a href="#" class="btn-cborigen dropdown-item" data-origen="CONVALIDA">CONVALIDA</a>' +
                             '</div>' +
                             "</div>" +
                             "</div>" +
@@ -1191,7 +1169,6 @@ function get_unidades(ciclo, plan) {
         $('#fmt-cbnunididact').html("<option value='0'>Selecciona un plan curricular y ciclo<option>");
     }
 }
-
 $('#form_addmatricula').submit(function() {
     $('#form_addmatricula input,select').removeClass('is-invalid');
     $('#form_addmatricula .invalid-feedback').remove();
@@ -1253,7 +1230,6 @@ $('#form_addmatricula').submit(function() {
     });
     return false;
 });
-
 $(document).on("click", ".editmatcurso", function() {
     var codigo = $(this).data('idmatc');
     //$('#vw_dp_em_btnguardar').hide();
@@ -1317,7 +1293,6 @@ $(document).on("click", ".editmatcurso", function() {
     });
     return false;
 })
-
 $(document).on('click', '.delregistro', function() {
     var codigo = $(this).data('idmatc');
     Swal.fire({
@@ -1368,7 +1343,6 @@ $(document).on('click', '.delregistro', function() {
     })
     return false;
 });
-
 $(document).on("blur", ".cfila div input", function(event) {
     if ($(this).data('ntsaved') != $(this).val()) {
         $(this).data('edit', '1');
@@ -1392,7 +1366,6 @@ $(document).on("blur", ".cfila div input", function(event) {
         $(this).addClass('text-danger');
     }
 })
-
 $('#vw_dp_em_btnguardar').click(function() {
     arrdata = [];
     var nerror = 0;
@@ -1505,7 +1478,6 @@ $('#vw_dp_em_btnguardar').click(function() {
         $('#divmodalnewmatricula #divoverlay').remove();
     }
 });
-
 $('#fmt-cbtipo').change(function(event) {
     var item = $(this);
     var tipo = item.find(':selected').data('tipo');
@@ -1516,9 +1488,371 @@ $('#fmt-cbtipo').change(function(event) {
     }
 });
 
+// ===== SCRIPT NUEVOS ========
+$("#modupmat").on('shown.bs.modal', function(e) {
+    var rel = $(e.relatedTarget);
+    var idmat = rel.data('cm');
+    var carne = rel.data('carne');
+    var accion = rel.data('accion');
+    if (accion == "EDITAR") {
+        $('#divsearch_ins').hide();
+        $('#divalert_mat').hide();
+        $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+        $('#divmodaladd').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+        $.ajax({
+            url: base_url + 'matricula/fn_matricula_x_codigo',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                'ce-idmat': idmat,
+            },
+            success: function(e) {
+                $('#divcard-matricular #divoverlay').remove();
+                $('#divmodaladd #divoverlay').remove();
+                if (e.status == false) {
+                    Swal.fire({
+                        type: 'error',
+                        icon: 'error',
+                        title: 'Error!',
+                        text: e.msg,
+                        backdrop: false,
+                    })
+                } else {
+                    $('#titlemodal').html(e.matdata['nomalu']);
+                    $('#fm-txtidmatriculaup').val(e.matdata['id64']);
+                    $('#fm-txtidup').val(e.matdata['idins64']);
+                    $('#fm-txtcarreraup').val(e.matdata['codcarrera']);
+                    $('#fm-txtperiodoup').val(e.matdata['codperiodo'])
+                    $('#fm-txtplanup').val(e.matdata['codplan']);
+                    $('#fm-cbplanup').html(e.vplanes);
+                    $('#fm-cbplanup').val(e.matdata['codplan']);
+                    $('#fm-cbestadoup').html(e.vestados);
+                    $('#fm-cbestadoup').val(e.matdata['estado']);
+                    $('#fm-cbtipoup').val(e.matdata['tipo']);
+                    $('#fm-cbbeneficioup').val(e.matdata['beneficio']);
+                    $('#fm-txtfecmatriculaup').val(e.matdata['fecha']);
+                    $('#fm-txtcuotaup').val(e.matdata['pension']);
+                    $('#fm-cbperiodoup').attr('disabled', true);
+                    $('#fm-cbperiodoup').val(e.matdata['codperiodo']);
+                    $('#fm-carreraup').html(e.matdata['carrera']);
+                    $('#fm-cbcicloup').val(e.matdata['codciclo']);
+                    $('#fm-cbturnoup').val(e.matdata['codturno']);
+                    $('#fm-cbseccionup').val(e.matdata['codseccion']);
+                    if (vpermiso151 == "SI") {
+                        $('#fm-cbsedeup').val(e.matdata['codsede']);
+                    }
+                    $('#fm-txtobservacionesup').val(e.matdata['observacion']);
+
+                    fn_data_academico(carne);
+                    fn_data_deudas(carne);
+
+                }
+            },
+            error: function(jqXHR, exception) {
+                var msgf = errorAjax(jqXHR, exception, 'text');
+                $('#divcard-matricular #divoverlay').remove();
+                $('#divmodaladd #divoverlay').remove();
+                Swal.fire({
+                    type: 'error',
+                    icon: 'error',
+                    title: 'Error',
+                    text: msgf,
+                    backdrop: false,
+                })
+            }
+        });
+
+    } else {
+        $('#divsearch_ins').show();
+        $('#fm-cbperiodoup').attr('disabled', false);
+        $('#divalert_mat').show();
+        $('#modfiltroins').modal('show');
+    }
+});
+$("#modupmat").on('hidden.bs.modal', function(e) {
+    $("#frm_updmatri")[0].reset();
+    $('#fm-txtidmatriculaup').val('0');
+    $('#titlemodal').html("MATRICULAR");
+    $('#fm-txtidup').val('');
+    $('#fm-txtcarreraup').val('');
+    $('#fm-txtperiodoup').val('')
+    $('#fm-txtplanup').val('');
+    $('#fm-cbplanup').html('');
+    $('#divcard_data_academ').html('');
+    $('#divcard_data_deudas').html('');
+    $('#nav-matricular-tab').addClass('active');$('#nav-matricular').addClass('show active');
+    $('#nav-macadem-tab').removeClass('active');$('#nav-macadem').removeClass('show active');
+    $('#nav-mdeudas-tab').removeClass('active');$('#nav-mdeudas').removeClass('show active');
+})
+$('#modfiltroins').on('hidden.bs.modal', function(e) {
+    $('#frm-getinscritonew')[0].reset();
+    $('#fgi-apellidosnew').html('');
+    $('#fgi-nombresnew').html('');
+    $('#divcard_result').html('');
+})
+$('#modfiltroins').on('shown.bs.modal', function(e) {
+    $('#fbus-txtbuscar').focus();
+})
+$('#lbtn_editamat').click(function(e) {
+    $('#frm_updmatri input,select').removeClass('is-invalid');
+    $('#frm_updmatri .invalid-feedback').remove();
+    $('#divmodaladd').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    $.ajax({
+        url: $("#frm_updmatri").attr("action"),
+        type: 'post',
+        dataType: 'json',
+        data: $('#frm_updmatri').serialize(),
+        success: function(e) {
+            $('#divmodaladd #divoverlay').remove();
+            if (e.status == false) {
+                if (e.newcod == 0) {
+                    Swal.fire({
+                        type: 'warning',
+                        icon: 'warning',
+                        title: 'Matrícula DUPLICADA',
+                        text: e.msg,
+                        backdrop: false,
+                    })
+                } else {
+                    Swal.fire({
+                        type: 'error',
+                        icon: 'error',
+                        title: 'Error, matrícula NO actualizada',
+                        text: e.msg,
+                        backdrop: false,
+                    })
+                    $.each(e.errors, function(key, val) {
+                        $('#' + key).addClass('is-invalid');
+                        $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+                    });
+                }
+            } else {
+                $("#modupmat").modal('hide');
+                if (e.matstatus == "INSERTAR") {
+                    Swal.fire({
+                        type: 'success',
+                        icon: 'success',
+                        title: 'Felicitaciones, matrícula registrada',
+                        text: 'Se han registrado cursos',
+                        backdrop: false,
+                    })
+
+                } else {
+                    Swal.fire({
+                        type: 'success',
+                        icon: 'success',
+                        title: 'Felicitaciones, Matrícula actualizada correctamente',
+                        text: 'verificar sus unidades didácticas de ser necesario',
+                        backdrop: false,
+                    })
+                    $("#frmfiltro-matriculas").submit();
+                }
 
 
+            }
+        },
+        error: function(jqXHR, exception) {
+            var msgf = errorAjax(jqXHR, exception, 'text');
+            $('#divmodaladd #divoverlay').remove();
+            Swal.fire({
+                type: 'error',
+                icon: 'error',
+                title: 'Error, matrícula NO actualizada',
+                text: msgf,
+                backdrop: false,
+            })
+        }
+    });
+    return false;
+});
+$("#frm-getinscritonew").submit(function(event) {
+    $('#frm-getinscritonew input').removeClass('is-invalid');
+    $('#frm-getinscritonew .invalid-feedback').remove();
+    $('#divmodalsearch').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    $.ajax({
+        url: $(this).attr("action"),
+        type: 'post',
+        dataType: 'json',
+        data: $(this).serialize(),
+        success: function(e) {
+            $('#divmodalsearch #divoverlay').remove();
+            if (e.status == false) {
+                $.each(e.errors, function(key, val) {
+                    $('#' + key).addClass('is-invalid');
+                    $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+                });
+                Swal.fire({
+                    type: 'warning',
+                    icon: 'warning',
+                    title: 'ADVERTENCIA',
+                    text: e.msg,
+                    backdrop: false,
+                })
+            } else {
+                $('#divcard_result').html('');
+                var tabla = '';
+                var tbody = '';
+                var estado = '';
+                var btnselect = '';
+                tabla = '<div class="col-12 py-1">' +
+                    '<div class="btable">' +
+                    '<div class="thead col-12  d-none d-md-block">' +
+                    '<div class="row">' +
+                    '<div class="col-12 col-md-5">' +
+                    '<div class="row">' +
+                    '<div class="col-2 col-md-2 td">N°</div>' +
+                    '<div class="col-10 col-md-10 td">ESTUDIANTE</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-12 col-md-6">' +
+                    '<div class="row">' +
+                    '<div class="col-3 col-md-3 td">ESTADO</div>' +
+                    '<div class="col-9 col-md-4 td">PROG.</div>' +
+                    '<div class="col-9 col-md-5 td">PERIODO</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '<div class="col-12 col-md-1 text-center">' +
+                    '<div class="row">' +
+                    '<div class="col-12 col-md-12 td">' +
+                    '<span></span>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
+                    '</div>' +
 
+                    '</div>' +
+                    '<div class="tbody col-12" id="divcard_data_alumnos">' +
+
+                    '</div>' +
+                    '</div>' +
+                    '</div>';
+                var nro = 0;
+                $.each(e.vdata, function(index, val) {
+                    nro++;
+                    if (val['estado'] == "ACTIVO") {
+                        estado = "<span class='badge bg-success p-2'> " + val['estado'] + " </span>";
+                        btnselect = "<a href='#' class='btn btn-info btn-sm btn_select' title='seleccionar'><i class='fas fa-share'></i></a>";
+                    } else if (val['estado'] == "POSTULA") {
+                        estado = "<span class='badge bg-warning p-2'> " + val['estado'] + " </span>";
+                        btnselect = '';
+                    } else if (val['estado'] == "EGRESADO") {
+                        estado = "<span class='badge bg-secondary p-2'> " + val['estado'] + " </span>";
+                        btnselect = '';
+                    } else if (val['estado'] == "RETIRADO") {
+                        estado = "<span class='badge bg-danger p-2'> " + val['estado'] + " </span>";
+                        btnselect = '';
+                    } else if (val['estado'] == "TITULADO") {
+                        estado = "<span class='badge bg-info p-2'> " + val['estado'] + " </span>";
+                        btnselect = '';
+                    } else {
+                        estado = "<span class='badge bg-warning p-2'> " + val['estado'] + " </span>";
+                        btnselect = '';
+                    }
+                    if (val['estado'] !== "RETIRADO") {
+                        tbody = tbody +
+                            "<div class='row rowcolor cfilains' data-carnet='" + val['carnet'] + "' data-alumno='" + val['paterno'] + " " + val['materno'] + " " + val['nombres'] + "'>" +
+                            "<div class='col-12 col-md-5'>" +
+                            "<div class='row'>" +
+                            "<div class='col-2 col-md-2 text-right td'>" + nro + "</div>" +
+                            "<div class='col-2 col-md-3  td'>" + val['carnet'] + "</div>" +
+                            "<div class='col-10 col-md-7 td' title='" + val['codinscripcion'] + "'>" + val['paterno'] + " " + val['materno'] + " " + val['nombres'] + "</div>" +
+                            "</div>" +
+                            "</div>" +
+                            "<div class='col-12 col-md-6'>" +
+                            "<div class='row'>" +
+                            "<div class='col-3 col-md-3 td'>" + estado + "</div>" +
+                            "<div class='col-9 col-md-4 td' title='" + val['carrera'] + "'>" + val['carsigla'] + " / " + val['codturno'] + " - " + val['ciclo'] + " - " + val['codseccion'] + "</div>" +
+                            "<div class='col-9 col-md-5 td'>" + val['periodo'] + " / " + val['campania'] + "</div>" +
+                            "</div>" +
+                            "</div>" +
+                            "<div class='col-12 col-md-1 text-center td'>" +
+                            btnselect +
+                            "</div>" +
+                            "</div>";
+                    }
+
+                })
+                $('#divcard_result').html(tabla);
+                $('#divcard_data_alumnos').html(tbody);
+                $('.btn_select').click(function(e) {
+                    e.preventDefault();
+                    var boton = $(this);
+                    var fila = boton.closest('.cfilains');
+                    var carne = fila.data('carnet');
+                    var alumno = fila.data('alumno');
+
+                    $('#divmodalsearch').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+                    $.ajax({
+                        url: base_url + "inscrito/fn_get_datos_carne",
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            'fgi-txtcarne': carne,
+                        },
+                        success: function(e) {
+                            $('#divmodalsearch #divoverlay').remove();
+                            if (e.status == false) {
+                                $.each(e.errors, function(key, val) {
+                                    $('#' + key).addClass('is-invalid');
+                                    $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+                                });
+                                Swal.fire({
+                                    type: 'warning',
+                                    icon: 'warning',
+                                    title: 'ADVERTENCIA',
+                                    text: e.msg,
+                                    backdrop: false,
+                                })
+                            } else {
+                                $('#modfiltroins').modal('hide');
+                                $('#fm-txtidup').val(e.vdata['idinscripcion']);
+                                $('#fm-txtidmatriculaup').val('0');
+                                $("#frm_updmatri")[0].reset();
+                                $('#frm_updmatri input,select').removeClass('is-invalid');
+                                $('#frm_updmatri .invalid-feedback').remove();
+                                if (e.vdata['idinscripcion'] == '0') {
+                                    $('#fm-txtcarreraup').val("");
+                                    $('#fm-carreraup').val("PROGRAMA ACADÉMICO");
+                                    $('#fm-cbplanup').html("<option value='0'>Plán curricular NO DISPONIBLE</option>");
+
+                                } else {
+                                    $('#divalert_mat').hide();
+                                    $('#titlemodal').html(alumno);
+                                    $('#fm-txtcarreraup').val(e.vdata['codcarrera']);
+                                    $('#fm-carreraup').html(e.vdata['carrera']);
+                                    $('#fm-cbplanup').html(e.vplanes);
+                                    $('#fm-cbplanup').val(e.vdata['codplan']);
+                                    $('#fm-txtplanup').val(e.vdata['codplan']);
+                                    $('#fm-txtmapepatup').val(e.vdata['paterno']);
+                                    $('#fm-txtmapematup').val(e.vdata['materno']);
+                                    $('#fm-txtmnombresup').val(e.vdata['nombres']);
+                                    $('#fm-txtmsexoup').val(e.vdata['sexo']);
+
+                                    fn_data_academico(carne);
+                                    fn_data_deudas(carne);
+                                }
+                            }
+                        },
+                        error: function(jqXHR, exception) {
+                            var msgf = errorAjax(jqXHR, exception, 'text');
+                            $('#divmodalsearch #divoverlay').remove();
+                            $('#divError').show();
+                            $('#msgError').html(msgf);
+                        }
+                    })
+                });
+
+            }
+        },
+        error: function(jqXHR, exception) {
+            var msgf = errorAjax(jqXHR, exception, 'text');
+            $('#divmodalsearch #divoverlay').remove();
+            $('#divError').show();
+            $('#msgError').html(msgf);
+        }
+    });
+    return false;
+});
 $('#btn_agregarnew').click(function() {
     $('#divcard_datamat').addClass('d-none');
     $('#divcard_form_new').removeClass('d-none');
@@ -1526,7 +1860,6 @@ $('#btn_agregarnew').click(function() {
     $('#btncancelar').removeClass('d-none');
     $('#vw_dp_mdcarga_footer_boleta').hide();
 });
-
 $('#btncancelar').click(function() {
     $('#divcard_datamat').removeClass('d-none');
     $('#divcard_form_new').addClass('d-none');
@@ -1537,12 +1870,10 @@ $('#btncancelar').click(function() {
     $('#divcontent_convalida').addClass('d-none');
     $('#form_addmatricula')[0].reset();
 });
-
 $('.btn_campos').click(function(e) {
     e.preventDefault();
     $('#modexport').modal('show');
 });
-
 $('#fmt-cbncarrera').change(function(event) {
     if ($(this).val() != "0") {
         $('#divmodalnewmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
@@ -1571,7 +1902,6 @@ $('#fmt-cbncarrera').change(function(event) {
         $('#fmt-cbnplan').html("<option value='0'>Selecciona un programa<option>");
     }
 });
-
 $('#lbtn_exportar').click(function(e) {
     var urlExcel = base_url + 'academico/matriculas/campos/excel?cp=' + $("#fmt-cbperiodo").val() + '&cc=' + $("#fmt-cbcarrera").val() + '&ccc=' + $("#fmt-cbciclo").val() + '&ct=' + $("#fmt-cbturno").val() + '&cs=' + $("#fmt-cbseccion").val() + '&cpl=' + $("#fmt-cbplan").val() + '&ap=' + $("#fmt-alumno").val() + '&es=' + $("#fmt-cbestado").val() + '&sed=' + $("#fmt-cbsede").val() + '&benf=' + $("#fmt-cbbeneficio").val();
     checkcarne = ($("#checkcarnet").prop('checked') == true ? "&checkcarnet=SI" : "&checkcarnet=NO");
@@ -1606,7 +1936,6 @@ $('#lbtn_exportar').click(function(e) {
 
     if (ejecuta == true) window.open(url, '_blank');
 });
-
 $(document).ready(function() {
     $("#vw_mt_divmensaje").hide();
     var table = $('#tbmt_dtMatriculados').DataTable({
@@ -1666,50 +1995,33 @@ $(document).ready(function() {
     $("#fmt-cbplan").val(getUrlParameter("cpl", '%'));
     if (getUrlParameter("at", 0) == 1) $("#frmfiltro-matriculas").submit();
 
-    var carne = getUrlParameter("fcarnet","");
-    // var alumno = getUrlParameter("festudent","");
-    // if (carne !=="" && alumno!== "") {}
-    if (carne !=="") {
-      $("#modupmat").modal();
-      $('#modfiltroins').modal('hide');
-      fn_select_inscrito(null,"inscrito");
-    }
-
-    $('#divcard_deudas_historial').hide();
-
-    $('#lbtn_reportedeudas').hide();
-    $('#lbtn_reportepagos').hide();
-
 });
 //$("#fmt-conteo").html(nro + ' matriculas encontradas');
 //$('#divcard-matricular #divoverlay').remove();
 //********************************************/
-/*$(".btncall-carga").on("click", function() {
+$(".btncall-carga").on("click", function() {
     $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
     $('.nav-pills a[href="#fichacarga"]').tab('show');
     vcm = $(this).data('cm');
     $("#vwtxtcodmat").val(vcm);
-    fila=$(this).parents(".cfila_mt");
-
-    alert("aaa");
-    $("#divcarne").html("<h3>" + fila.data('.carnet') + "</h3>");
-    $("#divmiembro").html(fila.data('.estudiante'));
-    $("#divperiodo").html(fila.data('.cperiodo'));
-    $("#divcarrera").html(fila.data('.ccarrera'));
-    $("#divciclo").html("Ciclo: " + fila.data('.cciclo'));
-    $("#divturno").html("Turno: " + fila.data('.cturno'));
-    $("#divseccion").html("Sección: " + fila.data('.cseccion'));
-    $("#fud-cbperiodo").html(fila.data('.cperiodo'));
-    $("#fud-cbperiodo").data('cp', fila.data('.cperiodo'));
+    $("#divcarne").html("<h3>" + $(this).parents(".cfila").find('.ccarne').html() + "</h3>");
+    $("#divmiembro").html($(this).parents(".cfila").find('.calumno').html());
+    $("#divperiodo").html($(this).parents(".cfila").find('.cperiodo').html());
+    $("#divcarrera").html($(this).parents(".cfila").find('.ccarrera').html());
+    $("#divciclo").html("Ciclo: " + $(this).parents(".cfila").find('.cciclo').html());
+    $("#divturno").html("Turno: " + $(this).parents(".cfila").find('.cturno').html());
+    $("#divseccion").html("Sección: " + $(this).parents(".cfila").find('.cseccion').html());
+    $("#fud-cbperiodo").html($(this).parents(".cfila").find('.cperiodo').html());
+    $("#fud-cbperiodo").data('cp', $(this).parents(".cfila").find('.cperiodo').data('cp'));
     //$("#fud-cbcarrera").text();
-    //alert(fila.find('.ccarrera').data('cod'));
-    $("#fud-cbcarrera").val(fila.data('.ccarrera'));
+    //alert($(this).parents(".cfila").find('.ccarrera').data('cod'));
+    $("#fud-cbcarrera").val($(this).parents(".cfila").find('.ccarrera').data('cod'));
     $("#fud-cbcarrera").change();
-    $("#fud-cbciclo").val(fila.data('.cciclo'));
+    $("#fud-cbciclo").val($(this).parents(".cfila").find('.cciclo').data('cod'));
     //$("#fud-cbciclo").val(getUrlParameter("ccc",0));
     ;
-    $("#fud-cbturno").val(fila.data('.cturno'));
-    $("#fud-cbseccion").val(fila.data('.cseccion'));
+    $("#fud-cbturno").val($(this).parents(".cfila").find('.cturno').html());
+    $("#fud-cbseccion").val($(this).parents(".cfila").find('.cseccion').html());
     $.ajax({
         url: base_url + "matricula/fn_cursos_x_matricula",
         type: 'post',
@@ -1721,8 +2033,8 @@ $(document).ready(function() {
             $('#divcard-matricular #divoverlay').remove();
             if (e.status == true) {
                 var url = base_url + "academico/matricula/imprimir/" + vcm;
-                mostrarCursos("divcard_data_carga", vcm, e.vdata);
-                $("#divcard_data_carga").append(
+                mostrarCursos("div-cursosmat", vcm, e.vdata);
+                $("#div-cursosmat").append(
                     '<div class="cfilaprint row">' +
                     '<div class="col-12 col-md-12 text-right td"><a class="btn btn-info" target="_blank" href="' + url + '" title="Imprimir matrícula"><i class="fas fa-print mr-1"></i> Imprimir Matrícula</a></div>' +
                     '</div></div>');
@@ -1739,103 +2051,18 @@ $(document).ready(function() {
             })
         }
     });
-});*/
-
-function fn_carga_mat_estudiante(btn){
-  $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    fila=btn.closest(".cfila_mt");
-    var codigo = btn.data('cm');
-    var plan = btn.data('plan');
-    var est = btn.data('stdnt');
-    $('#vwtxtcodmatcrg').val(codigo);
-
-    // alert(fila.data('cperiodo'));
-    $('#divcargaperiodo').html(fila.data('cperiodo'));
-    $('#divcargacarrera').html(fila.data('ccarrera'));
-    $('#divcargaciclo').html(fila.data('cciclo'));
-    $('#divcargaturno').html(fila.data('cturno'));
-    $('#divcargaseccion').html(fila.data('cseccion'));
-
-    $('#fud-cbperiodo').html(fila.data('cperiodo'));
-    $("#fud-cbperiodo").data('cp',fila.data('coperiodo'));
-    $('#fud-cbcarrera').val(fila.data('cocarrera'));
-    $('#fud-cbcarrera').change();
-    $('#fud-cbciclo').val(fila.data('cociclo'));
-    $('#fud-cbturno').val(fila.data('cturno'));
-    $('#fud-cbseccion').val(fila.data('cseccion'));
-    $('#divcargaplan').html(plan);
-    $('#divcard_title_carga').html(est);
-    // alert("jajaaj");
-
-    $.ajax({
-        url: base_url + "matricula/fn_cursos_x_matricula",
-        type: 'post',
-        dataType: 'json',
-        data: {
-            codmatricula: codigo
-        },
-        success: function(e) {
-            $('#divcard-matricular #divoverlay').remove();
-            $('#modview_carga').modal('show');
-            if (e.status == true) {
-                grupocrg = "";
-                 
-
-
-                $.each(e.vdata, function(index, v) {
-                  grupoint = v['codciclo']+v['codseccion']+v['codturno']+v['codperiodo']+v['codcarrera']+v['codplan'];
-                  if (grupocrg != grupoint) {
-                      grupocrg = grupoint;
-                     
-
-                      $('#divcard_data_academico').show();
-                  }
-                })
-                
-
-                var url = base_url + "academico/matricula/imprimir/" + codigo;
-                mostrarCursos("divcard_data_carga", codigo, e.vdata);
-                $("#divcard_data_carga").append(
-                    '<div class="cfilaprint row">' +
-                    '<div class="col-12 col-md-12 text-right td"><a class="btn btn-info" target="_blank" href="' + url + '" title="Imprimir matrícula"><i class="fas fa-print mr-1"></i> Imprimir Matrícula</a></div>' +
-                    '</div></div>');
-            }
-        },
-        error: function(jqXHR, exception) {
-            var msgf = errorAjax(jqXHR, exception, 'text');
-            $('#divcard-matricular #divoverlay').remove();
-            Swal.fire({
-                type: 'error',
-                title: 'Error, no se pudo mostrar los curso Matriculados',
-                text: msgf,
-                backdrop: false,
-            })
-        }
-    });
-}
-
-$('#modview_carga').on('hidden.bs.modal', function(e){
-  $('#divcard_data_academico').hide();
-  $('#divcard_data_cursos_disponibles').html("");
-})
+});
 
 function fn_cambiarestado(btn) {
   tbmatriculados = $('#tbmt_dtMatriculados').DataTable();
   fila = tbmatriculados.$('tr.selected');
   im = fila.data('codmatricula64');
+  // var im = btn.parents(".cfila").data('idm');
   var ie = btn.data('ie');
   var btdt = btn.parents(".btn-group").find('.dropdown-toggle');
   var texto = btn.html();
-  var contenedor = btn.data('campo');
-  var div = "";
-  if (contenedor == "tabla") {
-    $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    div = "divcard-matricular";
-  } else {
-    $('#divmodalnewmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    div = "divmodalnewmatricula";
-  }
-  
+  //alert(btdt.html());
+  $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
   $.ajax({
       url: base_url + 'matricula/fn_cambiarestado',
       type: 'post',
@@ -1845,7 +2072,7 @@ function fn_cambiarestado(btn) {
           'ce-nestado': ie
       },
       success: function(e) {
-          $('#'+div+' #divoverlay').remove();
+          $('#divcard-matricular #divoverlay').remove();
           if (e.status == false) {
               Swal.fire({
                   type: 'error',
@@ -1856,70 +2083,39 @@ function fn_cambiarestado(btn) {
               })
           } else {
               /*$("#fm-txtidmatricula").html(e.newcod);*/
-              
-              btdt.removeClass('btn-danger');
-              btdt.removeClass('btn-success');
-              btdt.removeClass('btn-warning');
-              btdt.removeClass('btn-secondary');
-              if (contenedor == "tabla") {
-                  switch (texto) {
-                      case "Activo":
-                          btdt.addClass('btn-success');
-                          btdt.html("ACT");
-                          break;
-                      case "Retirado":
-                          btdt.addClass('btn-danger');
-                          btdt.html("RET");
-                          break;
-                      case "Desaprobado":
-                          btdt.addClass('btn-danger');
-                          btdt.html("DES");
-                          break;
-                      default:
-                          btdt.addClass("btn-warning");
-                  }
-              } else {
-                  switch (texto) {
-                      case "Activo":
-                          btdt.addClass('btn-success');
-                          btdt.html("ACTIVO");
-                          $('#estado'+im).addClass('btn-success');
-                          $('#estado'+im).html("ACT");
-                          break;
-                      case "Retirado":
-                          btdt.addClass('btn-danger');
-                          btdt.html("RETIRADO");
-                          $('#estado'+im).addClass('btn-danger');
-                          $('#estado'+im).html("RET");
-                          break;
-                      case "Desaprobado":
-                          btdt.addClass('btn-danger');
-                          btdt.html("DESAPROBADO");
-                          $('#estado'+im).addClass('btn-danger');
-                          $('#estado'+im).html("DES");
-                          break;
-                      default:
-                          btdt.addClass("btn-warning");
-                  }
-              }
-
-              if (ie == cd2) {
-                fn_view_data_deudas(btn);
-              } else {
-                Swal.fire({
+              Swal.fire({
                   type: 'success',
                   icon: 'success',
                   title: 'Felicitaciones, estado actualizado',
                   text: 'Se ha actualizado el estado',
                   backdrop: false,
-                })
+              })
+              btdt.removeClass('btn-danger');
+              btdt.removeClass('btn-success');
+              btdt.removeClass('btn-warning');
+              btdt.removeClass('btn-secondary');
+              switch (texto) {
+                  case "Activo":
+                      btdt.addClass('btn-success');
+                      btdt.html("ACT");
+                      break;
+                      /*case "CUL":
+                      btnscolor="btn-secondary";
+                      break;*/
+                  case "Retirado":
+                      btdt.addClass('btn-danger');
+                      btdt.html("RET");
+                      break;
+                  default:
+                      btnscolor = "btn-warning";
               }
-              
+              //btdt.addClass('class_name');
+              //mostrarCursos("div-cursosmat", "", e.vdata);
           }
       },
       error: function(jqXHR, exception) {
           var msgf = errorAjax(jqXHR, exception, 'text');
-          $('#'+div+' #divoverlay').remove();
+          $('#divcard-matricular #divoverlay').remove();
           Swal.fire({
               type: 'error',
               icon: 'error',
@@ -1985,7 +2181,7 @@ $(".btn-cestado").click(function(event) {
                         btnscolor = "btn-warning";
                 }
                 //btdt.addClass('class_name');
-                //mostrarCursos("divcard_data_carga", "", e.vdata);
+                //mostrarCursos("div-cursosmat", "", e.vdata);
             }
         },
         error: function(jqXHR, exception) {
@@ -2071,7 +2267,6 @@ function fn_eliminar_matricula() {
         }
     });
 }
-
 function fn_promediar(input){
     var fila=input.closest(".cfila");
     jsmetodo=fila.data('metodo');
@@ -2114,7 +2309,6 @@ function fn_promediar(input){
 $('#modupmat #nav-tab a').on('click', function (e) {
   e.preventDefault()
   item = $(this).attr('id');
-  // console.log("item", item);
   if (item == "nav-matricular-tab") {
     $('#lbtn_editamat').show();
   } else {
@@ -2122,156 +2316,19 @@ $('#modupmat #nav-tab a').on('click', function (e) {
   }
 })
 
-
-
-
-
-function fn_activa_matcondicional(boton) {
-  var codigo = boton.data('codigo');
-  var estado = boton.data('estado');
-  $('#divcard-matricular').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+function fn_data_academico(carnet) {
+  $('#divmodaladd').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+  $('#divcard_data_academ').html("");
+  tblacademico = "";
   $.ajax({
-      url: base_url + 'matricula/fn_update_estadocondicional',
+      url: base_url + 'matricula/fn_datos_academicos',
       type: 'post',
       dataType: 'json',
       data: {
-          'ce-codigo': codigo,
-          'ce-estado': estado
+          'ce-carne': carnet
       },
       success: function(e) {
-        $('#divcard-matricular #divoverlay').remove();
-        if (e.status == false) {
-            Swal.fire({
-                type: 'error',
-                icon: 'error',
-                title: 'Error!',
-                text: e.msg,
-                backdrop: false,
-            })
-            
-        } 
-        else {
-          Swal.fire({
-              type: 'success',
-              icon: 'success',
-              title: 'Éxito!',
-              text: "Datos actualizados correctamente",
-              backdrop: false,
-          })
-          boton.remove();
-        }
-      },
-      error: function(jqXHR, exception) {
-          var msgf = errorAjax(jqXHR, exception, 'text');
-          $('#divcard-matricular #divoverlay').remove();
-          Swal.fire({
-              type: 'error',
-              icon: 'error',
-              title: 'Error',
-              text: msgf,
-              backdrop: false,
-          })
-      }
-  });
-}
-
-function fn_refresca_condicional(boton) {
-  var vcarne = boton.data('carne');
-  $('#divmodaddmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-  $.ajax({
-      url: base_url + 'matricula/fn_historial_matricula',
-      type: 'post',
-      dataType: 'json',
-      data: {
-          'ce-carne': vcarne
-      },
-      success: function(e) {
-        $('#divmodaddmatricula #divoverlay').remove();
-        if (e.status == false) {
-            Swal.fire({
-                type: 'error',
-                icon: 'error',
-                title: 'Error!',
-                text: e.msg,
-                backdrop: false,
-            })
-            
-        } 
-        else {
-          if (e.vestado == "DES" && e.vcondic == "SI") {
-            $('#lbtn_editamat').attr('disabled', false);
-            boton.hide();
-
-            $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
-              if (!$(this).hasClass("ocultar")){
-                $(this).data('autorizado', 'SI');
-              }
-            })
-
-            $("#frm_updmatri #fm-cbcicloup").change();
-          } else if (e.vcondic == "SI") {
-            $('#lbtn_editamat').attr('disabled', false);
-            boton.hide();
-
-            $("#frm_updmatri #fm-cbcicloup option").each(function(i) {
-              if (!$(this).hasClass("ocultar")){
-                $(this).data('autorizado', 'SI');
-              }
-            })
-          }
-        }
-      },
-      error: function(jqXHR, exception) {
-          var msgf = errorAjax(jqXHR, exception, 'text');
-          $('#divmodaddmatricula #divoverlay').remove();
-          Swal.fire({
-              type: 'error',
-              icon: 'error',
-              title: 'Error',
-              text: msgf,
-              backdrop: false,
-          })
-      }
-  });
-}
-
-$("#frm_updmatri #fm-cbcicloup").change(function(e) {
-  var item = $(this);
-  var autoriza = item.find(':selected').data('autorizado');
-  if (autoriza == "SI") {
-    $('#lbtn_editamat').attr('disabled', false);
-    $('#msgcursos_deudas').html("");
-  } else {
-    $('#lbtn_editamat').attr('disabled', true);
-    $('#msgcursos_deudas').html('<div class="alert alert-danger alert-dismissible">'+
-                                          '<i class="icon fas fa-ban mr-1"></i>'+
-                                          'El estudiante no puede ser matriculado por presentar unidades didácticas desaprobadas con 6 creditos a más o presentar deudas pendientes, favor de regularizar lo antes mencionado'+
-                                        '</div>');
-  }
-});
-
-
-
-
-function fn_cambiar_origen(btn) {
-  var fila = btn.closest('.cfila');
-  var codigo = fila.data('idmatnf');
-
-  var origen = btn.data('origen');
-  var btdt = btn.parents(".btn-group").find('.dropdown-toggle');
-  var texto = btn.html();
-  $('#divmodalnewmatricula').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-  
-  $.ajax({
-      url: base_url + 'matricula/fn_cambiar_origen',
-      type: 'post',
-      dataType: 'json',
-      data: {
-          'ce-idmat': codigo,
-          'ce-norigen': origen
-      },
-      success: function(e) {
-          $('#divmodalnewmatricula #divoverlay').remove();
+          $('#divmodaladd #divoverlay').remove();
           if (e.status == false) {
               Swal.fire({
                   type: 'error',
@@ -2281,39 +2338,47 @@ function fn_cambiar_origen(btn) {
                   backdrop: false,
               })
           } else {
-              /*$("#fm-txtidmatricula").html(e.newcod);*/
-              Swal.fire({
-                  type: 'success',
-                  icon: 'success',
-                  title: 'Felicitaciones, origen actualizado',
-                  text: 'Se ha actualizado el origen',
-                  backdrop: false,
-              })
-              btdt.removeClass('btn-primary');
-              btdt.removeClass('btn-info');
-              btdt.removeClass('btn-secondary');
-              switch (texto) {
-                  case "PLATAFORMA":
-                      btdt.addClass('btn-primary');
-                      btdt.html("PL");
-                      break;
-                  case "MANUAL":
-                      btdt.addClass('btn-secondary');
-                      btdt.html("MA");
-                      break;
-                  case "CONVALIDA":
-                      btdt.addClass('btn-info');
-                      btdt.html("CO");
-                      break;
-                  default:
-                      btdt.addClass("btn-info");
-              }
               
+                nro = 0;
+                grupoac = "";
+                $.each(e.cursos, function(index, v) {
+                  grupoint = v['codperiodo'];
+                  if (grupoac != grupoint) {
+                      grupoac = grupoint;
+                      nro = 0;
+                      tblacademico = tblacademico + 
+                          "<div class='row cfila'>"+
+                              "<div class='col-12 td text-center p-1 bg-lightgray'><b>"+v['periodo']+"</b></div>"+
+                          "</div>";
+                  }
+                  nro++;
+                  tblacademico = tblacademico + 
+                          "<div class='row cfila'>"+
+                                "<div class='col-12 col-md-5'>"+
+                                    "<div class='row'>"+
+                                        "<div class='col-2 col-md-2 text-center td bg-lightgray'>"+nro+"</div>"+
+                                        "<div class='col-10 col-md-10 td'>"+v['idunidad'] + " " + v['curso']+"</div>"+
+                                    "</div>"+
+                                "</div>"+
+                                "<div class='col-12 col-md-7'>"+
+                                    "<div class='row'>"+
+                                        "<div class='col-3 col-md-3 td text-center'>"+v['ciclo']+"</div>"+
+                                        "<div class='col-3 col-md-3 td text-center'>"+v['turno'].substr(0, 3)+" / "+v['codseccion']+"</div>"+
+                                        "<div class='col-2 col-md-2 td text-center'>"+v['nota']+"</div>"+
+                                        "<div class='col-2 col-md-2 td text-center'>"+v['recuperacion']+"</div>"+
+                                        "<div class='col-2 col-md-2 td text-center'>"+v['final']+"</div>"+
+                                    "</div>"+
+                                "</div>"+
+                            "</div>";
+                })
+
+
+                $('#divcard_data_academ').html(tblacademico);
           }
       },
       error: function(jqXHR, exception) {
           var msgf = errorAjax(jqXHR, exception, 'text');
-          $('#divmodalnewmatricula #divoverlay').remove();
+          $('#divmodaladd #divoverlay').remove();
           Swal.fire({
               type: 'error',
               icon: 'error',
@@ -2323,25 +2388,12 @@ function fn_cambiar_origen(btn) {
           })
       }
   });
-  return false;
 }
 
-
-
-function fn_view_data_deudas(btn) {
-  $('#modDeudas_view_content').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-  $('#div_Deudas_view').html("");
+function fn_data_deudas(carnet) {
+  $('#divmodaladd').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+  $('#divcard_data_deudas').html("");
   tbldeudas = "";
-  var carnet = btn.data('pagante');
-  var estudiante = btn.data('pagantenb');
-
-  var programa = btn.data('programa');
-  var periodo = btn.data('periodo');
-  var ciclo = btn.data('ciclo');
-  var turno = btn.data('turno');
-  var seccion = btn.data('seccion');
-  var plan = btn.data('plan');
-
   $.ajax({
       url: base_url + 'inscrito/fn_datos_deudas',
       type: 'post',
@@ -2350,7 +2402,7 @@ function fn_view_data_deudas(btn) {
           'ce-carne': carnet
       },
       success: function(e) {
-          
+          $('#divmodaladd #divoverlay').remove();
           if (e.status == false) {
               Swal.fire({
                   type: 'error',
@@ -2359,37 +2411,13 @@ function fn_view_data_deudas(btn) {
                   text: e.msg,
                   backdrop: false,
               })
-              $('#modDeudas_view_content #divoverlay').remove();
           } 
           else {
-                
-                $('#divcard_title_Deuda').html("<span class='text-danger'>"+carnet+"</span> / "+estudiante);
-                $("#divdaperiodo").html(periodo);
-                $("#divdacarrera").html(programa);
-                $("#divdaplan").html(plan);
-                $("#divdaciclo").html(ciclo);
-                $("#divdaturno").html(turno);
-                $("#divdaseccion").html(seccion);
-
+              
                 nro = 0;
-                totald = 0;
-                var bgcolor = "";
                 $.each(e.vdata, function(index, v) {
                   nro++;
-                  totald = totald + parseFloat(v['saldo']);
                   var bgsaldo = (v['saldo']>0) ? "text-danger":"text-success";
-
-                  switch (v['estado']) {
-                      case "ACTIVO":
-                          bgcolor = "btn-success";
-                          break;
-                      case "ANULADO":
-                          bgcolor = "btn-danger";
-                          break;
-                      default:
-                          bgcolor = "btn-success";
-                  }
-
                   tbldeudas = tbldeudas + 
                           "<div class='row cfila'>"+
                                 "<div class='col-12 col-md-4'>"+
@@ -2412,360 +2440,20 @@ function fn_view_data_deudas(btn) {
                                 "</div>"+
                                 "<div class='col-12 col-md-3'>"+
                                     "<div class='row'>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+v['vence']+"</div>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+v['grupo']+"</div>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+
-                                          '<div class="btn-group dropleft">' +
-                                            '<button class="btn ' + bgcolor + ' btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" ' +
-                                            'aria-haspopup="true" aria-expanded="false">' +
-                                            (v['estado'].toLowerCase()).charAt(0).toUpperCase() + (v['estado'].toLowerCase()).slice(1) +
-                                            '</button> ' +
-                                            '<div class="dropdown-menu">' +
-                                              '<a href="#" class="dropdown-item" data-color="btn-danger" data-ie="' + cd2de + '" data-coddeuda="' + v['codigo64'] + '" id="btn_stanul' + v['codigo64'] + '" data-toggle="modal" data-target="#modanuladeuda">Anulado</a>' +
-                                            '</div>' +
-                                          '</div>' +
-                                        "</div>"+
+                                        "<div class='col-6 col-md-6 td text-center'>"+v['vence']+"</div>"+
+                                        "<div class='col-6 col-md-6 td text-center'>"+v['grupo']+"</div>"+
                                     "</div>"+
                                 "</div>"+
                             "</div>";
                 })
 
-                if (nro > 0) {
-                  $("#modDeudas_view").modal('show');
-                } else {
-                  Swal.fire({
-                    type: 'success',
-                    icon: 'success',
-                    title: 'Felicitaciones, estado actualizado',
-                    text: 'Se ha actualizado el estado',
-                    backdrop: false,
-                  })
-                }
-                
-                $('#div_Deudas_view').html(tbldeudas);
-                $('#modDeudas_view_content #divoverlay').remove();
+
+                $('#divcard_data_deudas').html(tbldeudas);
           }
       },
       error: function(jqXHR, exception) {
           var msgf = errorAjax(jqXHR, exception, 'text');
-          $('#modDeudas_view_content #divoverlay').remove();
-          Swal.fire({
-              type: 'error',
-              icon: 'error',
-              title: 'Error',
-              text: msgf,
-              backdrop: false,
-          })
-      }
-  });
-  return false;
-}
-
-$("#modDeudas_view").on('hidden.bs.modal', function(e) {
-  $('#divcard_title_Deuda').html("");
-  $("#divdaperiodo").html("");
-  $("#divdacarrera").html("");
-  $("#divdaplan").html("");
-  $("#divdaciclo").html("");
-  $("#divdaturno").html("");
-  $("#divdaseccion").html("");
-  $('#div_Deudas_view').html("");
-})
-
-$("#modanuladeuda").on('show.bs.modal', function(e) {
-    var rel = $(e.relatedTarget);
-    var coddeuda = rel.data('coddeuda');
-    var estado = rel.data('ie');
-    var color = rel.data('color');
-
-    $('#ficdeudacodigo').val(coddeuda);
-    $('#ficdeudaestado').val(estado);
-    $('#lbtn_anula_deuda').data('coloran', color);
-});
-
-$('#lbtn_anula_deuda').click(function() {
-    var color = $(this).data('coloran');
-    // alert("Mensaje");
-    $('#form_anuladeuda input,select,textarea').removeClass('is-invalid');
-    $('#form_anuladeuda .invalid-feedback').remove();
-    $('#divmodalanulad').append('<div id="divoverlay" class="overlay  d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    $.ajax({
-        url: $('#form_anuladeuda').attr("action"),
-        type: 'post',
-        dataType: 'json',
-        data: $('#form_anuladeuda').serialize(),
-        success: function(e) {
-            $('#divmodalanulad #divoverlay').remove();
-            if (e.status == false) {
-                $.each(e.errors, function(key, val) {
-                    $('#' + key).addClass('is-invalid');
-                    $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
-                });
-                Swal.fire({
-                    title: e.msg,
-                    // text: "",
-                    type: 'error',
-                    icon: 'error',
-                })
-
-            } else {
-                $('#modanuladeuda').modal('hide');
-                var btdtan = $('#btn_stanul' + e.iddeuda).parents(".btn-group").find('.dropdown-toggle');
-                var textoan = $('#btn_stanul' + e.iddeuda).html();
-                btdtan.removeClass('btn-danger');
-                btdtan.removeClass('btn-success');
-                btdtan.addClass(color);
-                btdtan.html(textoan);
-
-                Swal.fire({
-                    type: 'success',
-                    icon: 'success',
-                    title: 'Felicitaciones, deuda anulada',
-                    text: 'Se ha anulado la deuda',
-                    backdrop: false,
-                })
-
-            }
-        },
-        error: function(jqXHR, exception) {
-            var msgf = errorAjax(jqXHR, exception, 'text');
-            $('#divmodalanulad #divoverlay').remove();
-            Swal.fire({
-                title: msgf,
-                // text: "",
-                type: 'error',
-                icon: 'error',
-            })
-        }
-    });
-    return false;
-});
-
-/* ====================================
-DEUDAS
-======================================= */
-
-function fn_historial_vw_deudas(btn) {
-  $('#modDeudas_historial').modal();
-  $('#modDeudas_historial .modDeudas_historial_content').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-  $('#div_Pagos_Historial').html("");
-  tabla = "";
-  tbdeudas = "";
-  tbdeudash = "";
-  var fila = btn.closest('.cfila_mt');
-  var carnet = fila.data('carnet');
-  var estudiante = fila.data('estudiante');
-  var idmatricula = fila.data('codmatricula64');
-
-  var programa = btn.data('programa');
-  var periodo = btn.data('periodo');
-  var ciclo = btn.data('ciclo');
-  var turno = btn.data('turno');
-  var seccion = btn.data('seccion');
-  var plan = btn.data('plan');
-  
-  $.ajax({
-      url: base_url + "matricula/fn_docemitidos_items_x_pagante",
-      type: 'post',
-      dataType: 'json',
-      data: {
-          codpagante: carnet,
-          idmatricula: idmatricula
-      },
-      success: function(e) {
-          if (e.status == false) {
-              Swal.fire({
-                  type: 'error',
-                  icon: 'error',
-                  title: 'Error!',
-                  text: e.msg,
-                  backdrop: false,
-              })
-              $('#modDeudas_historial .modDeudas_historial_content #divoverlay').remove();
-          } 
-          else {
-                
-                $('#divcard_title_HDeuda').html("<span class='text-danger'>"+carnet+"</span> / "+estudiante);
-                $("#divhtperiodo").html(periodo);
-                $("#divhtcarrera").html(programa);
-                $("#divhtplan").html(plan);
-                $("#divhtciclo").html(ciclo);
-                $("#divhtturno").html(turno);
-                $("#divhtseccion").html(seccion);
-
-                var nro = 0;
-                var tabla = "";
-                var boton = "";
-                // LLENADO DE DATOS PAGOS
-                $.each(e.vdata, function(index, p) {
-                    nro++;
-                    var estado = p['estadoc'];
-                    // boton = "<a href='#' onclick='fn_vw_seleccionar_pago($(this));return false;' title='Seleccionar' class='badge badge-primary'>seleccione</a>";
-                    
-                    monto = Number.parseFloat(p['monto']).toFixed(2);
-                    if (estado !== "ANULADO") {
-                      tabla = tabla +
-                          "<div class='row rowcolor' data-tipo='" + p['codtipo'] + "' data-serie='" + p['serie'] + "' data-numero='" + p['numero'] + "'>" +
-                          "<div class='col-6 col-md-5'>" +
-                          "<div class='row'>" +
-                          "<div class='col-4 col-md-2 td text-center'><span><b>" + nro + "</b></span></div>" +
-                          "<div class='col-8 col-md-5 td'><span>" + p['serie'] + "-" + p['numero'] + "</span>" +
-                          "</div>" +
-                          "<div class='col-8 col-md-5 td'><span>" + p['fecha_hora'] + "</span>" +
-                          "</div>" +
-                          "</div>" +
-                          "</div>" +
-                          "<div class='col-4 col-md-4 td'><span>" + p['gestion'] + "</span></div>" +
-                          "<div class='col-6 col-md-3 text-center'>" +
-                          "<div class='row'>" +
-                          "<div class='col-6 col-md-4 td text-center'><span>" + monto + "</span></div>" +
-                          "<div class='col-6 col-md-8 td'><span>" + p['estadoc'] + "</span></div>" +
-                          "</div>" +
-                          "</div>" +
-                          "</div>";
-                    }
-                });
-
-                var nrod = 0;
-                var nrod2 = 0;
-                var tbdeudas = "";
-                var tbdeudash = "";
-                var bgcolor = "";
-                totald = 0;
-                // LLENADO DE DATOS DEUDAS
-                $.each(e.vdeudas, function(index, v) {
-                  totald = totald + parseFloat(v['saldo']);
-                  var bgsaldo = (v['saldo']>0) ? "text-danger":"text-success";
-                  var codmatricula = v['idmatricula64'];
-                  switch (v['estado']) {
-                      case "ACTIVO":
-                          bgcolor = "btn-success";
-                          break;
-                      case "ANULADO":
-                          bgcolor = "btn-danger";
-                          break;
-                      default:
-                          bgcolor = "btn-success";
-                  }
-
-                  if (codmatricula === idmatricula) {
-                    nrod++;
-                    tbdeudas = tbdeudas + 
-                          "<div class='row cfila' onclick='fn_rowselection($(this))' data-cdeuda='" + v['codigo64'] + "'>"+
-                                "<div class='col-12 col-md-4'>"+
-                                    "<div class='row'>"+
-                                        "<div class='col-2 col-md-1 td text-center bg-lightgray px-0'>"+nrod+"</div>"+
-                                        "<div class='col-2 col-md-2 td text-center'><b>"+v['codigo']+"</b></div>"+
-                                        "<div class='col-8 col-md-9 td'>"+v['persona'] +"</div>"+
-                                    "</div>"+
-                                "</div>"+
-                                "<div class='col-12 col-md-3 td'>"+
-                                    "<span>"+v['gestion']+"</span>"+
-                                "</div>"+
-                                "<div class='col-12 col-md-2'>"+
-                                    "<div class='row'>"+
-                                        "<div class='col-5 col-md-5 td text-center'>"+parseFloat(v['monto']).toFixed(2)+"</div>"+
-                                        "<div class='col-5 col-md-5 td text-center'>"+
-                                          "<span class='"+bgsaldo+"'>"+parseFloat(v['saldo']).toFixed(2)+"<span>"+
-                                        "</div>"+
-                                        "<div class='col-2 col-md-2 td text-center'>"+
-                                          '<a href="#" onclick="fn_vw_editar_deuda($(this));return false;" title="Editar Deuda" >' +
-                                            '<i class="fas fa-pencil-alt fa-lg mx-1"></i>' +
-                                          '</a>' +
-                                        "</div>"+
-                                    "</div>"+
-                                "</div>"+
-                                "<div class='col-12 col-md-3'>"+
-                                    "<div class='row'>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+v['vence']+"</div>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+v['grupo']+"</div>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+
-                                          '<div class="btn-group dropleft">' +
-                                            '<button class="btn ' + bgcolor + ' btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" ' +
-                                            'aria-haspopup="true" aria-expanded="false">' +
-                                            (v['estado'].toLowerCase()).charAt(0).toUpperCase() + (v['estado'].toLowerCase()).slice(1) +
-                                            '</button> ' +
-                                            '<div class="dropdown-menu">' +
-                                              '<a href="#" class="dropdown-item" data-color="btn-danger" data-ie="' + cd2de + '" data-coddeuda="' + v['codigo64'] + '" id="btn_stanul' + v['codigo64'] + '" data-toggle="modal" data-target="#modanuladeuda">Anulado</a>' +
-                                              '<div class="dropdown-divider"></div>' +
-                                              '<a href="#" data-cdeudad="' + v['codigo64'] + '" onclick="fn_delete_deuda($(this))" class="dropdown-item text-danger text-bold"><i class="fas fa-trash-alt"></i> Eliminar</a>' +
-                                            '</div>' +
-                                          '</div>' +
-                                        "</div>"+
-                                    "</div>"+
-                                "</div>"+
-                            "</div>";
-                  } else {
-                    nrod2++;
-                    tbdeudash = tbdeudash + 
-                          "<div class='row cfila'>"+
-                                "<div class='col-12 col-md-4'>"+
-                                    "<div class='row'>"+
-                                        "<div class='col-2 col-md-1 td text-center bg-lightgray px-0'>"+nrod2+"</div>"+
-                                        "<div class='col-2 col-md-2 td text-center'><b>"+v['codigo']+"</b></div>"+
-                                        "<div class='col-8 col-md-9 td'>"+v['persona'] +"</div>"+
-                                    "</div>"+
-                                "</div>"+
-                                "<div class='col-12 col-md-3 td'>"+
-                                    "<span>"+v['gestion']+"</span>"+
-                                "</div>"+
-                                "<div class='col-12 col-md-2'>"+
-                                    "<div class='row'>"+
-                                        "<div class='col-6 col-md-6 td text-center'>"+parseFloat(v['monto']).toFixed(2)+"</div>"+
-                                        "<div class='col-6 col-md-6 td text-center'>"+
-                                          "<span class='"+bgsaldo+"'>"+parseFloat(v['saldo']).toFixed(2)+"<span>"+
-                                        "</div>"+
-                                    "</div>"+
-                                "</div>"+
-                                "<div class='col-12 col-md-3'>"+
-                                    "<div class='row'>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+v['vence']+"</div>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+v['grupo']+"</div>"+
-                                        "<div class='col-4 col-md-4 td text-center'>"+
-                                          // '<div class="btn-group dropleft">' +
-                                          //   '<button class="btn ' + bgcolor + ' btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" ' +
-                                          //   'aria-haspopup="true" aria-expanded="false">' +
-                                          //   (v['estado'].toLowerCase()).charAt(0).toUpperCase() + (v['estado'].toLowerCase()).slice(1) +
-                                          //   '</button> ' +
-                                          //   '<div class="dropdown-menu">' +
-                                          //     '<a href="#" class="dropdown-item" data-color="btn-danger" data-ie="' + cd2 + '" data-coddeuda="' + v['codigo64'] + '" id="btn_stanul' + v['codigo64'] + '" data-toggle="modal" data-target="#modanuladeuda">Anulado</a>' +
-                                          //   '</div>' +
-                                          // '</div>' +
-                                        "</div>"+
-                                    "</div>"+
-                                "</div>"+
-                            "</div>";
-                  }
-
-                  
-                })
-
-                if (nrod2 > 0) {
-                  $('#divdata_Deudas_Historial').html(tbdeudash);
-                  $('#divcard_deudas_historial').show();
-                }
-
-                $('#div_Deudas_Historial').html(tbdeudas);
-                $('#div_Pagos_Historial').html(tabla);
-
-                if (e.conteo > 0) {
-                  $('#lbtn_reportedeudas').data('carnet', carnet);
-                  $('#lbtn_reportedeudas').show();
-                }
-
-                if (e.pagos > 0) {
-                  $('#lbtn_reportepagos').data('carnet', carnet);
-                  $('#lbtn_reportepagos').data('pagante', estudiante);
-                  $('#lbtn_reportepagos').data('programa', programa);
-                  $('#lbtn_reportepagos').show();
-                }
-                
-                $('#modDeudas_historial .modDeudas_historial_content #divoverlay').remove();
-          }
-      },
-      error: function(jqXHR, exception) {
-          var msgf = errorAjax(jqXHR, exception, 'text');
-          $('#modDeudas_historial .modDeudas_historial_content #divoverlay').remove();
+          $('#divmodaladd #divoverlay').remove();
           Swal.fire({
               type: 'error',
               icon: 'error',
@@ -2776,220 +2464,4 @@ function fn_historial_vw_deudas(btn) {
       }
   });
 }
-
-$("#modDeudas_historial").on('hidden.bs.modal', function(e) {
-  $('#nav-mdeudash-tab').addClass('active');$('#nav-mdeudash').addClass('show active');
-  $('#nav-mpagos-tab').removeClass('active');$('#nav-mpagos').removeClass('show active');
-
-  $('#div_Deudas_Historial').html("");
-  $('#divdata_Deudas_Historial').html("");
-  $('#div_Pagos_Historial').html("");
-  $('#lbtn_reportedeudas').hide();
-  $('#lbtn_reportepagos').hide();
-})
-
-function fn_rowselection(btn) {
-    $("#div_Deudas_Historial .cfila").removeClass("bg-selection");
-    btn.addClass("bg-selection");
-};
-
-function fn_vw_editar_deuda(btn) {
-    var fila = btn.closest('.cfila');
-    var codigo = fila.data('cdeuda');
-    $('#modDeudas_historial .modDeudas_historial_content').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    $.ajax({
-        url: base_url + "deudas_individual/fn_get_deuda_codigo",
-        type: 'post',
-        dataType: 'json',
-        data: {
-            vw_fcb_txtcodigo : codigo,
-        },
-        success: function(e) {
-            $('#modDeudas_historial .modDeudas_historial_content #divoverlay').remove();
-            if (e.status == false) {
-                Swal.fire({
-                    title: "Error!",
-                    text: "No se encontraron datos",
-                    type: 'error',
-                    icon: 'error',
-                })
-            } else {
-                $('#ficcodpagante').attr('readonly', true);
-                $('#ficapenomde').attr('readonly', true);
-                $('#modadddeuda').modal();
-                $('#divcard_button').hide();
-                $('#ficcodmatricula').html(e.vmatriculas);
-                $('#divcard_nompagante').removeClass('col-lg-5');
-                $('#divcard_nompagante').addClass('col-lg-8');
-
-                $('#ficcod_deuda').val(e.vdata['coddeuda64']);
-                $('#ficcodpagante').val(e.vdata['pagante']);
-                $('#ficcodmatricula').val(e.vdata['codmat64']);
-                $('#ficapenomde').val(e.vdata['paterno'] + " " + e.vdata['materno'] + " " + e.vdata['nombres']);
-                $('#ficbgestion').val(e.vdata['codgestion']);
-                $('#ficmonto').val(parseFloat(e.vdata['monto']).toFixed(2));
-                $('#ficmora').val(parseFloat(e.vdata['mora']).toFixed(2));
-                $('#ficfechcreacion').val(e.vdata['fecha']);
-                $('#ficfechvence').val(e.vdata['fvence']);
-                $('#ficfechprorrog').val(e.vdata['fprorroga']);
-                $('#ficvouchcodigo').val(e.vdata['voucher']);
-                $('#ficcodigofecitem').val(e.vdata['fitem']);
-                $('#ficrepitecic').val(e.vdata['repciclo']);
-                $('#ficsaldo').val(parseFloat(e.vdata['saldo']).toFixed(2));
-                $('#ficobservacion').val(e.vdata['observacion']);
-                $('#divcardform_search_pagante').hide();
-            }
-        },
-        error: function(jqXHR, exception) {
-            var msgf = errorAjax(jqXHR, exception,'div');
-            $('#modDeudas_historial .modDeudas_historial_content #divoverlay').remove();
-            $('#divres_paghistorial').html(msgf);
-        }
-    })
-}
-
-$('#lbtn_guardar_deuda').click(function() {
-    $('#frm_addpagante input,select,textarea').removeClass('is-invalid');
-    $('#frm_addpagante .invalid-feedback').remove();
-    $('#divmodaladdmat').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    $.ajax({
-        url: $('#frm_addpagante').attr("action"),
-        type: 'post',
-        dataType: 'json',
-        data: $('#frm_addpagante').serialize(),
-        success: function(e) {
-            $('#divmodaladdmat #divoverlay').remove();
-            if (e.status == false) {
-                $.each(e.errors, function(key, val) {
-                    $('#' + key).addClass('is-invalid');
-                    $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
-                });
-
-                Swal.fire({
-                    title: e.msg,
-                    // text: "",
-                    type: 'error',
-                    icon: 'error',
-                })
-                
-            } else {
-                // $('#modadddeuda').modal('hide');
-                if (e.estado == "INSERTAR") {
-                    $('#ficcodpagante').val("");
-                    $('#ficcodpagante').attr('readonly', false);
-                    $('#ficapenomde').attr('readonly', false);
-                    $('#ficcodmatricula').html('<option value="">Sin Asignar</option>');
-                    $('#ficapenomde').val("");
-                    $('#frm_addpagante')[0].reset();
-                } else {
-                    $('#modadddeuda').modal('hide');
-                    // $('#tbdd_form_search_deudas').submit();
-                }
-                
-                Swal.fire({
-                    type: 'success',
-                    icon: 'success',
-                    title: e.msg,
-                    // text: 'Se ha actualizado el estado',
-                    backdrop: false,
-                })
-
-            }
-        },
-        error: function(jqXHR, exception) {
-            var msgf = errorAjax(jqXHR, exception,'text');
-            $('#divmodaladdmat #divoverlay').remove();
-            Swal.fire({
-                title: msgf,
-                // text: "",
-                type: 'error',
-                icon: 'error',
-            })
-        }
-    });
-    return false;
-});
-
-function fn_delete_deuda(btn) {
-    $('#divcard_deudas').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
-    var cdeuda = btn.data("cdeudad");
-    var fila = btn.parents(".cfila");
-    // var carne=fila.find('.cell-carne').html();
-    //************************************
-    Swal.fire({
-        title: "Precaución",
-        text: "Se eliminarán todos los datos con respecto a esta DEUDA ",
-        type: 'warning',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si, eliminar!'
-    }).then((result) => {
-        if (result.value) {
-            //var codc=$(this).data('im');
-            $.ajax({
-                url: base_url + 'deudas_individual/fn_eliminar',
-                type: 'post',
-                dataType: 'json',
-                data: {
-                    'id-deuda': cdeuda
-                },
-                success: function(e) {
-                    $('#divcard_deudas #divoverlay').remove();
-                    if (e.status == false) {
-                        Swal.fire({
-                            type: 'error',
-                            icon: 'error',
-                            title: 'Error!',
-                            text: e.msg,
-                            backdrop: false,
-                        })
-                    } else {
-
-                        Swal.fire({
-                            type: 'success',
-                            icon: 'success',
-                            title: 'Eliminación correcta',
-                            text: 'Se ha eliminado la deuda',
-                            backdrop: false,
-                        })
-
-                        fila.remove();
-                    }
-                },
-                error: function(jqXHR, exception) {
-                    var msgf = errorAjax(jqXHR, exception, 'text');
-                    $('#divcard_deudas #divoverlay').remove();
-                    Swal.fire({
-                        type: 'error',
-                        icon: 'error',
-                        title: 'Error',
-                        text: msgf,
-                        backdrop: false,
-                    })
-                }
-            });
-        } else {
-            $('#divcard_deudas #divoverlay').remove();
-        }
-    });
-    return false;
-}
-
-function fn_view_reporte_deudas(btn) {
-  var carnet = btn.data('carnet');
-  var url = base_url + "tesoreria/facturacion/reporte/deudas/estudiante/pdf?tp=CARNET&nro=" + carnet;
-  window.open(url, '_blank');
-}
-
-function fn_view_reporte_pagos(btn) {
-  var carnet = btn.data('carnet');
-  var pagante = btn.data('pagante');
-  var programa = btn.data('programa');
-  var url = base_url + "tesoreria/facturacion/reporte/pagos/estudiante/pdf?ct=" + carnet + "&cpg=" + pagante + "&cpm=" + programa;
-  window.open(url, '_blank');
-}
-
-
 </script>

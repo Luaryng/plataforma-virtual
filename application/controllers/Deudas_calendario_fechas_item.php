@@ -39,7 +39,26 @@ class Deudas_calendario_fechas_item extends CI_Controller {
                 
 				$dataex['status'] = true;
                 $dataex['vdata'] = $this->mdeudas_calendario_fecha_item->m_get_items_cobro_x_fecha(array($idcodigo));
-                $dataex['vgrupos']=$this->mdeudas_calendario_grupo->m_get_grupos_xcalendario(array($idcalendario));
+                
+                $total_matriculados=$this->mdeudas_calendario_grupo->m_get_grupos_totalMatriculados(array($idcalendario));
+                $total_deudasGeneradas=$this->mdeudas_calendario_grupo->m_get_grupos_totalDeudasGeneradas(array($idcalendario,$idcodigo));
+                $grupos=$this->mdeudas_calendario_grupo->m_get_grupos_xcalendario(array($idcalendario));
+                foreach ($grupos as $key => $gp) {
+                	$gp->matriculas=0;
+					$gp->generadas=0;
+                	foreach ($total_matriculados as $tm_key => $tm) {
+                		if ($tm->codigo==$gp->codigo){
+                			$gp->matriculas=$tm->matriculados;
+                		}
+                	}
+                	foreach ($total_deudasGeneradas as $dg_key => $dg) {
+                		if ($dg->codigo==$gp->codigo){
+                			$gp->generadas=$dg->generadas;
+                		}
+                	}
+                	
+                }
+                $dataex['vgrupos']=$grupos;
                
             }
 

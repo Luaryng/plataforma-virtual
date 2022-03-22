@@ -38,6 +38,86 @@ class Mdeudas_calendario_grupo extends CI_Model
         return $result->result();
     }
 
+    public function m_get_grupos_totalDeudasGeneradas($data)
+    {
+          $result = $this->db->query("SELECT 
+  tb_deuda_calendario_grupoacad.cga_id AS codigo,
+  tb_deuda_calendario_grupoacad.cod_deuda_calendario AS dcalendarioid,
+  tb_deuda_calendario_grupoacad.codigoperiodo AS periodo,
+  tb_deuda_calendario_grupoacad.codigocarrera AS carrera,
+  tb_deuda_calendario_grupoacad.codigociclo AS ciclo,
+  tb_deuda_calendario_grupoacad.codigoturno AS turno,
+  tb_deuda_calendario_grupoacad.codigoseccion AS seccion,
+  tb_deuda_calendario_fecha_item.dcfi_codigo,
+  COUNT(tb_deuda_individual.di_codigo) AS generadas
+FROM
+  tb_matricula
+  INNER JOIN tb_deuda_calendario_grupoacad ON (tb_matricula.codigoperiodo = tb_deuda_calendario_grupoacad.codigoperiodo)
+  AND (tb_matricula.codigociclo = tb_deuda_calendario_grupoacad.codigociclo)
+  AND (tb_matricula.codigocarrera = tb_deuda_calendario_grupoacad.codigocarrera)
+  AND (tb_matricula.codigoturno = tb_deuda_calendario_grupoacad.codigoturno)
+  AND (tb_matricula.codigoseccion = tb_deuda_calendario_grupoacad.codigoseccion)
+  INNER JOIN tb_deuda_individual ON (tb_matricula.mtr_id = tb_deuda_individual.matricula_cod)
+  INNER JOIN tb_deuda_calendario_fecha_item ON (tb_deuda_individual.cal_fecha_item_cod = tb_deuda_calendario_fecha_item.dcfi_codigo)
+WHERE
+  tb_deuda_calendario_grupoacad.cod_deuda_calendario = ? AND tb_deuda_calendario_fecha_item.codigo_calfecha=?
+GROUP BY
+  tb_deuda_calendario_grupoacad.cga_id,
+  tb_deuda_calendario_grupoacad.cod_deuda_calendario,
+  tb_deuda_calendario_grupoacad.codigoperiodo,
+  tb_deuda_calendario_grupoacad.codigocarrera,
+  tb_deuda_calendario_grupoacad.codigociclo,
+  tb_deuda_calendario_grupoacad.codigoturno,
+  tb_deuda_calendario_grupoacad.codigoseccion,
+  tb_deuda_calendario_fecha_item.dcfi_codigo
+ORDER BY
+  tb_deuda_calendario_grupoacad.codigoperiodo,
+  tb_deuda_calendario_grupoacad.codigocarrera,
+  tb_deuda_calendario_grupoacad.codigociclo,
+  tb_deuda_calendario_grupoacad.codigoturno,
+  tb_deuda_calendario_grupoacad.codigoseccion",$data);
+        return $result->result();
+    }
+
+    public function m_get_grupos_totalMatriculados($data)
+    {
+          $result = $this->db->query("SELECT 
+            tb_deuda_calendario_grupoacad.cod_deuda_calendario,
+            tb_deuda_calendario_grupoacad.cga_id AS codigo,
+            tb_deuda_calendario_grupoacad.codigoperiodo AS periodo,
+            tb_deuda_calendario_grupoacad.codigocarrera AS carrera,
+            tb_deuda_calendario_grupoacad.codigociclo AS ciclo,
+            tb_deuda_calendario_grupoacad.codigoturno AS turno,
+            tb_deuda_calendario_grupoacad.codigoseccion AS seccion,
+            COUNT(tb_matricula.mtr_id) AS matriculados
+          FROM
+            tb_deuda_calendario_grupoacad
+            INNER JOIN tb_deuda_calendario ON (tb_deuda_calendario_grupoacad.cod_deuda_calendario = tb_deuda_calendario.dc_codigo)
+            INNER JOIN tb_matricula ON (tb_matricula.codigosede = tb_deuda_calendario.cod_sede)
+            AND (tb_matricula.codigoperiodo = tb_deuda_calendario_grupoacad.codigoperiodo)
+            AND (tb_matricula.codigociclo = tb_deuda_calendario_grupoacad.codigociclo)
+            AND (tb_matricula.codigocarrera = tb_deuda_calendario_grupoacad.codigocarrera)
+            AND (tb_matricula.codigoturno = tb_deuda_calendario_grupoacad.codigoturno)
+            AND (tb_matricula.codigoseccion = tb_deuda_calendario_grupoacad.codigoseccion)
+          WHERE
+            tb_deuda_calendario_grupoacad.cod_deuda_calendario = ? 
+          GROUP BY
+            tb_deuda_calendario_grupoacad.cod_deuda_calendario,
+            tb_deuda_calendario_grupoacad.cga_id,
+            tb_deuda_calendario_grupoacad.codigoperiodo,
+            tb_deuda_calendario_grupoacad.codigocarrera,
+            tb_deuda_calendario_grupoacad.codigociclo,
+            tb_deuda_calendario_grupoacad.codigoturno,
+            tb_deuda_calendario_grupoacad.codigoseccion
+          ORDER BY
+            tb_deuda_calendario_grupoacad.codigoperiodo,
+            tb_deuda_calendario_grupoacad.codigocarrera,
+            tb_deuda_calendario_grupoacad.codigociclo,
+            tb_deuda_calendario_grupoacad.codigoturno,
+            tb_deuda_calendario_grupoacad.codigoseccion",$data);
+        return $result->result();
+    }
+
   public function m_deuda_xgrupo_calendario($data)
     {
       $codsede=$_SESSION['userActivo']->idsede;

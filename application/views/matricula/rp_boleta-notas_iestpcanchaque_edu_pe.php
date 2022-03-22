@@ -210,7 +210,7 @@ foreach ($mats as $mat) {
 			</td>
 		<?php } ?>
 		<td class="celda ccenter-nobold">
-			<span><?php echo $cur->dpi ?></span>
+			<span><?php echo "--";//$cur->dpi ?></span>
 		</td>
 	</tr>
 	<?php 

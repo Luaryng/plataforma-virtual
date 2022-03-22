@@ -839,6 +839,7 @@ function savepreg(btn){
     card.find('textarea').removeClass('is-invalid');
     card.find('.invalid-feedback').remove();
     var crd=card.data('numero');
+    var tip = card.find("select[name='pg-tipo']").val();
     card.append('<div id="divoverlay" class="overlay dark"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
     //var prev_img = card.find(".preview_image_preg");
     //var dropprev_img = card.find(".down-image");
@@ -882,7 +883,8 @@ function savepreg(btn){
                 isok="SI";
                 pmax=valrpta;
                 radiook++;
-            }
+            } 
+
             var rptaimage = $(this).data('imagen');
             var imgrptadel = $(this).data('imagendelete');
             var imgtemprpta = $(this).data('imagentemp');
@@ -893,6 +895,16 @@ function savepreg(btn){
             arrdata.push(myvals);
         }
     });
+
+    if (tip !== "7") {
+        if (card.find("input[name='checkrpta"+crd+"']:radio").is(':checked')==false){
+            card.find('#divoverlay').remove();
+            card.find('.divrptas').append("<div class='invalid-feedback'>Debe marcar una respuesta como correcta</div>");
+            card.find('.invalid-feedback').show();
+            return;
+        }
+    }
+    
 
 
     fdata.append('rptas',JSON.stringify(arrdata));

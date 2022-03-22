@@ -130,58 +130,79 @@
     <div id="divboxhistorial" class="card">
       <div class="card-body pb-1">
         <form id="frmfiltro-grupos" name="frmfiltro-grupos" action="<?php echo $vbaseurl ?>grupos/fn_filtrar" method="post" accept-charset='utf-8'>
-          <div class="row">
-            
-            <div class="form-group has-float-label col-12 col-sm-2">
-              <select data-currentvalue='' class="form-control" id="fm-cbperiodo" name="fm-cbperiodo" placeholder="Periodo" required >
-                <option value="%"></option>
-                <?php foreach ($periodos as $periodo) {?>
-                <option value="<?php echo $periodo->codigo ?>"><?php echo $periodo->nombre ?></option>
-                <?php } ?>
-              </select>
-              <label for="fm-cbperiodo"> Periodo</label>
-            </div>
-            
-            <div class="form-group has-float-label col-12 col-sm-3">
-              <select data-currentvalue='' class="form-control" id="fm-cbcarrera" name="fm-cbcarrera" placeholder="Programa Académico" required >
-                <option value="%"></option>
-                <?php foreach ($carreras as $carrera) {?>
-                <option value="<?php echo $carrera->codcarrera ?>"><?php echo $carrera->nombre ?></option>
-                <?php } ?>
-              </select>
-              <label for="fm-cbcarrera"> Programa Académico</label>
-            </div>
-            <div class="form-group has-float-label col-12 col-sm-2">
-              <select data-currentvalue='' class="form-control" id="fm-cbciclo" name="fm-cbciclo" placeholder="Ciclo" required >
-                <option value="%"></option>
-                <?php foreach ($ciclos as $ciclo) {?>
-                <option value="<?php echo $ciclo->codigo ?>"><?php echo $ciclo->nombre ?></option>
-                <?php } ?>
-              </select>
-              <label for="fm-cbciclo"> Ciclo</label>
-            </div>
-            <div class="form-group has-float-label col-12 col-sm-2">
-              <select data-currentvalue='' class="form-control" id="fm-cbturno" name="fm-cbturno" placeholder="Turno" required >
-                <option value="%"></option>
-                <?php foreach ($turnos as $turno) {?>
-                <option value="<?php echo $turno->codigo ?>"><?php echo $turno->nombre ?></option>
-                <?php } ?>
-              </select>
-              <label for="fm-cbturno"> Turno</label>
-            </div>
-            <div class="form-group has-float-label col-12 col-sm-2">
-              <select data-currentvalue='' class="form-control" id="fm-cbseccion" name="fm-cbseccion" placeholder="Sección" required >
-                <option value="%"></option>
-                <?php foreach ($secciones as $seccion) {?>
-                <option value="<?php echo $seccion->codigo ?>"><?php echo $seccion->nombre ?></option>
-                <?php } ?>
-              </select>
-              <label for="fm-cbseccion"> Sección</label>
-            </div>
-            <div class="col-12  col-sm-1">
-              <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search"></i></button>
-            </div>
-          </div>
+         <div class="row">
+                <div class="form-group has-float-label col-12 col-sm-4 col-md-2">
+                  <select  class="form-control form-control-sm" id="fm-cbsede" name="fm-cbsede" placeholder="Filial">
+                    <option value="%"></option>
+                    <?php 
+                      foreach ($sedes as $filial) {
+                        $select=($vuser->idsede==$filial->id) ? "selected":"";
+                        echo "<option $select value='$filial->id'>$filial->nombre</option>";
+                      } 
+                    ?>
+                  </select>
+                  <label for="fm-cbsede"> Filial</label>
+                </div>
+                <div class="form-group has-float-label col-12 col-sm-2">
+                  <select data-currentvalue='' class="form-control form-control-sm" id="fm-cbperiodo" name="fm-cbperiodo" placeholder="Periodo" required >
+                    <option value="%"></option>
+                    <?php foreach ($periodos as $periodo) {?>
+                    <option value="<?php echo $periodo->codigo ?>"><?php echo $periodo->nombre ?></option>
+                    <?php } ?>
+                  </select>
+                  <label for="fm-cbperiodo"> Periodo</label>
+                </div>
+                
+                <div class="form-group has-float-label col-12 col-sm-3">
+                  <select data-currentvalue='' class="form-control form-control-sm" id="fm-cbcarrera" name="fm-cbcarrera" placeholder="Programa Académico" required >
+                    <option value="%"></option>
+                    <?php foreach ($carreras as $carrera) {?>
+                    <option value="<?php echo $carrera->codcarrera ?>"><?php echo $carrera->nombre ?></option>
+                    <?php } ?>
+                  </select>
+                  <label for="fm-cbcarrera"> Prog. de Estudios</label>
+                </div>
+                <div class="form-group has-float-label col-12 col-sm-3 col-md-2">
+                  <select name="fm-cbplan" id="fm-cbplan"class="form-control form-control-sm">
+                    <option data-carrera="0" value="%">Todos</option>
+                    <option data-carrera="0" value="0">Sin Plan</option>
+                    <?php foreach ($planes as $pln) {
+                    echo "<option data-carrera='$pln->codcarrera' value='$pln->codigo'>$pln->nombre</option>";
+                    } ?>
+                  </select>
+                  <label for="fm-cbplan">Plan estudios</label>
+                </div>
+                <div class="form-group has-float-label col-12 col-sm-2">
+                  <select data-currentvalue='' class="form-control form-control-sm" id="fm-cbciclo" name="fm-cbciclo" placeholder="Ciclo" required >
+                    <option value="%"></option>
+                    <?php foreach ($ciclos as $ciclo) {?>
+                    <option value="<?php echo $ciclo->codigo ?>"><?php echo $ciclo->nombre ?></option>
+                    <?php } ?>
+                  </select>
+                  <label for="fm-cbciclo"> Semestre</label>
+                </div>
+                <div class="form-group has-float-label col-12 col-sm-2">
+                  <select data-currentvalue='' class="form-control form-control-sm" id="fm-cbturno" name="fm-cbturno" placeholder="Turno" required >
+                    <option value="%"></option>
+                    <?php foreach ($turnos as $turno) {?>
+                    <option value="<?php echo $turno->codigo ?>"><?php echo $turno->nombre ?></option>
+                    <?php } ?>
+                  </select>
+                  <label for="fm-cbturno"> Turno</label>
+                </div>
+                <div class="form-group has-float-label col-12 col-sm-2">
+                  <select data-currentvalue='' class="form-control form-control-sm" id="fm-cbseccion" name="fm-cbseccion" placeholder="Sección" required >
+                    <option value="%"></option>
+                    <?php foreach ($secciones as $seccion) {?>
+                    <option value="<?php echo $seccion->codigo ?>"><?php echo $seccion->nombre ?></option>
+                    <?php } ?>
+                  </select>
+                  <label for="fm-cbseccion"> Sección</label>
+                </div>
+                <div class="col-12  col-sm-1">
+                  <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-search"></i></button>
+                </div>
+              </div>
         </form>
       </div>
       <div class="card-body pt-1">
@@ -631,8 +652,6 @@ $("#frmfiltro-grupos").submit(function(event) {
                 cl=cl + parseInt(v['cul']);
                 
                 var btn_carga='';
-                var btn_matriculas='';
-                var btn_culminar = '';
                 var params='cp='+ v['codperiodo'] +'&cc='+ v['codcarrera'] + '&ccc='+ v['codciclo'] +'&ct='+ v['codturno']+'&cs='+ v['seccion']+'&cpl='+ v['idplan'];
 
                  btnregeval='<a class="dropdown-item" href="' + base_url + 'academico/consulta/nomina-evaluaciones/excel?' + params + '&at=1'+'"><i class="fas fa-file-excel"></i> Evaluaciones</a>'; 

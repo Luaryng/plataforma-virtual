@@ -495,6 +495,8 @@ $route['tesoreria/facturacion/reporte/estado/cuenta/excel'] = "exportarexcel_fac
 $route['tesoreria/facturacion/reporte/deudas/estudiante/pdf'] = "facturacion_reportes/rp_deudas_estudiante_individual_pdf";
 $route['tesoreria/facturacion/reporte/deudas/estudiante/excel'] = "exportarexcel_facturacion/rp_deudas_estudiante_individual_excel";
 
+$route['tesoreria/facturacion/reporte/pagos/estudiante/pdf'] = "matricula/rp_pagos_estudiante_individual_pdf";
+
 //$route['tesoreria/facturacion/reportes/sedes'] = "graficos";
 
 

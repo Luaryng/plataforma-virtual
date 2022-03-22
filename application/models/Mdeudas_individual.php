@@ -116,6 +116,7 @@ class Mdeudas_individual extends CI_Model
                 tb_ciclo.cic_nombre AS ciclo,
                 tb_matricula.codigoseccion as codseccion,
                 tb_deuda_individual.cod_gestion as codgestion,
+                tb_deuda_individual.matricula_cod as idmatricula,
                 tb_gestion.gt_nombre as gestion,
                 tb_matricula.codigosede as codsede,
                 tb_sede.sed_abreviatura AS sede_abrevia,
@@ -297,7 +298,7 @@ class Mdeudas_individual extends CI_Model
           INNER JOIN tb_turno ON (tb_matricula.codigoturno = tb_turno.tur_codigo)
 
         WHERE
-              tb_matricula.codigoperiodo LIKE ? AND   tb_matricula.codigocarrera LIKE ? AND 
+             tb_matricula.codigosede=? and tb_matricula.codigoperiodo LIKE ? AND   tb_matricula.codigocarrera LIKE ? AND 
                 tb_matricula.codigociclo LIKE ? AND tb_matricula.codigoturno LIKE ? AND 
               tb_matricula.codigoseccion LIKE ? AND  tb_deuda_individual.di_saldo>0 AND tb_deuda_individual.di_estado='ACTIVO' 
              $sqltext_vencido 

@@ -40,6 +40,9 @@ class Matricula extends CI_Controller {
 
         $this->load->model('mfacturacion');
         $a_ins['tipdoc'] = $this->mfacturacion->m_get_tiposdoc();
+
+        $this->load->model('mgestion');
+        $a_ins['gestion'] =$this->mgestion->m_get_gestionxestado();
         
         //}
 		//$modl=$this->mmodalidad->m_modalidad();
@@ -279,6 +282,175 @@ class Matricula extends CI_Controller {
         header('Content-Type: application/x-json; charset=utf-8');
         echo json_encode($dataex);
     }
+
+    public function fn_insert_update_matricula()
+    {
+        $this->form_validation->set_message('required', '* %s Requerido');
+        $this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
+        $this->form_validation->set_message('is_unique', '* {field} ya se encuentra registrado.');
+        $this->form_validation->set_message('alpha', '* {field} requiere un valor de la lista.');
+        $this->form_validation->set_message('is_natural_no_zero', '* {field} requiere un valor de la lista.');
+        $this->form_validation->set_message('exact_length', '* {field} requiere un valor de la lista.');
+        
+    
+        $dataex['status'] =FALSE;
+        $dataex['msg']    = '¿Que Intentas?.';
+        if ($this->input->is_ajax_request())
+        {
+            $dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+
+            $this->form_validation->set_rules('fm-txtidup','Identificador','trim|required');
+            
+            $this->form_validation->set_rules('fm-cbtipoup','Modalidad','trim|required');
+            $this->form_validation->set_rules('fm-cbbeneficioup','Beneficio','trim|required|is_natural_no_zero');
+            $this->form_validation->set_rules('fm-cbplanup','Plan nuevo','trim|required|is_natural_no_zero');
+            
+            $this->form_validation->set_rules('fm-txtcarreraup','Carrera','trim|required|is_natural_no_zero');
+            $this->form_validation->set_rules('fm-cbcicloup','Ciclo','trim|required|exact_length[2]');
+            $this->form_validation->set_rules('fm-cbturnoup','Turno','trim|required|alpha');
+            $this->form_validation->set_rules('fm-cbseccionup','Sección','trim|required|alpha');
+            $this->form_validation->set_rules('fm-txtcuotaup','Cuota dscto','trim|required');
+            $this->form_validation->set_rules('fm-txtcuotaupreal','Cuota real','trim|required');
+
+            $this->form_validation->set_rules('fm-txtfecmatriculaup','Fec. Matricula.','trim|required');
+            $this->form_validation->set_rules('fm-cbestadoup','Estado','trim|required|is_natural_no_zero');
+
+            $fmtxtidmat64 = $this->input->post('fm-txtidmatriculaup');
+
+            $checksindoc = "NO";
+            if ($this->input->post('checkdocumen')!==null){
+                $checksindoc = $this->input->post('checkdocumen');
+            }
+            if ($checksindoc=="on"){
+                $checksindoc = "SI";
+            }
+
+            if ($fmtxtidmat64 == "0") {
+                $this->form_validation->set_rules('fm-cbperiodoup','Periodo','trim|required|exact_length[5]|is_natural_no_zero');
+            }
+
+            if ($checksindoc == "NO") {
+                $this->form_validation->set_rules('fm-tipdocuf','Tipo documento','trim|required');
+                $this->form_validation->set_rules('fm-serie','Serie','trim|required');
+                $this->form_validation->set_rules('fm-numdocum','N° documento','trim|required');
+            }
+
+            if ($this->form_validation->run() == FALSE)
+            {
+                $dataex['msg']="Existen errores en los campos";
+                $dataex['msgc'] = validation_errors();
+                $errors = array();
+                foreach ($this->input->post() as $key => $value){
+                    $errors[$key] = form_error($key);
+                }
+                $dataex['errors'] = array_filter($errors);
+            }
+            else
+            {
+                $matstatus = "";
+                $dataex['msg'] ="Matrícula NO registrada";
+                $dataex['status'] =FALSE;
+                
+                $fmtxtidmat=base64url_decode($fmtxtidmat64);
+                $fmtxtid=base64url_decode($this->input->post('fm-txtidup'));
+                $fmcbtipo=$this->input->post('fm-cbtipoup');
+                $fmcbbeneficio=$this->input->post('fm-cbbeneficioup');
+                $fmtxtperiodo = $this->input->post('fm-txtperiodoup');
+                $fmcbperiodo=$this->input->post('fm-cbperiodoup');
+                $fmtxtcarrera=$this->input->post('fm-txtcarreraup');
+                $fmcbplan=$this->input->post('fm-cbplanup');
+                $fmtxtplan=$this->input->post('fm-txtplanup');
+                $fmcbciclo=$this->input->post('fm-cbcicloup');
+                $fmcbturno=$this->input->post('fm-cbturnoup');
+                $fmcbseccion=$this->input->post('fm-cbseccionup');
+                $fmtxtfecmatricula=$this->input->post('fm-txtfecmatriculaup');
+                $fmtxtcuota=$this->input->post('fm-txtcuotaup');
+                $fmtxtobservaciones=mb_strtoupper($this->input->post('fm-txtobservacionesup'));
+                $fmtxtcuotareal = $this->input->post('fm-txtcuotaupreal');
+
+                $fmtxtestado=$this->input->post('fm-cbestadoup');
+
+                $fmtapepaterno=$this->input->post('fm-txtmapepatup');
+                $fmtapematerno=$this->input->post('fm-txtmapematup');
+                $fmtnombres=$this->input->post('fm-txtmnombresup');
+                $fmtsexo=$this->input->post('fm-txtmsexoup');
+                $idsede = $_SESSION['userActivo']->idsede;
+                $idusuario = $_SESSION['userActivo']->idusuario;
+                if (getPermitido("151")=="SI"){
+                    if (null!==$this->input->post('fm-cbsedeup')){
+                        $idsede =$this->input->post('fm-cbsedeup');    
+                    }
+                    
+                }
+
+                $fmttipodocf = $this->input->post('fm-tipdocuf');
+                $fmtserie = $this->input->post('fm-serie');
+                $fmtnrodoc = $this->input->post('fm-numdocum');
+
+                $this->load->model('minscrito');
+                $newcod=$this->minscrito->m_update_asignarplan(array($fmtxtid,$fmtxtperiodo,$fmcbplan));
+                $contenido = "";
+                if ($fmtxtfecmatricula=="0") $fmtxtfecmatricula= date("Y-m-d H:i:s");
+
+                if ($fmtxtidmat64 == "0") {
+                    $rsrow=$this->mmatricula->m_insert(array($fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmcbperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtapepaterno,$fmtapematerno,$fmtnombres,$fmtsexo,$idsede,$fmtxtcuotareal,$idusuario,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
+                    $matstatus = "INSERTAR";
+                    $contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está insertando una matricula en la tabla TB_MATRICULA COD.".$rsrow->newcod." ".$fmtapepaterno." ".$fmtapematerno." ".$fmtnombres." id inscripción ".$fmtxtid;
+                } else {
+                    if (getPermitido("151")=="SI"){
+                         $rsrow=$this->mmatricula->m_update_matricula_manual_consede(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$idsede,$fmtxtcuotareal,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
+                    }
+                    else{
+                         $rsrow=$this->mmatricula->m_update_matricula_manual(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtxtcuotareal,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
+                    }
+
+                    $contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está editando una matricula en la tabla TB_MATRICULA COD.".$fmtxtidmat." ".$fmtapepaterno." ".$fmtapematerno." ".$fmtnombres." id inscripción ".$fmtxtid;
+
+                    $matstatus = "EDITAR";
+                }
+                $newcod=$rsrow->newcod;
+                $rs=$rsrow->rs;
+                $dataex['newcod'] =$rs;
+                if ($rs==0){
+                    
+                    $dataex['msg'] ="El Alumno ya se encuentra matriculado";
+                }
+                elseif ($rs==-1) {
+                    
+                    $dataex['msg'] ="El Alumno no pudo ser matriculado consulte el sw_log";
+                }
+                else{
+                    $dataex['status'] =TRUE;
+                    $dataex['msg'] ="Matrícula actualizada correctamente, verificar sus unidades didácticas de ser necesario";
+                    $dataex['newcod'] =$newcod;
+                    $dataex['matstatus'] = $matstatus;
+                    
+                    $usuario = $_SESSION['userActivo']->idusuario;
+                    $sede = $_SESSION['userActivo']->idsede;
+
+                    
+                    
+                    $auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $matstatus, $contenido, $sede));
+
+                    $this->load->model('mcargaacademica');
+                    //$idsede = $_SESSION['userActivo']->idsede;
+                    $cargas=$this->mcargaacademica->m_get_carga_por_grupo(array($fmcbperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$idsede));
+                    //if ($fmtxtidmat64 == "0") {
+                        $this->load->model('mmiembros');
+                        $this->mmiembros->m_auto_insert($cargas,$newcod);
+                    //}
+                    
+                    //$cursos=$this->mmatricula->m_miscursos_x_matricula(array($newcod));
+                    //$dataex['vdata'] =$cursos;
+                }
+            }
+
+        }
+        
+        header('Content-Type: application/x-json; charset=utf-8');
+        echo json_encode($dataex);
+    }
+
 
     public function fn_cambiarestado()
     {
@@ -646,10 +818,7 @@ class Matricula extends CI_Controller {
             $dataex['msg'] = validation_errors();
         } else {
             $codmatricula = base64url_decode($this->input->post('codmatricula'));
-            //$matriculado=$this->mmatricula->m_get_matricula_pdf(array($codmatricula));
             $cursos=$this->mmatricula->m_miscursos_x_matricula(array($codmatricula));
-            //$cursos=$this->mmatricula->m_cursos_x_matricula(array($codmatricula));
-            
             $dataex['status'] = true;
         }
         $dataex['vdata'] = $cursos;
@@ -787,174 +956,7 @@ class Matricula extends CI_Controller {
         echo(json_encode($dataex));
     }
 
-    public function fn_insert_update_matricula()
-    {
-        $this->form_validation->set_message('required', '* %s Requerido');
-        $this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
-        $this->form_validation->set_message('is_unique', '* {field} ya se encuentra registrado.');
-        $this->form_validation->set_message('alpha', '* {field} requiere un valor de la lista.');
-        $this->form_validation->set_message('is_natural_no_zero', '* {field} requiere un valor de la lista.');
-        $this->form_validation->set_message('exact_length', '* {field} requiere un valor de la lista.');
-        
     
-        $dataex['status'] =FALSE;
-        $dataex['msg']    = '¿Que Intentas?.';
-        if ($this->input->is_ajax_request())
-        {
-            $dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
-
-            $this->form_validation->set_rules('fm-txtidup','Identificador','trim|required');
-            
-            $this->form_validation->set_rules('fm-cbtipoup','Modalidad','trim|required');
-            $this->form_validation->set_rules('fm-cbbeneficioup','Beneficio','trim|required|is_natural_no_zero');
-            $this->form_validation->set_rules('fm-cbplanup','Plan nuevo','trim|required|is_natural_no_zero');
-            
-            $this->form_validation->set_rules('fm-txtcarreraup','Carrera','trim|required|is_natural_no_zero');
-            $this->form_validation->set_rules('fm-cbcicloup','Ciclo','trim|required|exact_length[2]');
-            $this->form_validation->set_rules('fm-cbturnoup','Turno','trim|required|alpha');
-            $this->form_validation->set_rules('fm-cbseccionup','Sección','trim|required|alpha');
-            $this->form_validation->set_rules('fm-txtcuotaup','Cuota dscto','trim|required');
-            $this->form_validation->set_rules('fm-txtcuotaupreal','Cuota real','trim|required');
-
-            $this->form_validation->set_rules('fm-txtfecmatriculaup','Fec. Matricula.','trim|required');
-            $this->form_validation->set_rules('fm-cbestadoup','Estado','trim|required|is_natural_no_zero');
-
-            $fmtxtidmat64 = $this->input->post('fm-txtidmatriculaup');
-
-            $checksindoc = "NO";
-            if ($this->input->post('checkdocumen')!==null){
-                $checksindoc = $this->input->post('checkdocumen');
-            }
-            if ($checksindoc=="on"){
-                $checksindoc = "SI";
-            }
-
-            if ($fmtxtidmat64 == "0") {
-                $this->form_validation->set_rules('fm-cbperiodoup','Periodo','trim|required|exact_length[5]|is_natural_no_zero');
-            }
-
-            if ($checksindoc == "NO") {
-                $this->form_validation->set_rules('fm-tipdocuf','Tipo documento','trim|required');
-                $this->form_validation->set_rules('fm-serie','Serie','trim|required');
-                $this->form_validation->set_rules('fm-numdocum','N° documento','trim|required');
-            }
-
-            if ($this->form_validation->run() == FALSE)
-            {
-                $dataex['msg']="Existen errores en los campos";
-                $dataex['msgc'] = validation_errors();
-                $errors = array();
-                foreach ($this->input->post() as $key => $value){
-                    $errors[$key] = form_error($key);
-                }
-                $dataex['errors'] = array_filter($errors);
-            }
-            else
-            {
-                $matstatus = "";
-                $dataex['msg'] ="Matrícula NO registrada";
-                $dataex['status'] =FALSE;
-                
-                $fmtxtidmat=base64url_decode($fmtxtidmat64);
-                $fmtxtid=base64url_decode($this->input->post('fm-txtidup'));
-                $fmcbtipo=$this->input->post('fm-cbtipoup');
-                $fmcbbeneficio=$this->input->post('fm-cbbeneficioup');
-                $fmtxtperiodo = $this->input->post('fm-txtperiodoup');
-                $fmcbperiodo=$this->input->post('fm-cbperiodoup');
-                $fmtxtcarrera=$this->input->post('fm-txtcarreraup');
-                $fmcbplan=$this->input->post('fm-cbplanup');
-                $fmtxtplan=$this->input->post('fm-txtplanup');
-                $fmcbciclo=$this->input->post('fm-cbcicloup');
-                $fmcbturno=$this->input->post('fm-cbturnoup');
-                $fmcbseccion=$this->input->post('fm-cbseccionup');
-                $fmtxtfecmatricula=$this->input->post('fm-txtfecmatriculaup');
-                $fmtxtcuota=$this->input->post('fm-txtcuotaup');
-                $fmtxtobservaciones=mb_strtoupper($this->input->post('fm-txtobservacionesup'));
-                $fmtxtcuotareal = $this->input->post('fm-txtcuotaupreal');
-
-                $fmtxtestado=$this->input->post('fm-cbestadoup');
-
-                $fmtapepaterno=$this->input->post('fm-txtmapepatup');
-                $fmtapematerno=$this->input->post('fm-txtmapematup');
-                $fmtnombres=$this->input->post('fm-txtmnombresup');
-                $fmtsexo=$this->input->post('fm-txtmsexoup');
-                $idsede = $_SESSION['userActivo']->idsede;
-                $idusuario = $_SESSION['userActivo']->idusuario;
-                if (getPermitido("151")=="SI"){
-                    if (null!==$this->input->post('fm-cbsedeup')){
-                        $idsede =$this->input->post('fm-cbsedeup');    
-                    }
-                    
-                }
-
-                $fmttipodocf = $this->input->post('fm-tipdocuf');
-                $fmtserie = $this->input->post('fm-serie');
-                $fmtnrodoc = $this->input->post('fm-numdocum');
-
-                $this->load->model('minscrito');
-                $newcod=$this->minscrito->m_update_asignarplan(array($fmtxtid,$fmtxtperiodo,$fmcbplan));
-                $contenido = "";
-                if ($fmtxtfecmatricula=="0") $fmtxtfecmatricula= date("Y-m-d H:i:s");
-
-                if ($fmtxtidmat64 == "0") {
-                    $rsrow=$this->mmatricula->m_insert(array($fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmcbperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtapepaterno,$fmtapematerno,$fmtnombres,$fmtsexo,$idsede,$fmtxtcuotareal,$idusuario,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
-                    $matstatus = "INSERTAR";
-                    $contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está insertando una matricula en la tabla TB_MATRICULA COD.".$rsrow->newcod." ".$fmtapepaterno." ".$fmtapematerno." ".$fmtnombres." id inscripción ".$fmtxtid;
-                } else {
-                    if (getPermitido("151")=="SI"){
-                         $rsrow=$this->mmatricula->m_update_matricula_manual_consede(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$idsede,$fmtxtcuotareal,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
-                    }
-                    else{
-                         $rsrow=$this->mmatricula->m_update_matricula_manual(array($fmtxtidmat,$fmtxtid,$fmcbtipo,$fmcbbeneficio,$fmtxtperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$fmtxtcuota,$fmtxtestado,$fmtxtfecmatricula,$fmtxtobservaciones,$fmcbplan,$fmtxtcuotareal,$fmttipodocf,$fmtserie,$fmtnrodoc,$checksindoc));
-                    }
-
-                    $contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", está editando una matricula en la tabla TB_MATRICULA COD.".$fmtxtidmat." ".$fmtapepaterno." ".$fmtapematerno." ".$fmtnombres." id inscripción ".$fmtxtid;
-
-                    $matstatus = "EDITAR";
-                }
-                $newcod=$rsrow->newcod;
-                $rs=$rsrow->rs;
-                $dataex['newcod'] =$rs;
-                if ($rs==0){
-                    
-                    $dataex['msg'] ="El Alumno ya se encuentra matriculado";
-                }
-                elseif ($rs==-1) {
-                    
-                    $dataex['msg'] ="El Alumno no pudo ser matriculado consulte el sw_log";
-                }
-                else{
-                    $dataex['status'] =TRUE;
-                    $dataex['msg'] ="Matrícula actualizada correctamente, verificar sus unidades didácticas de ser necesario";
-                    $dataex['newcod'] =$newcod;
-                    $dataex['matstatus'] = $matstatus;
-                    
-                    $usuario = $_SESSION['userActivo']->idusuario;
-                    $sede = $_SESSION['userActivo']->idsede;
-
-                    
-                    
-                    $auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $matstatus, $contenido, $sede));
-
-                    /*$this->load->model('mcargaacademica');
-                    $idsede = $_SESSION['userActivo']->idsede;
-                    $cargas=$this->mcargaacademica->m_get_carga_por_grupo(array($fmcbperiodo,$fmtxtcarrera,$fmcbciclo,$fmcbturno,$fmcbseccion,$idsede));
-                    if ($fmtxtidmat64 == "0") {
-                        $this->load->model('mmiembros');
-                        $this->mmiembros->m_auto_insert($cargas,$newcod);
-                    }*/
-                    
-                    $cursos=$this->mmatricula->m_miscursos_x_matricula(array($newcod));
-                    $dataex['vdata'] =$cursos;
-                }
-            }
-
-        }
-        
-        header('Content-Type: application/x-json; charset=utf-8');
-        echo json_encode($dataex);
-    }
-
     public function fn_filtrar_inscritos()
     {
         $this->form_validation->set_message('required', '%s Requerido o digite %%%%%%%%');
@@ -1085,7 +1087,7 @@ class Matricula extends CI_Controller {
                         $funcionhelp="getNotas_alumnoboleta_$dominio";
                         $fila->final = $funcionhelp($fila->metodo,array('promedio' => $fila->nota, 'recupera'=>$fila->recuperacion));
 
-                        if ($fila->nomestado == "DESAPROBADO") {
+                        if ($fila->nomestado !== "RETIRADO") {
                             if (($fila->estado == "DES")||($fila->estado == "DPI")||($fila->estado == "NSP")) {
                                 $nrodesaprobados ++;
                                 $sumcredesap = $fila->cp + $fila->ct;
@@ -1231,6 +1233,7 @@ class Matricula extends CI_Controller {
                 $nrodesaprobados = 0;
                 $sumcredesap = 0;
                 $totcredesap = 0;
+                $nrodeudas = 0;
                 $this->load->model('minscrito');
                 $this->load->model('mdeudas_individual');
                 $rsfila=$this->minscrito->m_get_inscrito_por_carne(array($busqueda));
@@ -1253,7 +1256,7 @@ class Matricula extends CI_Controller {
                         // OBTENER EL TOTAL DE CREDITOS SI ES QUE ESTA DESAPROBADO
                         $cursos = $this->mmatricula->m_filtrar_record_academico(array($rsfila->carnet));
                         foreach ($cursos as $key => $cfila) {
-                            if ($cfila->nomestado == "DESAPROBADO") {
+                            if ($cfila->nomestado !== "RETIRADO") {
                                 if (($cfila->estado == "DES")||($cfila->estado == "DPI")||($cfila->estado == "NSP")) {
                                     $nrodesaprobados ++;
                                     $sumcredesap = $cfila->cp + $cfila->ct;
@@ -1265,7 +1268,12 @@ class Matricula extends CI_Controller {
 
                         // OBTENER EL TOTAL DE DEUDAS
                         $deudas = $this->mdeudas_individual->m_get_historial_pagante(array("carnet"=>$rsfila->carnet,"saldo"=>array(">",0)));
-                        $dataex['vdeudasmat'] = count($deudas);
+                        foreach ($deudas as $key => $dsd) {
+                            if ($dsd->estado == "ACTIVO") {
+                                $nrodeudas++;
+                            }
+                        }
+                        $dataex['vdeudasmat'] = $nrodeudas;
 
                         // OBTENER EL ESTADO DE LA ULTIMA MATRICULA Y SU CONDICIONAL
                         $vestado = "";
@@ -1389,6 +1397,113 @@ class Matricula extends CI_Controller {
         }
         header('Content-Type: application/x-json; charset=utf-8');
         echo json_encode($dataex);
+    }
+
+    public function fn_docemitidos_items_x_pagante()
+    {
+        $this->form_validation->set_message('required', '%s Requerido');
+        $this->form_validation->set_message('min_length', '* {field} debe tener al menos {param} caracteres.');
+        $this->form_validation->set_message('max_length', '* {field} debe tener al menos {param} caracteres.');
+    
+        $dataex['status'] =FALSE;
+        $urlRef=base_url();
+        $dataex['msg']    = '¿Que Intentas?.';
+        $rscuentas="";
+        $dataex['conteo'] = 0;
+        $dataex['pagos'] = 0;
+        if ($this->input->is_ajax_request())
+        {
+            $dataex['msg'] ='Intente nuevamente o comuniquese con un administrador.';
+            $this->form_validation->set_rules('codpagante','Pagante','trim|required');
+            $this->form_validation->set_rules('idmatricula','Id matricula','trim|required');
+            if ($this->form_validation->run() == FALSE)
+            {
+                $dataex['msg']="Existen errores en los campos";
+                $errors = array();
+                foreach ($this->input->post() as $key => $value){
+                    $errors[$key] = form_error($key);
+                }
+                $dataex['errors'] = array_filter($errors);
+            }
+            else
+            {
+                $codpagante=$this->input->post('codpagante');
+                $codmatricula = base64url_decode($this->input->post('idmatricula'));
+
+                $this->load->model('mfacturacion_impresion');
+                $this->load->model('mdeudas_individual');
+                $pagos=$this->mfacturacion_impresion->m_get_emitidositems_x_pagante(array($codpagante));
+                $deudas = $this->mdeudas_individual->m_get_historial_pagante(array("carnet"=>$codpagante,"saldo"=>array(">",0)));
+                // $deudasdf = $this->mdeudas_individual->m_get_historial_pagante(array("carnet"=>$codpagante,"saldo"=>array(">",0)));
+
+                foreach ($pagos as $key => $pago) {
+                    $fecha_hora =  new DateTime($pago->fecha_hora) ;
+                    $pago->fecha_hora = $fecha_hora->format('d/m/Y h:i a');  
+                    $pago->coddetalle64=base64url_encode($pago->coddetalle);
+                }
+
+                $dataex['vdata']=$pagos;
+                // $dataex['vdeudasdf']=$deudasdf;
+
+                if (!is_null($deudas))
+                {
+
+                    foreach ($deudas as $key => $fila) {
+                        $fila->codigo64 = base64url_encode($fila->codigo);
+                        $fila->idmatricula64 = base64url_encode($fila->idmatricula);
+                        $fechavence = new DateTime($fila->fvence);
+                        $fila->vence = $fechavence->format("d/m/Y");
+                        $fila->persona = $fila->carnet." ".$fila->paterno." ".$fila->materno." ".$fila->nombres;
+                        $fila->grupo = $fila->codperiodo." ".$fila->sigla." - ".$fila->ciclo;
+
+                    }
+
+                    $dataex['vdeudas'] = $deudas;
+                }
+                $dataex['conteo'] = count($deudas);
+                $dataex['pagos'] = count($pagos);
+                $dataex['status'] =TRUE;
+            }
+        }
+        
+        header('Content-Type: application/x-json; charset=utf-8');
+        echo(json_encode($dataex));
+    }
+
+    public function rp_pagos_estudiante_individual_pdf()
+    {
+        $dataex['status'] =FALSE;
+        //$urlRef=base_url();
+        $dataex['msg']    = '¿Que Intentas?.';
+
+        date_default_timezone_set('America/Lima');
+
+        $fecha = date('d/m/Y');
+        // $tipo = $this->input->get("tp");
+        $codpagante = $this->input->get("ct");
+        $pagante = $this->input->get("cpg");
+        $programa = $this->input->get("cpm");
+        $this->load->model('mfacturacion_impresion');
+        $pagos=$this->mfacturacion_impresion->m_get_emitidositems_x_pagante(array($codpagante));
+
+        //$dominio=str_replace(".", "_",getDominio());
+        
+        $html1=$this->load->view('alumno/rppagos_estudiante_pdf', array('docpagos' => $pagos, 'carne' => $codpagante, 'pagante' => $pagante, 'programa' => $programa),true);
+         
+        $pdfFilePath = "PAGOS REALIZADOS - {$codpagante}.pdf";
+
+        $this->load->library('M_pdf');
+        
+        $formatoimp="A4";
+        
+        $mpdf = new \Mpdf\Mpdf(['mode' => 'utf-8', 'format' =>$formatoimp]); 
+
+        $mpdf->SetTitle('PAGOS REALIZADOS - '. $codpagante);       
+
+        //$mpdf->AddPage();
+        $mpdf->WriteHTML($html1);
+        $mpdf->Output($pdfFilePath, "I");
+        // $mpdf->Output();
     }
 
 }

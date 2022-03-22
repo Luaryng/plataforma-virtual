@@ -62,7 +62,7 @@ background-color: #F9F4BC;
                                                 <option value="%">Todos</option>
                                                 <?php
                                                 foreach ($carrera as $carr) {
-                                                echo '<option value="'.$carr->id.'">'.$carr->abrev.'</option>';
+                                                echo '<option value="'.$carr->id.'">'.$carr->nombre.'</option>';
                                                 }
                                                 ?>
                                             </select>
@@ -258,6 +258,7 @@ var cd2 = "<?php echo base64url_encode("ANULADO") ?>";
 $(document).on('select2:open', () => {
     document.querySelector('.select2-search__field').focus();
 });
+
 $('#vw_dci_btnguardar').click(function(event) {
     $('#div_frmcalendario input,select').removeClass('is-invalid');
     $('#div_frmcalendario .invalid-feedback').remove();
@@ -291,12 +292,19 @@ $('#vw_dci_btnguardar').click(function(event) {
     });
     return false;
 });
+
 $('#modCronogramas').on('shown.bs.modal', function(e) {
     $('#div_cronogramas input,select').removeClass('is-invalid');
     $('#div_cronogramas .invalid-feedback').remove();
     $('#div_cronogramas').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
     var btn = $(e.relatedTarget);
-    var calendario = btn.closest('.rowcolor').data('calendario');
+    var calendario = btn.closest('.cfila').data('calendario');
+    var nombreCalendario = btn.closest('.cfila').data('nombrecal');
+    var codperiodo = btn.closest('.cfila').data('codperiodo');
+    var periodo = btn.closest('.cfila').data('periodo');
+    var codsede = btn.closest('.cfila').data('codsede');
+    var sede = btn.closest('.cfila').data('sede');
+    
     $.ajax({
         url: base_url + "deudas_calendario_fechas/vw_modal_fechas",
         type: 'post',
@@ -314,6 +322,15 @@ $('#modCronogramas').on('shown.bs.modal', function(e) {
             } else {
                 $('#div_cronogramas').html(e.vdata);
                 $("#div_cronogramas #vw_cmd_crono_view #vw_cmd_crono_btnasignar").data('calendario', calendario);
+                $("#modCronogramas #md_crono_sede").html(sede);
+                $("#modCronogramas #md_crono_nombre").html(nombreCalendario);
+                $("#modCronogramas #md_crono_periodo").html(periodo);
+                $("#modCronogramas #md_crono_txt_codperiodo").val(codperiodo);
+                $("#modCronogramas #md_crono_txt_codsede").val(codsede);
+
+                $('#div_cronogramas #vw_cmd_crono_btnasignargp').data('calendario', calendario);
+
+                $('#modCronogramas #vwbtn_update_fecha').hide();
             }
         },
         error: function(jqXHR, exception) {
@@ -328,6 +345,11 @@ $('#modCronogramas').on('shown.bs.modal', function(e) {
         }
     });
 })
+
+$('#modCronogramas').on('hidden.bs.modal', function(e) {
+    $('#modCronogramas #vwbtn_update_fecha').hide();
+})
+
 $('#modGrupos').on('shown.bs.modal', function(e) {
     $('#div_Grupos input,select').removeClass('is-invalid');
     $('#div_Grupos .invalid-feedback').remove();
@@ -364,6 +386,7 @@ $('#modGrupos').on('shown.bs.modal', function(e) {
         }
     });
 })
+
 $('#vw_dc_btnbuscar').click(function(event) {
     var periodo = $('#vw_dc_cbperiodo').val();
     var sede = $('#vw_dc_cbsede').val();
@@ -396,12 +419,13 @@ $('#vw_dc_btnbuscar').click(function(event) {
                 $('#modMantCalendario').modal('hide');
                 var nro = 0;
                 var tabla = "";
+                btnGrupos = '';
                 $.each(e.vdata, function(index, val) {
                     nro++;
                     btnFechas = '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#modCronogramas"><i class="far fa-calendar-alt"></i> Fechas</a>';
-                    btnGrupos = '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#modGrupos"><i class="fas fa-user-friends"></i> Grupos</a>';
-                    tabla = tabla +
-                        "<div class='row rowcolor' data-calendario='" + val['codigo64'] + "'>" +
+                    // btnGrupos = '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#modGrupos"><i class="fas fa-user-friends"></i> Grupos</a>';
+                    tabla = tabla + 
+                        "<div class='row rowcolor cfila' data-nombrecal='" + val['nombre'] + "'   data-calendario='" + val['codigo64'] + "' data-codsede='" + val['codsede'] + "' data-codperiodo='" + val['codperiodo'] + "'  data-sede='" + val['sede'] + "' data-periodo='" + val['periodo'] + "'>" +
                         "<div class='col-4 col-md-2'>" +
                         "<div class='row'>" +
                         "<div class='col-4 col-md-2 td'>" +
@@ -433,8 +457,6 @@ $('#vw_dc_btnbuscar').click(function(event) {
                         btnGrupos +
                         btnFechas +
 
-                        '<div class="dropdown-divider"></div>' +
-
                         ' </div>' +
                         '</div>' +
                         '</div>' +
@@ -458,6 +480,21 @@ $('#vw_dc_btnbuscar').click(function(event) {
 });
 
 function fn_vw_add_fecha(btn) {
+    $('#nav-fechas-tab').tab('show')
+    $("#div_cronogramas #vw_cmd_crono_add").show();
+    $("#div_cronogramas #vw_cmd_crono_view").hide();
+}
+
+function fn_vw_upd_fecha(btn) {
+    var idfecha = btn.data('idfecha');
+    var descrip = btn.data('descripcion');
+    var fecha = btn.data('fecha');
+    
+    $('#vw_cmda_txtcodigo').val(idfecha);
+    $('#vw_cmda_txtnombre').val(descrip);
+    $('#vw_cmda_txtinicia').val(fecha);
+
+    $('#nav-fechas-tab').tab('show')
     $("#div_cronogramas #vw_cmd_crono_add").show();
     $("#div_cronogramas #vw_cmd_crono_view").hide();
 }
@@ -467,6 +504,11 @@ function fn_vw_view_fecha(btn) {
         $('#div_cronogramas').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
         //items_cobro;
         $('#nav-fechas-tab').tab('show')
+        $('#modCronogramas #vwbtn_update_fecha').show();
+        $('#modCronogramas #vwbtn_update_fecha').data('idfecha',btn.val());
+        $('#modCronogramas #vwbtn_update_fecha').data('descripcion',btn.data('descripcion'));
+        $('#modCronogramas #vwbtn_update_fecha').data('fecha',btn.data('fecha'));
+
         $("#div_cronogramas #vw_cmdv_spnfecha").html(btn.data('fecha'));
         $("#div_cronogramas #vw_cmdv_spndescripcion").html(btn.data('descripcion'));
         $("#div_cronogramas #vw_cmd_crono_add").hide();
@@ -497,11 +539,11 @@ function fn_vw_view_fecha(btn) {
                         nro++;
                         tabla = tabla +
                             '<div class="row cfila rowcolor ">' +
-                            '<div class="col-md-1 td">' + nro + '</div>' +
-                            '<div class="col-md-7 td">' + v['gestion'] + '</div>' +
-                            '<div class="col-md-2 td">' + v['monto'] + '</div>' +
-                            '<div class="col-md-1 td">' + v['repite'] + '</div>' +
-                            '<div class="col-md-1 td"></div>' +
+                            '<div class="col-2 col-md-1 td">' + nro + '</div>' +
+                            '<div class="col-10 col-md-7 td">' + v['gestion'] + '</div>' +
+                            '<div class="col-4 col-md-2 td">' + v['monto'] + '</div>' +
+                            '<div class="col-4 col-md-1 td">' + v['repite'] + '</div>' +
+                            '<div class="col-4 col-md-1 td"></div>' +
                             '</div>';
                     });
                     $("#vw_cmdv_items").html(tabla);
@@ -514,16 +556,16 @@ function fn_vw_view_fecha(btn) {
                             "<div class='row rowcolor' data-codperiodo='" + v['periodo'] +
                             "' data-codcarrera='" + v['carrera'] + "' data-codciclo='" + v['ciclo'] +
                             "' data-codturno='" + v['turno'] + "' data-codseccion='" + v['seccion'] + "'>" +
-                            "<div class='col-4 col-md-2'>" +
+                            "<div class='col-12 col-md-3'>" +
                             "<div class='row'>" +
-                            "<div class='col-8 col-md-4 td'><span>" + nro + "</span></div>" +
-                            "<div class='col-8 col-md-8 td'><span>" + v['nomperiodo'] + "</span></div>" +
+                            "<div class='col-2 col-md-4 td'><span>" + nro + "</span></div>" +
+                            "<div class='col-10 col-md-8 td'><span>" + v['nomperiodo'] + "</span></div>" +
                             "</div>" +
                             "</div>" +
-                            "<div class='col-8 col-md-4 td'><span>" + v['nomcarrera'] + "</span></div>" +
+                            "<div class='col-12 col-md-4 td'><span>" + v['nomcarrera'] + "</span></div>" +
                             "<div class='col-4 col-md-2 td'><span>" + v['nomturno'] + " " + v['nomciclo'] + " - " + v['nomseccion'] + "</span></div>" +
-                            "<div class='col-6 col-md-2 td'><span>" + v['generadas'] + "/" + v['matriculas'] + "</span></div>" +
-                            "<div class='col-6 col-md-1 td text-right'>" +
+                            "<div class='col-4 col-md-2 td'><span>" + v['generadas'] + "/" + v['matriculas'] + "</span></div>" +
+                            "<div class='col-4 col-md-1 td text-center'>" +
                             "<a href='#' onclick='fn_vw_view_deudas($(this));return false;' class='btn btn-primary btn-sm vw_gc_btndeudas'>Deudas</a>" +
                             "</div>" +
                             "</div>";
@@ -714,7 +756,7 @@ function fn_vw_view_deudas(btn) {
                         }
                         inputtext = inputtext +
                             '<div class="col-md-2">' +
-                            '<input type="number" step="0.01" class="form-control form-control-sm" data-edit="' + edit + '" data-codgestion="' + deuda['codgestion'] + '" data-saldo="' + deuda['saldo'] + '" data-itemcobro="' + it['codigo'] + '" data-coddeuda="' + deuda['codigo'] + '" value="' + monto + '" >' +
+                            '<input type="number" step="0.01" class="form-control form-control-sm mt-1" data-edit="' + edit + '" data-codgestion="' + deuda['codgestion'] + '" data-saldo="' + deuda['saldo'] + '" data-itemcobro="' + it['codigo'] + '" data-coddeuda="' + deuda['codigo'] + '" value="' + monto + '" >' +
                             '</div>';
                     });
                     vpagocontado = "";
@@ -722,13 +764,13 @@ function fn_vw_view_deudas(btn) {
                         vpagocontado = " <a href='#' class='badge badge-success' title='Pensiones al Contado'> " + v['contado'] + "</a>";
                     }
                     tabla = tabla +
-                        '<div class="row cfila rowcolor"   data-codbeneficio="' + v['codbeneficio'] + '"  data-carnet="' + v['carne'] + '"  data-codmat="' + v['codigo64'] + '">' +
+                        '<div class="row cfila rowcolor rowdeuda"   data-codbeneficio="' + v['codbeneficio'] + '"  data-carnet="' + v['carne'] + '"  data-codmat="' + v['codigo64'] + '">' +
                         '<div class="col-md-5">' +
                         '<div class="row">' +
-                        '<div class="col-md-1 td">' + nro + '</div>' +
-                        '<div class="col-md-7 td">' + v['paterno'] + ' ' + v['materno'] + ' ' + v['nombres'] + '</div>' +
-                        '<div class="col-md-2 td"><a class="vw_lm_lbplan" onclick="fn_vw_change_plan_eco($(this));return false;" title="Plan Económico: ' + v['beneficio'] + '" href="#">' + v['bene_sigla'] + '</a>' + vpagocontado + '</div>' +
-                        '<div class="col-md-2 td"><a class="vw_lm_lbplancuota" onclick="fn_vw_change_plan_eco($(this));return false;" title="Plan Económico" href="#">' + cuota + '</a></div>' +
+                        '<div class="col-2 col-md-1 td">' + nro + '</div>' +
+                        '<div class="col-10 col-md-7 td">' + v['paterno'] + ' ' + v['materno'] + ' ' + v['nombres'] + deuda['codigo'] +'</div>' +
+                        '<div class="col-6 col-md-2 td"><a class="vw_lm_lbplan" onclick="fn_vw_change_plan_eco($(this));return false;" title="Plan Económico: ' + v['beneficio'] + '" href="#">' + v['bene_sigla'] + '</a>' + vpagocontado + '</div>' +
+                        '<div class="col-6 col-md-2 td"><a class="vw_lm_lbplancuota" onclick="fn_vw_change_plan_eco($(this));return false;" title="Plan Económico" href="#">' + cuota + '</a></div>' +
                         '</div>' +
                         '</div>' +
                         '<div class="col-md-7">' +
@@ -809,6 +851,253 @@ function fn_vw_deuda_asignar_grupo(btn) {
         }
     });
 }
+
+function fn_vw_agregar_grupo(btn) {
+    var idcalendario = btn.data('calendario');
+    // console.log("idcalendario", idcalendario);
+    $("#modGrupos_matriculados").modal("show");
+
+    $("#modGrupos_matriculados #fm-cbsede option").each(function(i) {
+        if ($(this).hasClass("ocultar")) $(this).removeClass('ocultar');
+    });
+
+    
+    $("#modGrupos_matriculados #fm-cbsede").val($("#modCronogramas #md_crono_txt_codsede").val());
+    $("#modGrupos_matriculados #fm-cbsede option").each(function(i) {
+        if ($(this).val() == $("#modCronogramas #md_crono_txt_codsede").val() ) {
+            //$(this).attr('selected', true);
+        } else {
+            if (!$(this).hasClass("ocultar")) $(this).addClass('ocultar');
+
+        }
+    });
+    $("#modGrupos_matriculados #fm-cbperiodo").val($("#modCronogramas #md_crono_txt_codperiodo").val());
+    $("#modGrupos_matriculados #fm-cbperiodo option").each(function(i) {
+        if ($(this).val() == $("#modCronogramas #md_crono_txt_codperiodo").val() ) {
+            $(this).attr('selected', true);
+        } else {
+            if (!$(this).hasClass("ocultar")) $(this).addClass('ocultar');
+        }
+    });
+
+    $('#modGrupos_matriculados #vw_id_calendario_grp').val(idcalendario);
+    
+    
+}
+
+$("#frmfiltro-grupos").submit(function(event) {
+    var sb=getUrlParameter("sb","");
+    var jsparamSidebar=(sb=="")?"":"sb=" + sb + "&";
+    $('#divboxhistorial').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    $("#div-filtro").html("");
+    $.ajax({
+        url: $(this).attr("action"),
+        type: 'post',
+        dataType: 'json',
+        data: $(this).serialize(),
+        success: function(e) {
+          if (e.status==false){
+          }
+          else{
+              var nro=0;
+              var mt=0;
+              var ac=0;
+              var rt=0;
+              var cl=0;
+              var btn_culminar = "";
+              $.each(e.vdata, function(index, v) {
+                /* iterate through array or object */
+                nro++;
+                mt=mt + parseInt(v['mat']);
+                ac=ac + parseInt(v['act']);
+                rt=rt + parseInt(v['ret']);
+                cl=cl + parseInt(v['cul']);
+                
+                var btn_seleccionar='<a onclick="fn_insert_grupo_deuda($(this));return false;" href="#" class="btn btn-sm btn-primary"><i class="fas fa-plus-circle"></i></a>';
+                var params='cp='+ v['codperiodo'] +'&cc='+ v['codcarrera'] + '&ccc='+ v['codciclo'] +'&ct='+ v['codturno']+'&cs='+ v['seccion']+'&cpl='+ v['idplan'];
+                $("#div-filtro").append(
+                '<div class="row rowcolor" data-per="'+ v['codperiodo'] +'" data-car="'+ v['codcarrera'] + '" data-cic="'+ v['codciclo'] +'" data-tur="'+ v['codturno']+'" data-sec="'+ v['seccion']+'" data-plan="'+ v['idplan']+'" data-periodo="'+ v['periodo'] +'" data-carrera="'+ v['carrera'] + '" data-ciclo="'+ v['ciclo'] +'" data-turno="'+ v['turno']+'" data-seccion="'+ v['seccion']+'" data-plann="'+ v['plan'] + '">' + 
+                  '<div class="col-12 col-md-3">' + 
+                    '<div class="row">' + 
+                      '<div class="col-3 col-md-2 td">' + nro + '</div>' +
+                      '<div class="col-9 col-md-3 td">' + v['periodo'] + '</div>' + 
+                      '<div class="col-7 col-md-7 td" title="' + v['idplan']  +'">' + v['plan'] + '</div>' + 
+                    '</div>' + 
+                  '</div>' + 
+                  
+                  '<div class="col-6 col-md-4">' + 
+                    '<div class="row">' + 
+                      '<div class="col-8 col-md-8 td">' + v['carrera'] + '</div>' +
+                      '<div class="col-5 col-md-4 td">' + v['ciclo'] + " - <b>" + v['turno'] + "</b> - " + v['seccion'] + '</div>' + 
+                    '</div>' + 
+                  '</div>' + 
+                  '<div class="col-6 col-md-3">' + 
+                    '<div class="row">' + 
+                      '<div class="td col-2 col-md-3 text-right text-bold">' + v['mat'] + '</div>' + 
+                      '<div class="td col-2 col-md-3 text-right text-primary text-bold">' + v['act'] + '</div>' + 
+                      '<div class="td col-2 col-md-3 text-right text-danger text-bold">' + v['ret'] + '</div>' + 
+                      '<div class="td col-2 col-md-3 text-right text-success text-bold">' + v['cul'] + '</div>' + 
+                    '</div>' + 
+                  '</div>' + 
+
+                  
+                                   
+                  '<div class="col-12 col-md-2 ">' + 
+                    
+                        btn_seleccionar + 
+                   
+                  '</div>' +
+                '</div>');
+                //btn btn-success btn-sm 
+              });
+                $("#div-filtro").append(
+                '<div class="row text-bold">' + 
+                  '<div class="col-4 col-md-7">' + 
+                   
+                  '</div>' + 
+                  '<div class="col-6 col-md-3">' + 
+                    '<div class="row">' + 
+                      '<div class="td col-2 col-md-3 text-right text-bold">' + mt + '</div>' + 
+                      '<div class="td col-2 col-md-3 text-right text-primary text-bold">' + ac + '</div>' + 
+                      '<div class="td col-2 col-md-3 text-right text-danger text-bold">' + rt + '</div>' + 
+                      '<div class="td col-2 col-md-3 text-right text-success text-bold">' + cl + '</div>' + 
+                    '</div>' + 
+                  '</div>' + 
+                  '<div class="col-6 col-md-2">' + 
+                    '<div class="row">' + 
+                     
+                    '</div>' + 
+                  '</div>' + 
+                '</div>');
+              $('#divboxhistorial #divoverlay').remove();
+          }
+        },
+        error: function(jqXHR, exception) {
+            var msgf = errorAjax(jqXHR, exception, 'text');
+            $('#divboxhistorial #divoverlay').remove();
+        }
+    });
+    return false;
+});
+
+// function fn_insert_grupo_deuda(btn) {
+//     $('#div_Grupos input,select').removeClass('is-invalid');
+//     $('#div_Grupos .invalid-feedback').remove();
+//     $('#div_Grupos').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    
+//     $.ajax({
+//         url: base_url + "deudas_grupo/fn_guardar" ,
+//         type: 'post',
+//         dataType: 'json',
+//         data: $('#div_Grupos #frm_add_grupo').serialize(),
+//         success: function(e) {
+//             $('#div_Grupos #divoverlay').remove();
+//             if (e.status == false) {
+//                 $.each(e.errors, function(key, val) {
+//                     $('#' + key).addClass('is-invalid');
+//                     $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+//                 });
+//             } else {
+//                 $("#div_Grupos #divcard_lista").show();
+//                 $("#div_Grupos #divcard_form").hide();
+//                 var nro=0;
+//                 var tabla="";
+//                 $.each(e.vdata, function(index, val) {
+//                     nro++;
+//                     tabla=tabla + 
+//                     "<div class='row rowcolor'>"+
+//                         "<div class='col-4 col-md-1 td'>" +
+//                               "<span><b>" + nro + "</b></span>" +
+//                         "</div>" + 
+//                         "<div class='col-8 col-md-2 td'>" +
+//                           "<span>" + val['nomperiodo'] + "</span>" +
+//                         "</div> " +
+//                         "<div class='col-8 col-md-4 td'>" +
+//                             "<span>" + val['nomcarrera'] + "</span>" +
+//                         "</div> " +
+//                         "<div class='col-4 col-md-2 td'>" +
+//                           "<span>" + val['nomciclo'] + " - "+val['nomseccion']+"</span>" +
+//                         "</div> " + 
+//                         "<div class='col-6 col-md-2 td'>" +
+//                           "<span>" + val['nomturno'] + "</span>" +
+//                         "</div> " +
+//                         '<div class="col-6 col-md-1 td text-right">' + 
+                            
+//                         '</div>' +
+//                     '</div>';
+//                 })
+//                 $('#vw_dc_divdata').html(tabla);
+//             }
+//         },
+//         error: function(jqXHR, exception) {
+//             var msgf = errorAjax(jqXHR, exception, 'text');
+//             $('#div_Grupos #divoverlay').remove();
+//             Swal.fire({
+//                 title: msgf,
+//                 // text: "",
+//                 type: 'error',
+//                 icon: 'error',
+//             })
+//         }
+//     });
+//     return false;
+// };
+// 
+function fn_insert_grupo_deuda(btn) {
+    var id64calendario = $('#modGrupos_matriculados #vw_id_calendario_grp').val();
+    var fila = btn.closest('.rowcolor');
+    var periodo = fila.data('per');
+    var programa = fila.data('car');
+    var semestre = fila.data('cic');
+    var turno = fila.data('tur');
+    var seccion = fila.data('sec');
+    $('#modGrupos_matriculados input,select').removeClass('is-invalid');
+    $('#modGrupos_matriculados .invalid-feedback').remove();
+    $('#modGrupos_matriculados .modGrupos_matriculados_content').append('<div id="divoverlay" class="overlay bg-white d-flex justify-content-center align-items-center"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
+    
+    $.ajax({
+        url: base_url + "deudas_grupo/fn_guardar" ,
+        type: 'post',
+        dataType: 'json',
+        data: {
+            vw_dg_idcalend : id64calendario,
+            vw_dg_cbperiodo : periodo,
+            vw_dg_cbcarrera : programa,
+            vw_dg_cbciclo : semestre,
+            vw_dg_cbturno : turno,
+            vw_dg_cbseccion : seccion
+        },
+        success: function(e) {
+            $('#modGrupos_matriculados .modGrupos_matriculados_content #divoverlay').remove();
+            if (e.status == false) {
+                $.each(e.errors, function(key, val) {
+                    $('#' + key).addClass('is-invalid');
+                    $('#' + key).parent().append("<div class='invalid-feedback'>" + val + "</div>");
+                });
+            } else {
+                $("#modGrupos_matriculados").modal("hide");
+                Swal.fire({
+                    title: e.msg,
+                    // text: "",
+                    type: 'success',
+                    icon: 'success',
+                })
+                
+            }
+        },
+        error: function(jqXHR, exception) {
+            var msgf = errorAjax(jqXHR, exception, 'text');
+            $('#modGrupos_matriculados .modGrupos_matriculados_content #divoverlay').remove();
+            Swal.fire({
+                title: msgf,
+                // text: "",
+                type: 'error',
+                icon: 'error',
+            })
+        }
+    });
+};
+    
 var vw_lm_filaplan;
 
 function fn_vw_change_plan_eco(btn) {
@@ -826,6 +1115,7 @@ function fn_vw_change_plan_eco(btn) {
 $('#modPlanEconomico').on('hidden.bs.modal', function(e) {
     vw_lm_filaplan = null;
 })
+
 $("#vw_mdpe_btnguardar").click(function(event) {
     $('#modPlanEconomico .modPlanEconomico_content').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
     vcodigo64 = $("#vw_mdpe_codmat").val();
@@ -870,6 +1160,17 @@ $("#vw_mdpe_btnguardar").click(function(event) {
         }
     });
 });
+
+$(document).on("blur", ".rowdeuda div input", function(event) {
+    var valor  = $(this).val();
+    if ($(this).data('saldo') != $(this).val()) {
+        $(this).data('edit', '1');
+    } else {
+        $(this).data('edit', '0');
+    }
+    // console.log("valor", valor);
+})
+
 $("#vw_mdd_btnguardar").click(function(event) {
     event.preventDefault();
     $('#modDeudas_content').append('<div id="divoverlay" class="overlay"><i class="fas fa-spinner fa-pulse fa-3x"></i></div>');
@@ -927,6 +1228,7 @@ $("#vw_mdd_btnguardar").click(function(event) {
                     });
                     Swal.fire({
                         type: 'success',
+                        icon: 'success',
                         title: 'ÉXITO, Se guardó cambios',
                         text: "Lo cambios fueron guardados correctamente",
                         backdrop: false,
@@ -938,6 +1240,7 @@ $("#vw_mdd_btnguardar").click(function(event) {
                 var msgf = errorAjax(jqXHR, exception, 'text');
                 Swal.fire({
                     type: 'error',
+                    icon: 'error',
                     title: 'ERROR, NO se guardó cambios',
                     text: msgf,
                     backdrop: false,
@@ -947,6 +1250,7 @@ $("#vw_mdd_btnguardar").click(function(event) {
     } else {
         Swal.fire({
             type: 'success',
+            icon: 'success',
             title: 'ÉXITO, Se guardó cambios (M)',
             text: "Lo cambios fueron guardados correctamente",
             backdrop: false,
@@ -1031,7 +1335,7 @@ $('#tbdd_form_search_deudas').submit(function() {
                     tabla = tabla +
                         "<div class='row cfila' onclick='fn_rowselection($(this))' data-cdeuda='" + val['codigo64'] + "' data-alumno='" + val['nombres'] + "' data-codgestion='" + val['codgestion'] + "' data-gestion='" + val['gestion'] + "' data-carnet='" + val['carnet'] + "' >" +
                         "<input type='radio' class='d-none'>" +
-                        "<div class='col-2 col-md-4'>" +
+                        "<div class='col-12 col-md-4'>" +
                         "<div class='row'>" +
                         "<div class='col-2 col-md-1 td text-center bg-lightgray px-0'>" +
                         "<span>" + nro + "</span>" +
@@ -1040,12 +1344,12 @@ $('#tbdd_form_search_deudas').submit(function() {
                         "<span><b>" + val['codigo'] + "</b></span>" +
                         "</div>" +
 
-                        "<div class='col-6 col-md-9 td'>" +
+                        "<div class='col-8 col-md-9 td'>" +
                         "<span class=''>" + val['carnet'] + " " + val['paterno'] + " " + val['materno'] + " " + val['nombres'] + "</span>" +
                         "</div> " +
                         "</div> " +
                         "</div> " +
-                        "<div class='col-2 col-md-4'>" +
+                        "<div class='col-12 col-md-4'>" +
                         "<div class='row'>" +
                         "<div class='col-4 col-md-8 td'>" +
                         "<span class=''>" + val['gestion'] + "</span> " +
@@ -1058,10 +1362,10 @@ $('#tbdd_form_search_deudas').submit(function() {
                         "</div> " +
                         "</div> " +
                         "</div> " +
-                        "<div class='col-4 col-md-1 td'>" +
+                        "<div class='col-3 col-md-1 td'>" +
                         "<span class=''>" + val['fecvence'] + "</span>" +
                         "</div> " +
-                        "<div class='col-4 col-md-1 td'>" +
+                        "<div class='col-3 col-md-1 td'>" +
                         '<a href="#" onclick="fn_vw_vincular_pagos($(this));return false;" title="Vincular Pagos" >' +
                         '<i class="far fa-money-bill-alt fa-lg mx-1"></i>' +
                         '</a>' +
@@ -1069,10 +1373,10 @@ $('#tbdd_form_search_deudas').submit(function() {
                         '<i class="fas fa-pencil-alt fa-lg mx-1"></i>' +
                         '</a>' +
                         "</div> " +
-                        "<div class='col-4 col-md-1 td'>" +
+                        "<div class='col-3 col-md-1 td'>" +
                         "<span class=''>" + val['codperiodo'] + " " + val['sigla'] + " - " + val['ciclo'] + "</span>" +
                         "</div> " +
-                        '<div class="col-4 col-md-1 td text-center">' +
+                        '<div class="col-3 col-md-1 td text-center">' +
                         '<div class="btn-group dropleft">' +
                         '<button class="btn ' + bgcolor + ' btn-sm dropdown-toggle py-0" type="button" data-toggle="dropdown" ' +
                         'aria-haspopup="true" aria-expanded="false">' +
@@ -1258,7 +1562,7 @@ $('#lbtn_guardar_deuda').click(function() {
                     $('#frm_addpagante')[0].reset();
                 } else {
                     $('#modadddeuda').modal('hide');
-                    // $('#tbdd_form_search_deudas').submit();
+                    $('#tbdd_form_search_deudas').submit();
                 }
                 
                 Swal.fire({

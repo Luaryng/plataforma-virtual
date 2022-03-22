@@ -484,6 +484,7 @@ class Mfacturacion_impresion extends CI_Model {
             tb_docpago.dcp_numero AS numero,
             tb_docpago.dcp_fecha_hora AS fecha_hora,
             tb_docpago.pagante_cod AS pagante,
+            tb_docpago.dcp_estado AS estadoc,
             tb_docpago_detalle.dpd_id AS coddetalle,
             tb_docpago_detalle.gestion_cod as codgestion, 
             tb_docpago_detalle.dpd_gestion as gestion,

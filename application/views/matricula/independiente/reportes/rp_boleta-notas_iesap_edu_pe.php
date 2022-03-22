@@ -303,15 +303,26 @@ foreach ($mats as $mat) {
 			$dias_ES = array( "Domingo","Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado");
 			$meses_ES = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
 
-			$fechahoy = date('Y/m/d');
-			$datehoy = new DateTime($fechahoy);
-			$nombredia = $dias_ES[date($datehoy->format('w'))];
-			$nombreMes = $meses_ES[date($datehoy->format('n'))-1];
-			$anio = date($datehoy->format('Y'));
-			$dianumero = date($datehoy->format('d'));
+			$fecha = date('Y/m/d');
+			$datehoy = new DateTime($fecha);
+			$numeroDia = date('d', strtotime($fecha));
+			  $dia = date('w', strtotime($fecha));
+			  $mes = date('n', strtotime($fecha));
+			  $anio = date('Y', strtotime($fecha));
+			  $dias_ES = array("Domingo","Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado");
+			  //$dias_EN = array("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday");
+			  $nombredia = $dias_ES[$dia];
+			  $meses_ES = array("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");
 			$hora=date('h:i A');
+			$nombreMes = $meses_ES[$mes-1];
 			
-			echo "$ies->distrito , $nombredia $dianumero de $nombreMes de $anio <br> Hora: $hora";
+			$lugar_firma=$sede_administrativo->nomprov." - ".$sede_administrativo->nomdist;
+			if ($sede_administrativo->nomdist==$sede_administrativo->nomprov){
+				$lugar_firma=$sede_administrativo->nomdist;
+			}
+
+
+			echo "$lugar_firma , $nombredia $numeroDia de $nombreMes de $anio <br> Hora: $hora";
 			
 			?>
 			

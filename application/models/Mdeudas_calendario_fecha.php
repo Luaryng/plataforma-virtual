@@ -33,4 +33,12 @@ class Mdeudas_calendario_fecha extends CI_Model
     //$this->db->close(); 
     return   $res->row();
   }
+
+  public function m_update_fecha($data){
+        //CALL `sp_tb_deuda_calendario_insert`( @vdc_nombre, @vdc_fec_inicia, @vdc_fec_culmina, @s, @nid);
+    $this->db->query("CALL `sp_tb_deuda_calendario_fecha_update`(?,?,?,?,@s,@nid)",$data);
+    $res = $this->db->query('select @s as salida,@nid as nid');
+    //$this->db->close(); 
+    return   $res->row();
+  }
 }

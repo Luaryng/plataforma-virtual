@@ -332,6 +332,7 @@ class Deudas_grupo extends CI_Controller {
 		                		$deuda->codgestion=$deuda_generada->codgestion;
 		                		$deuda->saldo=$deuda_generada->saldo;
 		                		$items[$item->codigo]['monto']=$deuda_generada->monto;
+		                		//$items[$item->codigo]['monto']=$deuda_generada->saldo;
 		                		unset($deudas_generadas[$keydeuda_generada]);
                 			}
                 		}
@@ -425,6 +426,7 @@ class Deudas_grupo extends CI_Controller {
 	                        if ($rp_save_deuda->salida =='1'){
 	                        	$dataex['status'] =TRUE;
 	                        	$idnuevos[$deuda[0]]=base64url_encode($rp_save_deuda->newcod);
+	                        	$dataex['ids'] = $idnuevos;
 								$contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", generó una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rp_save_deuda->newcod;
 								$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $fictxtaccion, $contenido, $sede));
 
@@ -435,7 +437,21 @@ class Deudas_grupo extends CI_Controller {
 						}
                     }
                     else {
-                    	$dataex['status'] =TRUE;
+                    	if ($monto>0){
+	                        $rp_save_deuda=$this->mdeudas_individual->m_actualizar_deuda(array($deuda[0],$pagante, $matricula, $gestion, $monto, $fcreacion, $fvence, $txtcalfecha, $mora, $fprorroga, $repite, $observacion, $saldo,$fechaitem));
+	                        $fictxtaccion = "EDITAR";
+	                        if ($rp_save_deuda->salida =='1'){
+	                        	$dataex['status'] =TRUE;
+	                        	$idnuevos[$deuda[0]]=base64url_encode($rp_save_deuda->newcod);
+	                        	$dataex['ids'] = $idnuevos;
+								$contenido = $_SESSION['userActivo']->usuario." - ".$_SESSION['userActivo']->paterno." ".$_SESSION['userActivo']->materno." ".$_SESSION['userActivo']->nombres.", actualizó una deuda en la tabla TB_DEUDA_INDIVIDUAL COD.".$rp_save_deuda->newcod;
+								$auditoria = $this->mauditoria->insert_datos_auditoria(array($usuario, $fictxtaccion, $contenido, $sede));
+
+							}
+						}
+						else{
+							$dataex['status'] =TRUE;
+						}
                         
                     }
                 }

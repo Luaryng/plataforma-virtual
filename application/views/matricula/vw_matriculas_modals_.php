@@ -175,8 +175,414 @@
     </div>
   </div>
 </div>
+<!-- MODAL INSERTAR Y EDITAR MATRICULA -->
+<div class="modal fade" id="modupmat" tabindex="-1" role="dialog" aria-labelledby="modupmat" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+    <div class="modal-content" id="divmodaddmatricula">
+      <div class="modal-header d-inline pb-0">
+        <div class="row">
+          <div class="col-10">
+            <h5 id="titlemodal" class="modal-title text-bold px-1" >MATRICULAR</h5>
+          </div>
+          <div class="col-2 text-right" id="divsearch_ins" style="display: none;">
+            <button class="btn btn-success" data-toggle="modal" data-target="#modfiltroins">
+              <i class="fas fa-search"></i> Buscar alumno
+            </button>
+          </div>
+          <div class="col-12">
+            <h6 id="fm-carreraup" class="border rounded px-1 py-1 bg-light">PROGRAMA ACADÉMICO</h6>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body pt-1">
 
 
+        <nav>
+          <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-item nav-link active" id="nav-matricular-tab" data-toggle="tab" href="#nav-matricular" role="tab" aria-controls="nav-matricular" aria-selected="true">Matrícular</a>
+            <a class="nav-item nav-link" id="nav-macadem-tab" data-toggle="tab" href="#nav-macadem" role="tab" aria-controls="nav-macadem" aria-selected="false">Académico <span id="nrodesap"></span></a>
+            <a class="nav-item nav-link" id="nav-mdeudas-tab" data-toggle="tab" href="#nav-mdeudas" role="tab" aria-controls="nav-mdeudas" aria-selected="false">Deudas <span id="nrodeudas"></span></a>
+            <!--<div class="col-1 col-sm-1 text-center mt-2" id="btn_refresh_cond" style="display: none;" >-->
+            <a class="nav-item nav-link ml-auto"  role="tab" style="display: none;" href="#" onclick="fn_refresca_condicional($(this));return false;" data-carne="" id="lbtn_condic_refresh">
+              <i class="fas fa-sync-alt fa-lg"></i>
+            </a>
+
+
+          </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active mt-2" id="nav-matricular" role="tabpanel" aria-labelledby="nav-matricular-tab">
+            <div class="row">
+              <div class="col-12 col-md-8 border-right">
+                <div class="alert alert-warning alert-dismissible fade show" id="divalert_mat" style="display: none;">
+                  <strong>Aviso:</strong> Antes de realizar una matricula debe de buscar y seleccionar al estudiante
+                </div>
+
+                <form id="frm_updmatri" action="<?php echo $vbaseurl ?>matricula/fn_insert_update_matricula" method="post" accept-charset="utf-8">
+                  <b class="text-danger pt-3"><i class="fas fa-user-graduate mr-1"></i> PROCESO DE MATRÍCULA</b>
+                  <input data-currentvalue="" id="fm-txtidmatriculaup" name="fm-txtidmatriculaup" type="hidden" value="0">
+                  <input data-currentvalue="" id="fm-txtidup" name="fm-txtidup" type="hidden">
+                  <input data-currentvalue="" id="fm-txtcarreraup" name="fm-txtcarreraup" type="hidden">
+                  <input data-currentvalue="" id="fm-txtperiodoup" name="fm-txtperiodoup" type="hidden">
+                  <input id="fm-txtplanup" name="fm-txtplanup" type="hidden">
+                  <input id="fm-txtmapepatup" name="fm-txtmapepatup" type="hidden">
+                  <input id="fm-txtmapematup" name="fm-txtmapematup" type="hidden">
+                  <input id="fm-txtmnombresup" name="fm-txtmnombresup" type="hidden">
+                  <input id="fm-txtmsexoup" name="fm-txtmsexoup" type="hidden">
+                  
+                  <div class="row mt-3">
+                    <?php if (getPermitido("151")=='SI'): ?>
+                    <!--SOLO APARECE SI TIENE PERMISO DE EDITAR SEDE DE MATRICULA-->
+                    <div class="form-group has-float-label col-12 col-sm-6 col-md-3">
+                      <select name="fm-cbsedeup" id="fm-cbsedeup" class="form-control form-control-sm">
+                        
+                        <?php
+                        $codsede=$_SESSION['userActivo']->idsede;
+                        foreach ($sedes as $sede) {
+                        $selsede=($codsede==$sede->id)?"selected":"";
+                        echo "<option $selsede value='$sede->id'>$sede->nombre </option>";
+                        } ?>
+                      </select>
+                      <label for="fm-cbsedeup">Filial</label>
+                    </div>
+                    <?php endif ?>
+                    <div class="form-group has-float-label col-12 col-sm-6 col-md-4">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbtipoup" name="fm-cbtipoup" required="">
+                        <option value="0"></option>
+                        <option data-nromat="1" value="O">Matricula Ordinaria</option>
+                        <option data-nromat="1" value="E">Matricula Extraordinaria</option>
+                        <option data-nromat="2" value="RO">Ratificación Ordinaria</option>
+                        <option data-nromat="2" value="RE">Ratificación Extraordinaria</option>
+                      </select>
+                      <label for="fm-cbtipoup">Tipo</label>
+                    </div>
+                    <div class="form-group has-float-label col-12 col-sm-12 col-md-5">
+                      <input data-currentvalue="" class="form-control form-control-sm text-uppercase" value="<?php echo $fechahoy ?>" id="fm-txtfecmatriculaup" name="fm-txtfecmatriculaup" type="date" placeholder="Fec. Matrícula">
+                      <label for="fm-txtfecmatriculaup">Fec. Matrícula</label>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="form-group has-float-label col-12 col-sm-3">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbperiodoup" name="fm-cbperiodoup" required="">
+                        <option value="0"></option>
+                        <?php foreach ($periodos as $periodo) {?>
+                        <option value="<?php echo $periodo->codigo ?>"><?php echo $periodo->nombre ?></option>
+                        <?php } ?>
+                      </select>
+                      <label for="fm-cbperiodoup"> Periodo</label>
+                    </div>
+                    <div class="form-group has-float-label col-12 col-sm-4">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbcicloup" name="fm-cbcicloup" required="">
+                        <option value="0"></option>
+                        <?php foreach ($ciclos as $ciclo) {?>
+                        <option data-autorizado='SI' data-codigo='<?php echo $ciclo->codigo ?>' value="<?php echo $ciclo->codigo ?>"><?php echo $ciclo->nombre ?></option>
+                        <?php } ?>
+                      </select>
+                      <label for="fm-cbcicloup"> Semestre</label>
+                    </div>
+
+                    <div class="form-group has-float-label col-12 col-sm-3">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbturnoup" name="fm-cbturnoup" required="">
+                        <option value="0"></option>
+                        <?php foreach ($turnos as $turno) {?>
+                        <option value="<?php echo $turno->codigo ?>"><?php echo $turno->nombre ?></option>
+                        <?php } ?>
+                      </select>
+                      <label for="fm-cbturnoup"> Turno</label>
+                    </div>
+                    <div class="form-group has-float-label col-12 col-sm-2">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbseccionup" name="fm-cbseccionup" required="">
+                        <option value="0"></option>
+                        <?php foreach ($secciones as $seccion) {?>
+                        <option value="<?php echo $seccion->codigo ?>"><?php echo $seccion->nombre ?></option>
+                        <?php } ?>
+                      </select>
+                      <label for="fm-cbseccionup"> Sección</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group has-float-label col-12 col-sm-3 col-md-3">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbplanup" name="fm-cbplanup" required="">
+                        
+                      </select>
+                      <label for="fm-cbplanup"> Plan de Estudio</label>
+                    </div>
+                    <div class="form-group has-float-label col-12 col-sm-4 col-md-4">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbestadoup" name="fm-cbestadoup" required="">
+                        <option value="0">Selecciona un estado</option>
+                        <?php foreach ($estados as $est) {?>
+                        <option value="<?php echo $est->codigo ?>"><?php echo $est->nombre ?></option>
+                        <?php } ?>
+                      </select>
+                      <label for="fm-cbestadoup"> Estado</label>
+                    </div>
+
+                  </div>
+
+                  <div class="row">
+                    <div class="form-group col-12">
+                      <b class="text-danger pt-3"><i class="far fa-money-bill-alt mr-1"></i> DATOS ECONÓMICOS</b>
+                    </div>
+                    
+                    <div class="form-group has-float-label col-12 col-sm-3">
+                      <select data-currentvalue="" class="form-control form-control-sm" id="fm-cbbeneficioup" name="fm-cbbeneficioup" required="">
+                        <?php foreach ($beneficios as $beneficio) {?>
+                        <option value="<?php echo $beneficio->id ?>"><?php echo $beneficio->nombre ?></option>
+                        <?php } ?>
+                      </select>
+                      <label for="fm-cbbeneficioup"> Beneficio</label>
+                    </div>
+                    
+                    <div class="form-group has-float-label col-12 col-sm-4">
+                      <input data-currentvalue="" class="form-control form-control-sm" type="number" step="0.01" value="0.00" id="fm-txtcuotaup" name="fm-txtcuotaup" placeholder="Cuota">
+                      <label for="fm-txtcuotaup">Cuota Dscto</label>
+                    </div>
+                    <div class="form-group has-float-label col-12 col-sm-3">
+                      <input data-currentvalue="" class="form-control form-control-sm" type="number" step="0.01" value="0.00" id="fm-txtcuotaupreal" name="fm-txtcuotaupreal" placeholder="Cuota">
+                      <label for="fm-txtcuotaupreal">Cuota Real</label>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group has-float-label col-12 col-sm-3">
+                      <select data-currentvalue="" class="form-control form-control-sm checkdocumento" id="fm-tipdocuf" name="fm-tipdocuf">
+                        <?php
+                          foreach ($tipdoc as $key => $tdocf) {
+                            echo "<option value='$tdocf->codigo'>$tdocf->nombre</option>";
+                          }
+                        ?>
+                        
+                      </select>
+                      <label for="fm-tipdocuf"> Tipo Doc.</label>
+                    </div>
+
+                    <div class="form-group has-float-label col-12 col-sm-4">
+                      <input type="text" name="fm-serie" id="fm-serie" placeholder="Serie" class="form-control form-control-sm checkdocumento">
+                      <label for="fm-serie"> Serie</label>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-3">
+                      <div class="input-group mb-3">
+                        <input type="text" class="form-control form-control-sm checkdocumento" name="fm-numdocum" id="fm-numdocum" placeholder="N° Documento">
+                        <div class="input-group-prepend">
+                          <button type="button" id="btn_doc_search" class="btn btn-sm btn-info btn_search_bol">
+                            <i class="fas fa-search"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-12 col-sm-2">
+                      <button class="btn btn-sm btn-outline-secondary" title="visualizar pagos" onclick="fn_view_data_pagos($(this));return false;" data-pagante="" data-pagantenb="" id="btn_view_pagos">
+                        <i class="fas fa-money-bill-alt"></i>
+                      </button>
+                    </div>
+                    <div class="col-12 form-group">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkdocumen" name="checkdocumen">
+                        <label for="checkdocumen">Sin Documento de Pago</label>
+                      </div>
+                    </div>
+                    <div class="col-12" id="msg_rpta_documento"></div>
+                  </div>
+                  <div class="row">
+                    <div class="form-group has-float-label col-12 col-xs-12 col-sm-12">
+                      <textarea class="form-control text-uppercase" id="fm-txtobservacionesup" name="fm-txtobservacionesup" rows="3" placeholder="Observaciones"></textarea>
+                      <label for="fm-txtobservacionesup"> Observaciones</label>
+                    </div>
+                  </div>
+                </form>
+
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="row">
+                  <div class="col-12">
+                    <div id="msgdeuda_estudiante"></div>
+                  </div>
+
+                  <div class="col-12">
+                    <div id="msgdesaprobados_estudiante"></div>
+                  </div>
+                  <div class="col-12 mt-3">
+                    <div class='btable'>
+                      <div class='thead col-12 bg-lightgray'>
+                        <div class='row'>
+                          <div class='col-12 col-md-12 td text-center'>
+                            <span>Historial de Matriculas</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='thead col-12 bg-lightgray'>
+                        <div class='row'>
+                          <div class='col-4 col-md-4 td'>
+                            <span>Fec.Mat</span>
+                          </div>
+                          <div class='col-4 col-md-4 td'>
+                            <span>Grupo</span>
+                          </div>
+                          <div class='col-4 col-md-4 td'>
+                            <span>Estado</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class='tbody col-12' id="msghistorial_estudiante">
+                        
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+          <div class="tab-pane fade" id="nav-macadem" role="tabpanel" aria-labelledby="nav-macadem-tab">
+            <div class="row">
+              <div class="col-12 col-md-6">
+                <div id="divcard_academico">
+                  <div class='col-12 py-1 mt-2'>
+                      <div class='btable'>
+                          <div class='thead col-12  d-none d-md-block bg-lightgray'>
+                              <div class='row'>
+                                  <div class='col-12 col-md-5'>
+                                      <div class='row'>
+                                          <div class='col-2 col-md-2 td'>N°</div>
+                                          <div class='col-10 col-md-10 td'>UNID.DIDACTICA</div>
+                                      </div>
+                                  </div>
+                                  <div class='col-12 col-md-7'>
+                                      <div class='row'>
+                                          <div class='col-6 col-md-3 td text-center'>SEMESTRE</div>
+                                          <div class='col-6 col-md-3 td text-center'>TUR/SEC</div>
+                                          <div class='col-4 col-md-2 td text-center'>NF</div>
+                                          <div class='col-4 col-md-2 td text-center'>NR</div>
+                                          <div class='col-4 col-md-2 td text-center'>PF</div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class='tbody col-12' id='divcard_data_academ'>
+
+                          </div>
+                      </div>
+                  </div>
+                </div>
+
+              </div>
+              <div class="col-12 col-md-6">
+                <div class='col-12 py-1 mt-2'>
+                    <div class='btable'>
+                        <div class='thead col-12 bg-lightgray'>
+                          <div class='row'>
+                              <div class='col-12 col-md-12 td text-center'>
+                                UNIDADES DIDÁCTICAS DESAPROBADAS
+                              </div>
+                          </div>
+                        </div>
+                        <div class='thead col-12  d-none d-md-block bg-lightgray'>
+                            <div class='row'>
+                                <div class='col-12 col-md-5'>
+                                    <div class='row'>
+                                        <div class='col-2 col-md-2 td'>N°</div>
+                                        <div class='col-10 col-md-10 td'>UNID.DIDACTICA</div>
+                                    </div>
+                                </div>
+                                <div class='col-12 col-md-7'>
+                                    <div class='row'>
+                                        <div class='col-6 col-md-3 td text-center'>SEMESTRE</div>
+                                        <div class='col-6 col-md-3 td text-center'>TUR/SEC</div>
+                                        <div class='col-4 col-md-2 td text-center'>NF</div>
+                                        <div class='col-4 col-md-2 td text-center'>NR</div>
+                                        <div class='col-4 col-md-2 td text-center'>PF</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='tbody col-12' id='divcard_data_desaprobados'>
+
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+          <div class="tab-pane fade" id="nav-mdeudas" role="tabpanel" aria-labelledby="nav-mdeudas-tab">
+            <div id="divcard_deudas">
+              <div class='col-12 py-1 mt-2'>
+                  <div class='btable'>
+                      <div class="col-md-12 thead d-none d-md-block bg-lightgray">
+                          <div class="row">
+                              <div class="col-sm-1 col-md-1 td">COD</div>
+                              <div class="col-sm-2 col-md-3 td">DEUDOR</div>
+                              <div class="col-sm-2 col-md-3 td">CONCEPTO</div>
+                              <div class="col-sm-2 col-md-2 td">SALDO</div>
+                              <div class="col-sm-2 col-md-3 td">GRUPO</div>
+                          </div>
+                      </div>
+                      <div class='tbody col-12' id='divcard_data_deudas'>
+
+                      </div>
+                  </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      <div class="modal-footer d-inline">
+        <div class="row">
+          <div id="msgcursos_deudas" class="col-10 p-0">
+            
+          </div>
+          <div class="col-2 p-0 text-right">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            <button type="button" id="lbtn_editamat" class="btn btn-primary">Guardar</button>
+          </div>
+       </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+<!-- MODAL BUSCAR ALUMNO -->
+<div class="modal fade" id="modfiltroins" tabindex="-1" role="dialog" aria-labelledby="modfiltroins" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content" id="divmodalsearch">
+      <div class="modal-header">
+        <h5 class="modal-title" >Buscar Inscritos Activos</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="frm-getinscritonew" action="<?php echo $vbaseurl ?>matricula/fn_filtrar_inscritos" method="post" accept-charset="utf-8">
+          
+          
+          <div class="row pt-1">
+            <div class="col-12">
+              <small>Ingresa Apellidos y nombres</small>
+            </div>
+            <div class="input-group mb-3 col-12 col-xs-12 col-sm-12">
+              <input autocomplete="off" placeholder="Apellidos y nombres" type="text" class="form-control text-uppercase" id="fbus-txtbuscar" name="fbus-txtbuscar">
+              <div class="input-group-append">
+                <button data-paterno="" data-materno="" data-nombres="" class="btn btn-info" type="submit">
+                <i class="fas fa-arrow-alt-circle-right"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div id="divcard_result"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <!-- <button type="button" id="lbtn_editamat" class="btn btn-primary">Guardar</button> -->
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal fade" id="modmatriculacurso" tabindex="-1" role="dialog" aria-labelledby="modmatriculacurso" aria-hidden="true" data-backdrop="static" data-keyboard="false">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content" id="divmodalnewmatricula">
@@ -617,72 +1023,33 @@
   </div>
 </div>
 
-
-
-<div class="modal fade" id="modDeudas_view" tabindex="-1" role="dialog" aria-labelledby="modDeudas_view" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+<div class="modal fade" id="modPagos_asignar" tabindex="-1" role="dialog" aria-labelledby="modPagos_asignar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content modDeudas_view_content">
+        <div class="modal-content modPagos_asignar_content">
             <div class="modal-header">
-                <h5 class="modal-title" id="divcard_title_Deuda">Deudas</h5>
+                <h5 class="modal-title" >Pagos Realizados</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
+                <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="col-12">
-                  <div class="row">
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-4">Periodo:</span>
-                            <span id="divdaperiodo" class="col-8 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-10">
-                        <div class="row">
-                            <span class="col-3 col-md-2">Programa:</span>
-                            <span id="divdacarrera" class="col-8 col-md-10 text-bold"></span>
-                        </div>
-                    </div>
-                     <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-4">Plan:</span>
-                            <span id="divdaplan" class="col-8 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-6">Semestre:</span>
-                            <span id="divdaciclo" class="col-6 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-5">Turno:</span>
-                            <span id="divdaturno" class="col-7 col-md-6 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-4">Sección:</span>
-                            <span id="divdaseccion" class="col-8 text-bold"></span>
-                        </div>
-                    </div>
-                    
-                  </div>
+                <div class="col-12 border rounded p-1 bg-lightgray" >
+                    <h4 id="vw_md_pagos_estudiante"></h4>
                 </div>
                 <hr>
+                <!-- <input type="text" value="0" id="vw_mdp_txtcoddeuda"> -->
                 <div class="col-12 btable">
                     <div class="col-md-12 thead d-none d-md-block">
                         <div class="row">
-                            <div class="col-sm-1 col-md-1 td hidden-xs">COD</div>
-                            <div class="col-sm-2 col-md-3 td">DEUDOR</div>
-                            <div class="col-sm-2 col-md-3 td">CONCEPTO</div>
+                            <div class="col-sm-1 col-md-1 td hidden-xs">N°</div>
+                            <div class="col-sm-2 col-md-2 td">TIPO / NRO</div>
+                            <div class="col-sm-2 col-md-2 td">EMISIÓN</div>
+                            <div class="col-sm-2 col-md-4 td">CONCEPTOS</div>
                             <div class="col-sm-2 col-md-2 td">SALDO</div>
-                            <div class="col-sm-2 col-md-2 td">GRUPO</div>
                             <div class="col-sm-1 col-md-1 td text-center"></div>
                         </div>
                     </div>
-                    <div class="col-md-12 tbody" id="div_Deudas_view">
+                    <div class="col-md-12 tbody" id="div_Pagos_Asignar">
                         
                     </div>
                 </div>
@@ -690,360 +1057,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modDeudas_historial" tabindex="-1" role="dialog" aria-labelledby="modDeudas_historial" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
-        <div class="modal-content modDeudas_historial_content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="divcard_title_HDeuda">Deudas</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="col-12">
-                  <div class="row">
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-4">Periodo:</span>
-                            <span id="divhtperiodo" class="col-8 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-10">
-                        <div class="row">
-                            <span class="col-3 col-md-2">Programa:</span>
-                            <span id="divhtcarrera" class="col-8 col-md-10 text-bold"></span>
-                        </div>
-                    </div>
-                     <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-4">Plan:</span>
-                            <span id="divhtplan" class="col-8 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-6">Semestre:</span>
-                            <span id="divhtciclo" class="col-6 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-5">Turno:</span>
-                            <span id="divhtturno" class="col-7 col-md-6 text-bold"></span>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-md-2">
-                        <div class="row">
-                            <span class="col-4">Sección:</span>
-                            <span id="divhtseccion" class="col-8 text-bold"></span>
-                        </div>
-                    </div>
-                    
-                  </div>
-                </div>
-                <hr>
-                <nav>
-                  <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <a class="nav-item nav-link active" id="nav-mdeudash-tab" data-toggle="tab" href="#nav-mdeudash" role="tab" aria-controls="nav-mdeudash" aria-selected="true">Deudas</a>
-                    <a class="nav-item nav-link" id="nav-mpagos-tab" data-toggle="tab" href="#nav-mpagos" role="tab" aria-controls="nav-mpagos" aria-selected="false">Pagos</a>
-                  </div>
-                </nav>
-                <div class="tab-content" id="nav-tabContent">
-                  <div class="tab-pane fade show active mt-2" id="nav-mdeudash" role="tabpanel" aria-labelledby="nav-mdeudash-tab">
-                    <div class="col-12 btable">
-                      <div class="col-md-12 thead d-none d-md-block">
-                          <div class="row">
-                              <div class="col-sm-1 col-md-1 td hidden-xs">COD</div>
-                              <div class="col-sm-2 col-md-3 td">DEUDOR</div>
-                              <div class="col-sm-2 col-md-3 td">CONCEPTO</div>
-                              <div class="col-sm-2 col-md-2 td">SALDO</div>
-                              <div class="col-sm-2 col-md-2 td">GRUPO</div>
-                              <div class="col-sm-1 col-md-1 td text-center"></div>
-                          </div>
-                      </div>
-                      <div class="col-md-12 tbody" id="div_Deudas_Historial">
-                          
-                      </div>
-                    </div>
-                    <div class="mt-3" id="divcard_deudas_historial">
-                      <div class="col-12 border-bottom mb-3">
-                        <h4 class="text-bold">Historico de deudas</h4>
-                      </div>
-                      <div class="col-12 btable">
-                        <div class="col-md-12 thead d-none d-md-block">
-                            <div class="row">
-                                <div class="col-sm-1 col-md-1 td hidden-xs">COD</div>
-                                <div class="col-sm-2 col-md-3 td">DEUDOR</div>
-                                <div class="col-sm-2 col-md-3 td">CONCEPTO</div>
-                                <div class="col-sm-2 col-md-2 td">SALDO</div>
-                                <div class="col-sm-2 col-md-2 td">GRUPO</div>
-                                <div class="col-sm-1 col-md-1 td text-center"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-12 tbody" id="divdata_Deudas_Historial">
-                            
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12 mt-3">
-                      <button type="button" id="lbtn_reportedeudas" onclick="fn_view_reporte_deudas($(this));return false;" data-carnet="" class="btn btn-danger float-right">
-                        <i class="fas fa-file-pdf"></i> Reporte
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="tab-pane fade mt-2" id="nav-mpagos" role="tabpanel" aria-labelledby="nav-mpagos-tab">
-                    <div class="col-12 btable">
-                      <div class="col-md-12 thead d-none d-md-block">
-                          <div class="row">
-                              <div class="col-sm-1 col-md-1 td hidden-xs">N°</div>
-                              <div class="col-sm-2 col-md-2 td">TIPO / NRO</div>
-                              <div class="col-sm-2 col-md-2 td">EMISIÓN</div>
-                              <div class="col-sm-2 col-md-4 td">CONCEPTOS</div>
-                              <div class="col-sm-2 col-md-1 td text-center">MONTO</div>
-                              <div class="col-sm-1 col-md-2 td text-center">ESTADO</div>
-                          </div>
-                      </div>
-                      <div class="col-md-12 tbody" id="div_Pagos_Historial">
-                          
-                      </div>
-                    </div>
-                    <div class="col-12 mt-3">
-                      <button type="button" id="lbtn_reportepagos" onclick="fn_view_reporte_pagos($(this));return false;" data-carnet="" data-pagante="" data-programa="" class="btn btn-danger float-right">
-                        <i class="fas fa-file-pdf"></i> Reporte
-                      </button>
-                    </div>
-
-                  </div>
-                </div>
-
-                
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modanuladeuda" tabindex="-1" role="dialog" aria-labelledby="modanuladeuda" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" id="divmodalanulad">
-            <div class="modal-header">
-                <h5 class="modal-title" id="divcard_title">ESTÁ SEGURO DE ANULAR DEUDA?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="form_anuladeuda" action="<?php echo $vbaseurl ?>deudas_individual/fn_anula_deuda_individual" method="post" accept-charset="utf-8">
-                    <div class="row">
-                        <input type="hidden" name="ficdeudacodigo" id="ficdeudacodigo" value="">
-                        <input type="hidden" name="ficdeudaestado" id="ficdeudaestado" value="">
-                        
-                        <div class="form-group has-float-label col-12">
-                            <textarea name="ficmotivanula" id="ficmotivanula" class="form-control form-control-sm" rows="3" placeholder="Motivo Anulación"></textarea>
-                            <label for="ficmotivanula">Motivo Anulación</label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" id="lbtn_anula_deuda" data-coloran="" class="btn btn-primary">Anular</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modadddeuda" tabindex="-1" role="dialog" aria-labelledby="modadddeuda" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" id="divmodaladdmat">
-            <div class="modal-header">
-                <h5 class="modal-title" id="divcard_title">AGREGAR NUEVO REGISTRO</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="divcardform_adddeuda">
-                    <form id="frm_addpagante" action="<?php echo $vbaseurl ?>deudas_individual/fn_insert_deuda_individual" method="post" accept-charset="utf-8">
-                        <div class="row">
-                            <input type="hidden" name="ficcod_deuda" id="ficcod_deuda" value="0">
-                            <div class="form-group has-float-label col-lg-2 col-md-6 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="text" placeholder="Cod. Pagante" name="ficcodpagante" id="ficcodpagante">
-                                <label for="ficcodpagante">Cod. Pagante</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-2 col-md-6 col-sm-6">
-                                <select class="form-control form-control-sm" id="ficcodmatricula" name="ficcodmatricula" >
-                                    <option value="">Sin Asignar</option>
-                                </select>
-                                <label for="ficcodmatricula">Matricula</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-5 col-md-8 col-sm-8" id="divcard_nompagante">
-                                <input autocomplete="off" class="form-control form-control-sm" type="text" placeholder="Apellidos y Nombres" name="ficapenomde" id="ficapenomde">
-                                <label for="ficapenomde">Apellidos y Nombres</label>
-                            </div>
-                            <div class="form-group col-sm-4 col-md-4 col-lg-3" id="divcard_button">
-                                <button type="button" class="btn btn-primary btn-sm" id="btn_show_frm_search">
-                                    <i class="fas fa-search"></i> Buscar Pagante
-                                </button>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <select class="form-control form-control-sm" id="ficbgestion" name="ficbgestion" >
-                                    <option value="">Seleccione item</option>
-                                    <?php
-                                    foreach ($gestion as $gest) {
-                                    echo '<option value="'.$gest->codigo.'">'.$gest->nombre.'</option>';
-                                    }
-                                    ?>
-                                </select>
-                                <label for="ficbgestion"> Gestión</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Monto" name="ficmonto" id="ficmonto" value="">
-                                <label for="ficmonto">Monto</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Mora" name="ficmora" id="ficmora" value="0.00">
-                                <label for="ficmora">Mora</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="date" name="ficfechcreacion" id="ficfechcreacion" value="<?php echo $fechahoy ?>">
-                                <label for="ficfechcreacion">Fecha</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input class="form-control form-control-sm" type="date" name="ficfechvence" id="ficfechvence">
-                                <label for="ficfechvence">Fecha vencimiento</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input class="form-control form-control-sm" type="date" name="ficfechprorrog" id="ficfechprorrog">
-                                <label for="ficfechprorrog">Fecha Prorroga</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Cod.Voucher" name="ficvouchcodigo" id="ficvouchcodigo">
-                                <label for="ficvouchcodigo">Cod.Voucher</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-6">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" placeholder="Cod.Fec.Item" name="ficcodigofecitem" id="ficcodigofecitem">
-                                <label for="ficcodigofecitem">Cod.Fec.Item</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-3">
-                                <select name="ficrepitecic" id="ficrepitecic" class="form-control form-control-sm">
-                                    <option value="SI">SI</option>
-                                    <option value="NO">NO</option>
-                                </select>
-                                <label for="ficrepitecic">Repite ciclo</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-sm-3">
-                                <input autocomplete="off" class="form-control form-control-sm" type="number" name="ficsaldo" id="ficsaldo" placeholder="Saldo" value="0.00">
-                                <label for="ficsaldo">Saldo</label>
-                            </div>
-                            <div class="form-group has-float-label col-12">
-                                <textarea name="ficobservacion" id="ficobservacion" class="form-control form-control-sm" rows="3" placeholder="Observación"></textarea>
-                                <label for="ficobservacion">Observación</label>
-                            </div>
-                            
-                        </div>
-                        
-                    </form>
-                </div>
-                <div id="divcardform_search_pagante">
-                    <form id="form_search_pagante" action="<?php echo $vbaseurl ?>deudas_individual/fn_filtrar_pagantes" method="post" accept-charset="utf-8">
-                        <div class="row">
-                            <div class="form-group has-float-label col-lg-3 col-md-4 col-sm-4">
-                                <select name="cboperiodof" id="cboperiodof" class="form-control form-control-sm">
-                                    <option value="">Seleccione periodo</option>
-                                    <?php
-                                    foreach ($periodos as $per) {
-                                    echo '<option value="'.$per->codigo.'">'.$per->nombre.'</option>';
-                                    }
-                                    ?>
-                                </select>
-                                <label for="cboperiodof">Periodo</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-6 col-md-4 col-sm-8">
-                                <select name="cboprogramaf" id="cboprogramaf" class="form-control form-control-sm">
-                                    <option value="%">Todos</option>
-                                    <?php
-                                    foreach ($carrera as $carr) {
-                                    echo '<option value="'.$carr->id.'">'.$carr->nombre.'</option>';
-                                    }
-                                    ?>
-                                </select>
-                                <label for="cboprogramaf">Programa de estudios</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-3 col-md-4 col-sm-4">
-                                <select name="cboturnof" id="cboturnof" class="form-control form-control-sm">
-                                    <option value="%">Todos</option>
-                                    <?php
-                                    foreach ($turnos as $turn) {
-                                    echo '<option value="'.$turn->codigo.'">'.$turn->nombre.'</option>';
-                                    }
-                                    ?>
-                                </select>
-                                <label for="cboturnof">Turno</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-2 col-md-2 col-sm-4">
-                                <select name="cbociclof" id="cbociclof" class="form-control form-control-sm">
-                                    <option value="%">Todos</option>
-                                    <?php
-                                    foreach ($ciclo as $cic) {
-                                    echo '<option value="'.$cic->codigo.'">'.$cic->nombre.'</option>';
-                                    }
-                                    ?>
-                                </select>
-                                <label for="cbociclof">Ciclo</label>
-                            </div>
-                            <div class="form-group has-float-label col-lg-2 col-md-2 col-sm-4">
-                                <select name="cboseccionf" id="cboseccionf" class="form-control form-control-sm">
-                                    <option value="%">Todos</option>
-                                    <?php
-                                    foreach ($secciones as $sec) {
-                                    echo '<option value="'.$sec->codigo.'">'.$sec->nombre.'</option>';
-                                    }
-                                    ?>
-                                </select>
-                                <label for="cboseccionf">Sección</label>
-                            </div>
-                            <div class="form-group has-float-label col-9 col-lg-6 col-sm-9">
-                                <input autocomplete='off' data-currentvalue='' class="form-control form-control-sm text-uppercase" id="fitxtdniapenomb" name="fitxtdniapenomb" type="text" placeholder="DNI, Apellidos y nombres" />
-                                <label for="fitxtdniapenomb"> DNI, Apellidos y nombres</label>
-                            </div>
-                            <div class="col-3 col-lg-2 col-sm-3">
-                                <button id="fibtnsearch_dniapenom" type="submit" class="btn btn-primary btn-block btn-sm">
-                                <i class="fas fa-search"></i> Buscar
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                    <div class="row">
-                        <div class="col-12" id="divcard_tabpagant">
-                            <div class="col-12 btable">
-                                <div class="col-md-12 thead d-none d-md-block">
-                                    <div class="row">
-                                        <div class="col-sm-1 col-md-1 td hidden-xs"><b>N°</b></div>
-                                        <div class="col-sm-2 col-md-2 td"><b>DOC. IDENTIDAD</b></div>
-                                        <div class="col-sm-2 col-md-7 td"><b>APELLIDOS Y NOMBRES</b></div>
-                                        <div class="col-sm-1 col-md-2 td text-center"></div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 tbody" id="divres_paghistorial">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-                <button type="button" id="lbtn_guardar_deuda" class="btn btn-primary">Guardar</button>
             </div>
         </div>
     </div>

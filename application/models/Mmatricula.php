@@ -62,7 +62,7 @@ class Mmatricula extends CI_Model {
  		return   $res->row()->out_param;	
 	}
 
-	public function m_get_estado_alumno()
+	/*public function m_get_estado_alumno()
 	{
       $result = $this->db->query("SELECT 
           tb_estadoalumno.esal_id AS id,
@@ -70,7 +70,17 @@ class Mmatricula extends CI_Model {
         FROM
           tb_estadoalumno");
       return   $result->result();
- 	}
+ 	}*/
+
+ 	 public function m_filtrar_estadoalumno()
+    {
+    	$resultmiembro = $this->db->query("SELECT 
+		  tb_estadoalumno.esal_id AS codigo,
+		  tb_estadoalumno.esal_nombre AS nombre
+		FROM
+		  tb_estadoalumno");
+    	return $resultmiembro->result();
+    }
 
  	
  	public function m_filtrar_xgrupo($data)
@@ -961,7 +971,8 @@ class Mmatricula extends CI_Model {
 			  tb_modulo_educativo.codigoplan AS codplan,
 			  tb_modulo_educativo.mod_nombre AS modulo,
 			  tb_carga_academica_subseccion.cas_culminado AS culminado,
-			  tb_sede.sed_nombre AS carga_sede 
+			  tb_sede.sed_nombre AS carga_sede,
+			  tb_sede.sed_abreviatura AS sede_abrevia
 			FROM
 			  tb_carga_academica_subseccion
 			  INNER JOIN tb_carga_academica ON (tb_carga_academica_subseccion.codigocargaacademica = tb_carga_academica.cac_id)
@@ -1204,16 +1215,7 @@ class Mmatricula extends CI_Model {
       	return $res->row();
     }
 
-    public function m_filtrar_estadoalumno()
-    {
-    	$resultmiembro = $this->db->query("SELECT 
-		  tb_estadoalumno.esal_id AS codigo,
-		  tb_estadoalumno.esal_nombre AS nombre
-		FROM
-		  tb_estadoalumno");
-    	return $resultmiembro->result();
-    }
-
+   
     public function m_filtrar_matriculaxcodigo($data)
     {
        

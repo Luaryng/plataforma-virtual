@@ -299,16 +299,24 @@ class Mfacturacion extends CI_Model {
 
   public function m_insert_facturacion($data)
   {
-    $this->db->query("CALL  `sp_tb_docpago_boleta_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid,@nrodoc)",$data);
+    $this->db->query("CALL  `sp_tb_docpago_boleta_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid,@nrodoc)",$data);
     $res = $this->db->query('select @s as salida,@nid as nid,@nrodoc as nrodoc');
     return   $res->row(); 
   }
   public function m_insert_facturacion_reemplazo($data)
   {
-    $this->db->query("CALL  `sp_tb_docpago_boleta_reemp_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid,@nrodoc)",$data);
+    $this->db->query("CALL  `sp_tb_docpago_boleta_reemp_insert`(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,@s,@nid,@nrodoc)",$data);
     $res = $this->db->query('select @s as salida,@nid as nid,@nrodoc as nrodoc');
     return   $res->row(); 
   }
+
+  public function m_insert_facturacion_cuotas_credito($data)
+  {
+    $this->db->insert_batch('tb_docpago_credito_cuotas', $data);
+    return  true; 
+  }
+
+  
 
   public function m_update_facturacion($data)
   {
@@ -403,7 +411,8 @@ class Mfacturacion extends CI_Model {
           tb_docpago.dcp_mnto_oper_gratis AS opergrat,
           tb_docpago.dcp_total AS total,
           tb_docpago.dcp_observacion AS obs,
-          tb_docpago.dcp_estado as estado
+          tb_docpago.dcp_estado as estado,
+          tb_docpago.dcp_condicion AS condicion
         FROM
           tb_doctipo
           INNER JOIN tb_docpago ON (tb_doctipo.dt_id = tb_docpago.tipodoc_cod)
@@ -412,7 +421,20 @@ class Mfacturacion extends CI_Model {
         WHERE tb_docpago.dcp_id  = ?  LIMIT 1", $data);
     
         return $qry->row();
+  }
 
+  public function m_get_docpago_cuotas_credito($data)
+  {
+    $qry = $this->db->query("SELECT 
+          dcpc_id as codigo,
+          cod_docpago as coddocpago,
+          dcpc_ncuota as ncuota,
+          dcpc_fecha as  fecha,
+          dcp_monto as monto
+        FROM 
+          tb_docpago_credito_cuotas
+        WHERE cod_docpago = ? ", $data);
+    return $qry->result();
   }
 
   public function get_docpagos_pendientes($data) {
@@ -437,7 +459,8 @@ class Mfacturacion extends CI_Model {
         tb_docpago.dcp_mnto_oper_gratis AS opergrat,
         tb_docpago.dcp_total AS total,
         tb_docpago.dcp_observacion AS obs,
-        tb_docpago.dcp_estado AS estado
+        tb_docpago.dcp_estado AS estado,
+        tb_docpago.dcp_condicion AS condicion
       FROM
         tb_doctipo
         INNER JOIN tb_docpago ON (tb_doctipo.dt_id = tb_docpago.tipodoc_cod)
@@ -476,6 +499,26 @@ class Mfacturacion extends CI_Model {
         return $qry->result();
 
   }
+
+    public function get_cuotas_docpago_pendientes($data) {
+    $qry = $this->db->query("SELECT 
+          tb_docpago_credito_cuotas.dcpc_id as codigo,
+          tb_docpago_credito_cuotas.cod_docpago as coddocpago,
+          tb_docpago_credito_cuotas.dcpc_ncuota as ncuota,
+          tb_docpago_credito_cuotas.dcpc_fecha as fecha,
+          tb_docpago_credito_cuotas.dcp_monto as  monto
+        FROM
+          tb_docpago_credito_cuotas
+          INNER JOIN tb_docpago ON (tb_docpago_credito_cuotas.cod_docpago = tb_docpago.dcp_id)
+        WHERE
+          tb_docpago.sede_id = 10 AND 
+          (tb_docpago.dcp_estado = 'PENDIENTE' OR 
+          tb_docpago.dcp_estado = 'ERROR')", $data);
+    
+        return $qry->result();
+
+  }
+
 
   public function get_simple_docpagos_enviados($data) {
     $qry = $this->db->query("SELECT 
@@ -554,6 +597,115 @@ class Mfacturacion extends CI_Model {
       
       return $qry->result();
   }
+
+  public function m_pagos_detalle_x_grupo_matricula($data)
+    {
+      $data_array=array();
+      
+      if (isset($data['codsede']) and ($data['codsede']!="%")) {
+        $sqltext_array[]="tb_matricula.codigosede = ?";
+        $data_array[]=$data['codsede'];
+      } 
+      if (isset($data['codperiodo']) and ($data['codperiodo']!="%")) {
+        $sqltext_array[]="tb_matricula.codigoperiodo = ?";
+        $data_array[]=$data['codperiodo'];
+      } 
+      if (isset($data['codcarrera']) and ($data['codcarrera']!="%")) {
+        $sqltext_array[]="tb_matricula.codigocarrera = ?";
+        $data_array[]=$data['codcarrera'];
+      } 
+      if (isset($data['codturno']) and ($data['codturno']!="%")) {
+        $sqltext_array[]="tb_matricula.codigoturno = ?";
+        $data_array[]=$data['codturno'];
+      }
+      if (isset($data['codciclo']) and ($data['codciclo']!="%")) {
+        $sqltext_array[]="tb_matricula.codigociclo = ?";
+        $data_array[]=$data['codciclo'];
+      }
+      if (isset($data['codseccion']) and ($data['codseccion']!="%")) {
+        $sqltext_array[]="tb_matricula.codigoseccion = ?";
+        $data_array[]=$data['codseccion'];
+      }
+      
+      if (isset($data['carnet']) and ($data['carnet']!="%")) {
+        $sqltext_array[]="tb_inscripcion.ins_carnet=?";
+        $data_array[]=$data['carnet'];
+      }
+      if (isset($data['codmatricula']) and ($data['codmatricula']!="%")) {
+        $sqltext_array[]="tb_matricula.mtr_id=?";
+        $data_array[]=$data['codmatricula'];
+      }
+      if (isset($data['codgestion']) and ($data['codgestion']!="%")) {
+        $sqltext_array[]="tb_docpago_detalle.gestion_cod=?";
+        $data_array[]=$data['codgestion'];
+      }
+      if (isset($data['buscar']) and ($data['buscar']!="%")) {
+        $sqltext_array[]="concat(tb_inscripcion.ins_carnet,' ',tb_persona.per_apel_paterno, ' ', tb_persona.per_apel_materno, ' ', tb_persona.per_nombres) like ?";
+        $data_array[]=$data['buscar'];
+      }
+      
+      $sqltext=implode(' AND ', $sqltext_array);
+      if ($sqltext!="") $sqltext= " WHERE ".$sqltext;
+
+      $resultmiembro = $this->db->query("SELECT 
+        tb_matricula.mtr_id AS codmatricula,
+        tb_matricula.codigoinscripcion AS codinscripcion,
+        tb_inscripcion.ins_carnet AS carne,
+        tb_persona.per_apel_paterno AS paterno,
+        tb_persona.per_apel_materno AS materno,
+        tb_persona.per_nombres AS nombres,
+        tb_matricula.codigoperiodo AS codperiodo,
+        tb_periodo.ped_nombre AS periodo,
+        tb_matricula.codigocarrera AS codcarrera,
+        tb_carrera.car_nombre AS carrera,
+        tb_carrera.car_sigla AS sigla,
+        tb_matricula.codigociclo AS codciclo,
+        tb_ciclo.cic_nombre AS ciclo,
+        tb_matricula.codigoturno AS codturno,
+        tb_matricula.codigoseccion AS codseccion,
+        tb_matricula.codigoplan AS codplan,
+        tb_matricula.mtr_bloquear_evaluaciones AS bloqueo,
+        tb_estadoalumno.esal_nombre AS estado,
+        tb_matricula.mtr_cuotapension AS cuota,
+        tb_matricula.codigobeneficio AS codbeneficio,
+        tb_beneficio.ben_sigla AS bene_sigla,
+        tb_docpago_detalle.dpd_id coddetalle,
+        tb_docpago_detalle.cod_docpago as coddocpago,
+        tb_docpago_detalle.dpd_cantidad as cantidad,
+        tb_docpago_detalle.gestion_cod as codgestion,
+        tb_docpago_detalle.dpd_gestion as gestion,
+        tb_docpago_detalle.dpd_mnto_valor_unitario as unitario,
+        tb_docpago_detalle.dpd_mnto_valor_venta as monto,
+        tb_docpago.tipodoc_cod as codtipodoc,
+        tb_docpago.dcp_serie as serie,
+        tb_docpago.dcp_numero as numero,
+        tb_docpago.dcp_fecha_hora as fecha
+      FROM
+        tb_periodo
+        INNER JOIN tb_matricula ON (tb_periodo.ped_codigo = tb_matricula.codigoperiodo)
+        INNER JOIN tb_ciclo ON (tb_matricula.codigociclo = tb_ciclo.cic_codigo)
+        INNER JOIN tb_carrera ON (tb_matricula.codigocarrera = tb_carrera.car_id)
+        INNER JOIN tb_inscripcion ON (tb_matricula.codigoinscripcion = tb_inscripcion.ins_identificador)
+        INNER JOIN tb_persona ON (tb_inscripcion.cod_persona = tb_persona.per_codigo)
+        INNER JOIN tb_estadoalumno ON (tb_matricula.codigoestado = tb_estadoalumno.esal_id)
+        INNER JOIN tb_beneficio ON (tb_matricula.codigobeneficio = tb_beneficio.ben_id)
+        LEFT OUTER JOIN tb_docpago_detalle ON (tb_matricula.mtr_id = tb_docpago_detalle.codmatricula)
+        INNER JOIN tb_docpago ON (tb_docpago_detalle.cod_docpago = tb_docpago.dcp_id)
+    $sqltext  
+    ORDER BY
+        tb_matricula.codigoperiodo,
+        tb_matricula.codigocarrera,
+        tb_matricula.codigoplan,
+        tb_matricula.codigociclo,
+        tb_matricula.codigoturno,
+        tb_matricula.codigoseccion,
+        tb_persona.per_apel_paterno,
+        tb_persona.per_apel_materno,
+        tb_persona.per_nombres,
+        tb_docpago.dcp_fecha_hora desc", $data);
+        ////$this->db->close();
+        return $resultmiembro->result();
+    }
 
   /*public function m_guardar_cobro($data)
   {
